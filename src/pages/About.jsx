@@ -39,7 +39,7 @@ const About = () => {
             </div>
           </div>
           <div className="story-content">
-            <p dangerouslySetInnerHTML={{ __html: c('about_story_3', "Quand j'ai découvert le trading, je me suis rapidement heurtée à la complexité de cet univers : termes techniques, trop d'informations et très peu de clarté. Comme beaucoup, je m'y suis perdue et avec le temps, l'apprentissage et mes <strong>3 années d'expérience</strong> acquises au sein de la <strong>RMICLASS</strong>, j'ai pu développer une compréhension solide des marchés.") }} />
+            <p dangerouslySetInnerHTML={{ __html: c('about_story_3', "Lorsque j'ai découvert le trading, je me suis rapidement heurtée à la complexité de cet univers : termes techniques, trop d'informations et très peu de clarté. Comme beaucoup, je m'y suis perdue mais avec le temps, de part ma détermination, l'apprentissage et les <strong>3 années d'expérience</strong> acquises au sein de la <strong>RMICLASS</strong>, j'ai pu développer une compréhension solide des marchés.") }} />
           </div>
         </div>
       </section>
