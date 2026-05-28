@@ -57,7 +57,7 @@ const Programs = () => {
             </Link>
           </div>
           <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
-            <img src="/tradeuse_woman.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/day-trader-upset-after-losing-money-cryptocurrency-investment-due-rug-pull.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
