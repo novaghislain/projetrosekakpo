@@ -84,7 +84,7 @@ const Home = () => {
           </div>
           <div className="about-content">
             <h2 className="text-gradient">Qui je suis</h2>
-            <p dangerouslySetInnerHTML={{ __html: c('about_intro', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la RMICLASS, un écosystème spécialisé dans l'éducation au trading. Passionnée par le digital et les marchés financiers, j'accompagne les débutants qui souhaitent apprendre le trading avec plus de simplicité, de compréhension et de proximité.") }} />
+            <p dangerouslySetInnerHTML={{ __html: c('about_intro', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la RMICLASS, un écosystème spécialisé dans l'éducation et l’accompagnement dans l’univers du trading. Passionnée par le digital et les marchés financiers, j'accompagne les débutants qui souhaitent apprendre le trading avec plus de simplicité, de compréhension et de proximité.") }} />
             <Link to="/about" className="btn btn-primary mt-4">
               En savoir plus sur moi <ArrowRight size={18} />
             </Link>
