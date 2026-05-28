@@ -95,6 +95,27 @@ const db = new sqlite3.Database(dbPath, (err) => {
         date DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
 
+      // Table Ebooks
+      db.run(`CREATE TABLE IF NOT EXISTS ebooks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT UNIQUE NOT NULL,
+        title TEXT NOT NULL,
+        price REAL NOT NULL,
+        description TEXT NOT NULL,
+        image TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`, () => {
+        // Seed default ebooks if empty
+        db.get("SELECT COUNT(*) as count FROM ebooks", (err, row) => {
+          if (!err && row && row.count === 0) {
+            db.run(`INSERT INTO ebooks (slug, title, price, description, image) VALUES 
+              ('ebook-vision', 'De la vision à la maîtrise', 15.00, 'Découvrez la puissance de l''analyse des bougies japonaises.', '/cover-positionner.jpeg'),
+              ('ebook-positionner', 'Se positionner intelligemment', 15.00, 'Le guide pratique pour débuter le trading sereinement.', '/book.png')
+            `);
+          }
+        });
+      });
+
       // Table Content (CMS)
       db.run(`CREATE TABLE IF NOT EXISTS content (
         key TEXT PRIMARY KEY,
@@ -465,6 +486,64 @@ app.put('/api/admin/formations/:id', (req, res) => {
 // Supprimer une formation
 app.delete('/api/admin/formations/:id', (req, res) => {
   db.run(`DELETE FROM formations WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur lors de la suppression." });
+    res.json({ success: true });
+  });
+});
+
+// === EBOOKS ROUTES ===
+
+// Lister les ebooks (public & admin)
+app.get('/api/ebooks', (req, res) => {
+  db.all(`SELECT * FROM ebooks ORDER BY date DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erreur lors de la récupération des ebooks." });
+    res.json(rows);
+  });
+});
+
+// Créer un ebook
+app.post('/api/admin/ebooks', (req, res) => {
+  const { slug, title, price, description, image } = req.body;
+  if (!slug || !title || price === undefined || !description) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+  const query = `INSERT INTO ebooks (slug, title, price, description, image) VALUES (?, ?, ?, ?, ?)`;
+  
+  db.run(query, [slug, title, price, description, image], function (err) {
+    if (err) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par un autre ebook." });
+      }
+      return res.status(500).json({ error: "Erreur de création de l'ebook." });
+    }
+    res.status(201).json({ success: true, id: this.lastID });
+  });
+});
+
+// Modifier un ebook
+app.put('/api/admin/ebooks/:id', (req, res) => {
+  const { slug, title, price, description, image } = req.body;
+  if (!slug || !title || price === undefined || !description) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+
+  const query = `UPDATE ebooks SET slug = ?, title = ?, price = ?, description = ?, image = ? WHERE id = ?`;
+  
+  db.run(query, [slug, title, price, description, image, req.params.id], function (err) {
+    if (err) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par un autre ebook." });
+      }
+      return res.status(500).json({ error: "Erreur de mise à jour de l'ebook." });
+    }
+    if (this.changes === 0) return res.status(404).json({ error: "Ebook introuvable." });
+    res.json({ success: true, message: "Ebook mis à jour avec succès." });
+  });
+});
+
+// Supprimer un ebook
+app.delete('/api/admin/ebooks/:id', (req, res) => {
+  db.run(`DELETE FROM ebooks WHERE id = ?`, [req.params.id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur lors de la suppression." });
     res.json({ success: true });
   });

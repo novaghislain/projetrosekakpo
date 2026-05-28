@@ -56,8 +56,8 @@ const Programs = () => {
               Rejoindre Woman King Trade
             </Link>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink">
-            <Users size={80} className="text-pink drop-shadow" />
+          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+            <img src="/woman_king_trade.png" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
@@ -85,8 +85,8 @@ const Programs = () => {
               Découvrir la Stratégie 3S
             </Link>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink">
-            <TrendingUp size={80} className="text-pink drop-shadow" />
+          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+            <img src="/strategie_3s.png" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
@@ -132,8 +132,8 @@ const Programs = () => {
               </div>
             </div>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink">
-            <Award size={80} className="text-pink drop-shadow" />
+          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+            <img src="/coaching_trading.png" alt="Coaching One-to-One" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Users, BookOpen, MessageSquare, Trash2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings } from 'lucide-react';
+import { Mail, Users, BookOpen, MessageSquare, Trash2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Admin.css';
 
@@ -42,6 +42,10 @@ const Admin = () => {
   const [newsletters, setNewsletters] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [formations, setFormations] = useState([]);
+  const [ebooks, setEbooks] = useState([]);
+  const [newEbook, setNewEbook] = useState({ slug: '', title: '', price: '', description: '', image: '' });
+  const [showEbookForm, setShowEbookForm] = useState(false);
+  const [editingEbookId, setEditingEbookId] = useState(null);
   const [resources, setResources] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [readNotifications, setReadNotifications] = useState(() => JSON.parse(localStorage.getItem('rose_read_notifs') || '[]'));
@@ -172,14 +176,15 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations] = await Promise.all([
+      const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks] = await Promise.all([
         fetch('/api/admin/contacts').then(res => res.json()),
         fetch('/api/admin/newsletters').then(res => res.json()),
         fetch('/api/admin/enrollments').then(res => res.json()),
         fetch('/api/articles').then(res => res.json()),
         fetch('/api/prices').then(res => res.json()),
         fetch('/api/content').then(res => res.json()),
-        fetch('/api/admin/formations').then(res => res.json())
+        fetch('/api/admin/formations').then(res => res.json()),
+        fetch('/api/ebooks').then(res => res.json())
       ]);
       setContacts(resContacts);
       setNewsletters(resNewsletters);
@@ -188,6 +193,7 @@ const Admin = () => {
       setPrices(resPrices);
       setSiteContent(resContent);
       setFormations(resFormations);
+      setEbooks(resEbooks);
 
       const editMap = {};
       resPrices.forEach(p => {
@@ -516,6 +522,69 @@ const Admin = () => {
     setShowFormationForm(true);
   };
 
+  const handleEbookImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewEbook({...newEbook, image: reader.result});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreateEbook = async (e) => {
+    e.preventDefault();
+    const url = editingEbookId ? `/api/admin/ebooks/${editingEbookId}` : '/api/admin/ebooks';
+    const method = editingEbookId ? 'PUT' : 'POST';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEbook)
+      });
+      if (response.ok) {
+        setNewEbook({ slug: '', title: '', price: '', description: '', image: '' });
+        setShowEbookForm(false);
+        setEditingEbookId(null);
+        fetchData();
+        alert(`Ebook ${editingEbookId ? 'modifié' : 'créé'} avec succès !`);
+      } else {
+        const data = await response.json();
+        alert(data.error || "Erreur de création de l'ebook.");
+      }
+    } catch (e) {
+      alert("Erreur de connexion.");
+    }
+  };
+
+  const handleDeleteEbook = async (id) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet ebook ?")) return;
+    try {
+      const response = await fetch(`/api/admin/ebooks/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        fetchData();
+      } else {
+        alert("Erreur lors de la suppression.");
+      }
+    } catch (e) {
+      alert("Erreur de connexion.");
+    }
+  };
+
+  const handleEditEbook = (f) => {
+    setNewEbook({
+      slug: f.slug,
+      title: f.title,
+      price: f.price,
+      description: f.description,
+      image: f.image || ''
+    });
+    setEditingEbookId(f.id);
+    setShowEbookForm(true);
+  };
+
   const handleCreateCollaborator = async (e) => {
     e.preventDefault();
     if (!newCollab.username || !newCollab.password) {
@@ -712,6 +781,9 @@ const Admin = () => {
         </button>
         <button className={`admin-tab ${activeTab === 'formations' ? 'active' : ''}`} onClick={() => setActiveTab('formations')}>
           <BookOpen size={18} /> Mes Formations ({formations.length})
+        </button>
+        <button className={`admin-tab ${activeTab === 'ebooks' ? 'active' : ''}`} onClick={() => setActiveTab('ebooks')}>
+          <BookOpen size={18} /> Mes Ebooks ({ebooks.length})
         </button>
         <button className={`admin-tab ${activeTab === 'blog' ? 'active' : ''}`} onClick={() => setActiveTab('blog')}>
           <BookOpen size={18} /> Gérer le Blog ({articles.length})
@@ -1225,6 +1297,105 @@ const Admin = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'ebooks' && (
+          <div className="admin-card">
+            <div className="flex-between mb-4">
+              <h3 className="mb-0">Mes Ebooks ({ebooks.length})</h3>
+              <button className="btn btn-primary" onClick={() => {
+                setNewEbook({ slug: '', title: '', price: '', description: '', image: '' });
+                setEditingEbookId(null);
+                setShowEbookForm(!showEbookForm);
+              }}>
+                {showEbookForm ? 'Annuler' : '+ Ajouter un Ebook'}
+              </button>
+            </div>
+
+            {showEbookForm && (
+              <div className="mb-5" style={{ background: 'var(--color-gray-100)', padding: '2rem', borderRadius: '12px' }}>
+                <h3 className="mb-4">{editingEbookId ? 'Modifier l\'ebook' : 'Ajouter un ebook'}</h3>
+                <form onSubmit={handleCreateEbook}>
+                  <div className="admin-grid mb-4">
+                    <div className="form-group">
+                      <label>Titre de l'ebook</label>
+                      <input type="text" className="cms-input" required value={newEbook.title} onChange={e => setNewEbook({...newEbook, title: e.target.value})} placeholder="Ex: De la vision à la maîtrise" />
+                    </div>
+                    <div className="form-group">
+                      <label>Lien (slug) unique</label>
+                      <input type="text" className="cms-input" required value={newEbook.slug} onChange={e => setNewEbook({...newEbook, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})} placeholder="Ex: vision-maitrise" />
+                    </div>
+                    <div className="form-group">
+                      <label>Prix (USD)</label>
+                      <input type="number" step="0.01" className="cms-input" required value={newEbook.price} onChange={e => setNewEbook({...newEbook, price: e.target.value})} placeholder="Ex: 15.00" />
+                    </div>
+                    <div className="form-group">
+                      <label>Image de couverture (Optionnel)</label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                          <input type="file" accept="image/*" onChange={handleEbookImageUpload} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                          <button type="button" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
+                            <Upload size={18} /> Télécharger une image
+                          </button>
+                        </div>
+                        {newEbook.image && (
+                          <div style={{ marginTop: '1rem' }}>
+                            <img src={newEbook.image} alt="Aperçu" style={{ height: '150px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="form-group mb-4">
+                    <label>Description courte</label>
+                    <textarea className="cms-textarea" rows="3" required value={newEbook.description} onChange={e => setNewEbook({...newEbook, description: e.target.value})} placeholder="Courte description du contenu du livre..."></textarea>
+                  </div>
+
+                  <div className="flex-end" style={{ gap: '1rem' }}>
+                    <button type="button" className="btn btn-outline" onClick={() => setShowEbookForm(false)}>Annuler</button>
+                    <button type="submit" className="btn btn-primary">{editingEbookId ? 'Enregistrer les modifications' : 'Créer l\'ebook'}</button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="table-responsive">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Titre</th>
+                    <th>Lien (slug)</th>
+                    <th>Prix</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ebooks.length === 0 ? (
+                    <tr><td colSpan="6" className="text-center">Aucun ebook trouvé.</td></tr>
+                  ) : ebooks.map(eb => (
+                    <tr key={eb.id}>
+                      <td>
+                        {eb.image ? <img src={eb.image} alt="Couverture" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} /> : '-'}
+                      </td>
+                      <td><strong>{eb.title}</strong></td>
+                      <td><code>{eb.slug}</code></td>
+                      <td>${eb.price}</td>
+                      <td><div style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{eb.description}</div></td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleEditEbook(eb)}>Modifier</button>
+                          <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', color: 'var(--color-brand-pink)', borderColor: 'var(--color-brand-pink)' }} onClick={() => handleDeleteEbook(eb.id)}>Supprimer</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
