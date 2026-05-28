@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Instagram, Youtube, Send, Facebook, ExternalLink } from 'lucide-react'
 import './Footer.css'
+import { API_URL } from '../config';
 
 const Footer = () => {
   const location = useLocation()
   const [resources, setResources] = useState([]);
 
   useEffect(() => {
-    fetch('/api/resources')
+    fetch(`${API_URL}/api/resources`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setResources(data);
@@ -22,7 +23,7 @@ const Footer = () => {
     const email = emailInput.value;
 
     try {
-      const response = await fetch('/api/newsletter', {
+      const response = await fetch(`${API_URL}/api/newsletter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

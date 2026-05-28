@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Calendar, Clock } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import './Blog.css'
+import { API_URL } from '../config';
 
 const Blog = () => {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ const Blog = () => {
   ];
 
   useEffect(() => {
-    fetch('/api/articles')
+    fetch(`${API_URL}/api/articles`)
       .then(res => res.json())
       .then(data => {
         setArticles(data);
@@ -34,7 +35,7 @@ const Blog = () => {
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/newsletter', {
+      const response = await fetch(`${API_URL}/api/newsletter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

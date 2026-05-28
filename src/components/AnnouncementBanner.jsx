@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import './AnnouncementBanner.css';
+import { API_URL } from '../config';
 
 const AnnouncementBanner = () => {
   const [announcements, setAnnouncements] = useState([]);
@@ -8,7 +9,7 @@ const AnnouncementBanner = () => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    fetch('/api/announcements')
+    fetch(`${API_URL}/api/announcements`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setAnnouncements(data);

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, TrendingUp, Award, CheckCircle, BookOpen, Target } from 'lucide-react'
 import './Programs.css'
+import { API_URL } from '../config';
 
 const Programs = () => {
   const [prices, setPrices] = useState({
@@ -11,7 +12,7 @@ const Programs = () => {
   });
 
   useEffect(() => {
-    fetch('/api/prices')
+    fetch(`${API_URL}/api/prices`)
       .then(res => res.json())
       .then(data => {
         const priceMap = {};

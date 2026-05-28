@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { BookOpen } from 'lucide-react'
 import { useContent } from '../hooks/useContent'
 import './Programs.css' // We can reuse the same CSS
+import { API_URL } from '../config';
 
 const Ebooks = () => {
   const { c } = useContent()
@@ -10,7 +11,7 @@ const Ebooks = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/ebooks')
+    fetch(`${API_URL}/api/ebooks`)
       .then(res => {
         if (!res.ok) throw new Error("API not found");
         return res.json();

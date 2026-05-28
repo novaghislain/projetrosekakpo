@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react'
 import './Checkout.css'
+import { API_URL } from '../config';
 
 const programsData = {
   'woman-king': {
@@ -74,7 +75,7 @@ const Checkout = () => {
     }
 
     if (programsData[programId]) {
-      fetch('/api/prices')
+      fetch(`${API_URL}/api/prices`)
         .then(res => res.json())
         .then(data => {
           const found = data.find(item => item.id === programId)
@@ -86,7 +87,7 @@ const Checkout = () => {
         .catch(err => console.error("Error loading prices:", err))
     } else {
       // Dynamic Formation
-      fetch(`/api/formations/${programId}`)
+      fetch(`${API_URL}/api/formations/${programId}`)
         .then(res => {
           if (!res.ok) throw new Error("Formation introuvable");
           return res.json();
@@ -123,7 +124,7 @@ const Checkout = () => {
     setError('')
 
     try {
-      const response = await fetch('/api/payment/create', {
+      const response = await fetch(`${API_URL}/api/payment/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

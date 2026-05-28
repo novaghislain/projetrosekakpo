@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, Clock, Share2, Facebook, Twitter, Linkedin } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import './BlogPost.css'
+import { API_URL } from '../config';
 
 const BlogPost = () => {
   const { id } = useParams()
@@ -10,7 +11,7 @@ const BlogPost = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/articles/${id}`)
+    fetch(`${API_URL}/api/articles/${id}`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) setArticle(data);
@@ -25,7 +26,7 @@ const BlogPost = () => {
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/newsletter', {
+      const response = await fetch(`${API_URL}/api/newsletter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Mail, Users, BookOpen, MessageSquare, Trash2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Admin.css';
+import { API_URL } from '../config';
 
 const fallbackCopy = (text) => {
   const textArea = document.createElement("textarea");
@@ -138,7 +139,7 @@ const Admin = () => {
     const loginUser = username.trim() || 'rose';
 
     try {
-      const response = await fetch('/api/admin/login', {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: loginUser, password })
@@ -164,7 +165,7 @@ const Admin = () => {
 
   const fetchCollaborators = async () => {
     try {
-      const response = await fetch('/api/admin/collaborators');
+      const response = await fetch(`${API_URL}/api/admin/collaborators`);
       if (response.ok) {
         const data = await response.json();
         setCollaborators(data);
@@ -177,14 +178,14 @@ const Admin = () => {
   const fetchData = async () => {
     try {
       const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks] = await Promise.all([
-        fetch('/api/admin/contacts').then(res => res.json()),
-        fetch('/api/admin/newsletters').then(res => res.json()),
-        fetch('/api/admin/enrollments').then(res => res.json()),
-        fetch('/api/articles').then(res => res.json()),
-        fetch('/api/prices').then(res => res.json()),
-        fetch('/api/content').then(res => res.json()),
-        fetch('/api/admin/formations').then(res => res.json()),
-        fetch('/api/ebooks').then(res => res.json())
+        fetch(`${API_URL}/api/admin/contacts`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/newsletters`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/enrollments`).then(res => res.json()),
+        fetch(`${API_URL}/api/articles`).then(res => res.json()),
+        fetch(`${API_URL}/api/prices`).then(res => res.json()),
+        fetch(`${API_URL}/api/content`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/formations`).then(res => res.json()),
+        fetch(`${API_URL}/api/ebooks`).then(res => res.json())
       ]);
       setContacts(resContacts);
       setNewsletters(resNewsletters);
@@ -217,7 +218,7 @@ const Admin = () => {
   const handleCreateArticle = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/admin/articles', {
+      const response = await fetch(`${API_URL}/api/admin/articles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newArticle)
@@ -236,7 +237,7 @@ const Admin = () => {
   const handleDeleteAnnouncement = async (id) => {
     if (!window.confirm('Supprimer cette annonce ?')) return;
     try {
-      await fetch(`/api/admin/announcements/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/announcements/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
   };
@@ -244,7 +245,7 @@ const Admin = () => {
   const handleDeleteContact = async (id) => {
     if (!window.confirm('Supprimer ce message ?')) return;
     try {
-      await fetch(`/api/admin/contacts/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/contacts/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
   };
@@ -252,7 +253,7 @@ const Admin = () => {
   const handleDeleteNewsletter = async (id) => {
     if (!window.confirm('Supprimer cet abonné de la newsletter ?')) return;
     try {
-      await fetch(`/api/admin/newsletters/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/newsletters/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
   };
@@ -260,7 +261,7 @@ const Admin = () => {
   const handleDeleteEnrollment = async (id) => {
     if (!window.confirm('Supprimer cette inscription ?')) return;
     try {
-      await fetch(`/api/admin/enrollments/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/enrollments/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
   };
@@ -268,7 +269,7 @@ const Admin = () => {
   const handleDeleteArticle = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cet article ?")) {
       try {
-        await fetch(`/api/admin/articles/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/api/admin/articles/${id}`, { method: 'DELETE' });
         fetchData();
       } catch (error) {
         console.error(error);
@@ -284,7 +285,7 @@ const Admin = () => {
     }
 
     try {
-      const response = await fetch(`/api/admin/prices/${id}`, {
+      const response = await fetch(`${API_URL}/api/admin/prices/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ price: priceValue })
@@ -319,7 +320,7 @@ const Admin = () => {
     setContentStatus(prev => ({ ...prev, [key]: 'saving' }));
 
     try {
-      const response = await fetch(`/api/admin/content/${key}`, {
+      const response = await fetch(`${API_URL}/api/admin/content/${key}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value })
@@ -493,7 +494,7 @@ const Admin = () => {
   const handleDeleteFormation = async (id) => {
     if (!window.confirm("Supprimer cette formation ? Le lien public ne marchera plus.")) return;
     try {
-      await fetch(`/api/admin/formations/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/admin/formations/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) {
       console.error(e);
@@ -562,7 +563,7 @@ const Admin = () => {
   const handleDeleteEbook = async (id) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet ebook ?")) return;
     try {
-      const response = await fetch(`/api/admin/ebooks/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${API_URL}/api/admin/ebooks/${id}`, { method: 'DELETE' });
       if (response.ok) {
         fetchData();
       } else {
@@ -593,7 +594,7 @@ const Admin = () => {
     }
 
     try {
-      const response = await fetch('/api/admin/collaborators', {
+      const response = await fetch(`${API_URL}/api/admin/collaborators`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCollab)
@@ -616,7 +617,7 @@ const Admin = () => {
   const handleDeleteCollaborator = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer ce collaborateur ?")) {
       try {
-        const response = await fetch(`/api/admin/collaborators/${id}`, {
+        const response = await fetch(`${API_URL}/api/admin/collaborators/${id}`, {
           method: 'DELETE'
         });
         const data = await response.json();
@@ -640,7 +641,7 @@ const Admin = () => {
     }
 
     try {
-      const response = await fetch('/api/admin/change-password', {
+      const response = await fetch(`${API_URL}/api/admin/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

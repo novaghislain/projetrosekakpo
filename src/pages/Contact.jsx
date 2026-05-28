@@ -1,6 +1,7 @@
 import { Mail } from 'lucide-react'
 import { useContent } from '../hooks/useContent'
 import './Contact.css'
+import { API_URL } from '../config';
 
 const Contact = () => {
   const { c } = useContent();
@@ -18,7 +19,7 @@ const Contact = () => {
     };
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch(`${API_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

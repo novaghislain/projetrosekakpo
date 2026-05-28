@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Users, CreditCard, Star, Target, ShieldCheck, Gift } from 'lucide-react';
 import './FormationDetails.css';
+import { API_URL } from '../config';
 
 const CountdownTimer = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -84,7 +85,7 @@ const FormationDetails = () => {
   useEffect(() => {
     const fetchFormation = async () => {
       try {
-        const response = await fetch(`/api/formations/${slug}`);
+        const response = await fetch(`${API_URL}/api/formations/${slug}`);
         if (!response.ok) {
           throw new Error("Formation introuvable");
         }

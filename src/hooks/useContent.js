@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 
 const contentCache = { data: null, timestamp: 0 };
@@ -15,7 +16,7 @@ export function useContent() {
       return;
     }
 
-    fetch('http://localhost:3001/api/content')
+    fetch(`${API_URL}/api/content`)
       .then(res => res.json())
       .then(data => {
         contentCache.data = data;

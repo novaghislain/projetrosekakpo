@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle2, XCircle, Loader2, ArrowRight, Send, HelpCircle, Download } from 'lucide-react'
 import './PaymentCallback.css'
+import { API_URL } from '../config';
 
 const programNames = {
   'woman-king': 'Woman King Trade',
@@ -56,7 +57,7 @@ const PaymentCallback = () => {
       }
 
       try {
-        const response = await fetch(`/api/payment/verify/${transactionId}`)
+        const response = await fetch(`${API_URL}/api/payment/verify/${transactionId}`)
         const data = await response.json()
 
         if (response.ok && data.status === 'approved') {
@@ -92,7 +93,7 @@ const PaymentCallback = () => {
 
     try {
       const payloadToSend = { ...formData, programSlug: programId };
-      const response = await fetch('/api/enroll', {
+      const response = await fetch(`${API_URL}/api/enroll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payloadToSend)
