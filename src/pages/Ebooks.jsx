@@ -11,13 +11,35 @@ const Ebooks = () => {
 
   useEffect(() => {
     fetch('/api/ebooks')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("API not found");
+        return res.json();
+      })
       .then(data => {
         setEbooks(data)
         setLoading(false)
       })
       .catch(err => {
-        console.error("Erreur lors de la récupération des ebooks", err)
+        console.error("Erreur lors de la récupération des ebooks, utilisation des données de secours", err)
+        // Fallback data if backend is not available (e.g. on Vercel without a connected backend)
+        setEbooks([
+          {
+            id: 1,
+            slug: 'ebook-vision',
+            title: 'De la vision à la maîtrise',
+            price: 15.00,
+            description: 'Découvrez la puissance de l\'analyse des bougies japonaises.',
+            image: '/cover-positionner.jpeg'
+          },
+          {
+            id: 2,
+            slug: 'ebook-positionner',
+            title: 'Se positionner intelligemment',
+            price: 15.00,
+            description: 'Le guide pratique pour débuter le trading sereinement.',
+            image: '/book.png'
+          }
+        ])
         setLoading(false)
       })
   }, [])
