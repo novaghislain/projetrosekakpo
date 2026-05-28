@@ -57,7 +57,7 @@ const Programs = () => {
             </Link>
           </div>
           <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
-            <img src="/woman_king_trade.png" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/tradeuse_woman.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
@@ -86,7 +86,7 @@ const Programs = () => {
             </Link>
           </div>
           <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
-            <img src="/strategie_3s.png" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/tradeuse_woman_and_men.jpg" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
@@ -133,7 +133,7 @@ const Programs = () => {
             </div>
           </div>
           <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
-            <img src="/coaching_trading.png" alt="Coaching One-to-One" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/visio.jpg" alt="Coaching One-to-One" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>
