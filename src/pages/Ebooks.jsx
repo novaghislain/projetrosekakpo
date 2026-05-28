@@ -21,12 +21,12 @@ const Ebooks = () => {
             
             {/* 1st Ebook */}
             <div className="ebook-cover-card glass-panel">
-              <Link to="/checkout?program=ebook-positionner" className="ebook-cover-link">
-                <img src="/cover-positionner.jpeg" alt={c('ebook1_title', 'Se positionner intelligemment')} className="ebook-cover-image" />
+              <Link to="/checkout?program=ebook-vision" className="ebook-cover-link">
+                <img src="/cover-positionner.jpeg" alt={c('ebook1_title', 'De la vision à la maîtrise')} className="ebook-cover-image" />
                 <div className="ebook-cover-overlay">
                   <BookOpen className="ebook-overlay-icon" size={32} />
-                  <h3>{c('ebook1_title', 'Se positionner intelligemment')}</h3>
-                  <p>{c('ebook1_desc', 'Le guide pratique pour débuter le trading sereinement.')}</p>
+                  <h3>{c('ebook1_title', 'De la vision à la maîtrise')}</h3>
+                  <p>{c('ebook1_desc', "Découvrez la puissance de l'analyse des bougies japonaises.")}</p>
                   <span className="ebook-overlay-btn">Obtenir cet E-Book</span>
                 </div>
               </Link>
@@ -34,12 +34,12 @@ const Ebooks = () => {
 
             {/* 2nd Ebook */}
             <div className="ebook-cover-card glass-panel">
-              <Link to="/checkout?program=ebook-vision" className="ebook-cover-link">
-                <img src="/book.png" alt={c('ebook2_title', 'De la vision à la maîtrise')} className="ebook-cover-image" />
+              <Link to="/checkout?program=ebook-positionner" className="ebook-cover-link">
+                <img src="/book.png" alt={c('ebook2_title', 'Se positionner intelligemment')} className="ebook-cover-image" />
                 <div className="ebook-cover-overlay">
                   <BookOpen className="ebook-overlay-icon" size={32} />
-                  <h3>{c('ebook2_title', 'De la vision à la maîtrise')}</h3>
-                  <p>{c('ebook2_desc', "Découvrez la puissance de l'analyse des bougies japonaises.")}</p>
+                  <h3>{c('ebook2_title', 'Se positionner intelligemment')}</h3>
+                  <p>{c('ebook2_desc', 'Le guide pratique pour débuter le trading sereinement.')}</p>
                   <span className="ebook-overlay-btn">Obtenir cet E-Book</span>
                 </div>
               </Link>
