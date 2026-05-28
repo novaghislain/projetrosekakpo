@@ -7,6 +7,7 @@ import AnnouncementBanner from './components/AnnouncementBanner'
 import Home from './pages/Home'
 import About from './pages/About'
 import Programs from './pages/Programs'
+import Ebooks from './pages/Ebooks'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 import Admin from './pages/Admin'
@@ -49,6 +50,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/programs" element={<Programs />} />
+          <Route path="/ebooks" element={<Ebooks />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/formation/:slug" element={<FormationDetails />} />
