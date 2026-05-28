@@ -80,8 +80,27 @@
   backdrop-filter: blur(10px);
 }
 
+.program-detail-photo {
+  width: 100%;
+  max-width: 450px;
+  height: 350px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  transition: transform var(--transition-normal);
+  border: 4px solid white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
 .program-detail-container:hover .program-detail-icon {
   transform: scale(1.05) rotate(5deg);
+}
+
+.program-detail-container:hover .program-detail-photo {
+  transform: scale(1.02);
 }
 
 .glow-effect-pink {
@@ -332,6 +351,14 @@
   .program-detail-icon {
     width: 250px;
     height: 250px;
+    order: -1;
+  }
+
+  .program-detail-photo {
+    width: 100%;
+    height: 250px;
+    border-radius: 16px;
+    object-fit: cover;
     order: -1;
   }
   

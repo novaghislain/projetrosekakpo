@@ -56,7 +56,7 @@ const Programs = () => {
               Rejoindre Woman King Trade
             </Link>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="program-detail-photo">
             <img src="/day-trader-upset-after-losing-money-cryptocurrency-investment-due-rug-pull.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
@@ -85,7 +85,7 @@ const Programs = () => {
               Découvrir la Stratégie 3S
             </Link>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="program-detail-photo">
             <img src="/tradeuse_woman_and_men.jpg" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
@@ -132,7 +132,7 @@ const Programs = () => {
               </div>
             </div>
           </div>
-          <div className="program-detail-icon pink-bg-light glow-effect-pink" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="program-detail-photo">
             <img src="/visio.jpg" alt="Coaching One-to-One" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
