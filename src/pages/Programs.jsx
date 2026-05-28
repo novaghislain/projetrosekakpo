@@ -149,7 +149,7 @@ const Programs = () => {
           <div className="ebooks-only-grid">
             <div className="ebook-cover-card glass-panel">
               <Link to="/checkout?program=ebook-positionner" className="ebook-cover-link">
-                <img src="/ebook.jpeg" alt="Se positionner intelligemment" className="ebook-cover-image" />
+                <img src="/cover-positionner.jpeg" alt="Se positionner intelligemment" className="ebook-cover-image" />
                 <div className="ebook-cover-overlay">
                   <BookOpen className="ebook-overlay-icon" size={32} />
                   <h3>Se positionner intelligemment</h3>
