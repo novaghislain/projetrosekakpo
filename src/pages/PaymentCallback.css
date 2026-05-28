@@ -1,0 +1,167 @@
+.callback-page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 120px 20px 80px 20px;
+  background: radial-gradient(circle at 50% 20%, rgba(244, 114, 182, 0.04) 0%, transparent 40%),
+              radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
+}
+
+.status-card {
+  padding: 50px 40px;
+  max-width: 550px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-card {
+  padding: 45px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.form-card h2 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.callback-enrollment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.spinner {
+  margin-bottom: 20px;
+}
+
+.text-red {
+  color: #EF4444;
+}
+
+.text-gradient-red {
+  background: linear-gradient(135deg, #FF6B6B 0%, #EF4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  font-size: 2.2rem;
+}
+
+.flex-buttons {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .flex-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Success final community links card */
+.success-final h2 {
+  font-size: 2.2rem;
+}
+
+.success-final .text-large {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+.action-box-community {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 30px;
+  width: 100%;
+  margin-top: 25px;
+}
+
+.action-box-community h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-pink);
+  margin-bottom: 8px;
+}
+
+.action-box-community p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 25px;
+}
+
+.community-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.community-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.whatsapp-color {
+  background: #25D366;
+}
+
+.whatsapp-color:hover {
+  background: #1ebd59;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
+}
+
+.telegram-color {
+  background: #2AABEE;
+}
+
+.telegram-color:hover {
+  background: #2299d6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(42, 171, 238, 0.3);
+}
+
+.scale-up {
+  animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scaleUp {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ebook-download-btn {
+  background: #2E6F40;
+}
+
+.ebook-download-btn:hover {
+  background: #22522f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 111, 64, 0.3);
+}
+
+.text-green-brand {
+  color: #2E6F40 !important;
+}
