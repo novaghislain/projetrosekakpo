@@ -1,3 +1,31 @@
 Fichier .env chargé.
 Serveur Backend démarré sur http://localhost:3001
 Connecté à la base de données SQLite.
+Échec création transaction FedaPay: {
+  message: 'La création de la transaction a échoué',
+  errors: {
+    amount: [ 'Le montant maximum de transactions autorisées est 5000.' ]
+  },
+  model: 'V1::Transaction'
+}
+Échec création transaction FedaPay: {
+  message: 'La création de la transaction a échoué',
+  errors: {
+    amount: [ 'Le montant maximum de transactions autorisées est 5000.' ]
+  },
+  model: 'V1::Transaction'
+}
+Échec création transaction FedaPay: {
+  message: 'La création de la transaction a échoué',
+  errors: {
+    amount: [ 'Le montant maximum de transactions autorisées est 5000.' ]
+  },
+  model: 'V1::Transaction'
+}
+Échec création transaction FedaPay: {
+  message: 'La création de la transaction a échoué',
+  errors: {
+    amount: [ 'Le montant maximum de transactions autorisées est 5000.' ]
+  },
+  model: 'V1::Transaction'
+}

@@ -52,6 +52,7 @@ const Programs = () => {
               <li><CheckCircle size={20} className="text-pink" /> Accompagnement</li>
               <li><CheckCircle size={20} className="text-pink" /> Communauté féminine</li>
               <li><CheckCircle size={20} className="text-pink" /> Suivi et motivation</li>
+              <li><CheckCircle size={20} className="text-pink" /> Plan d’action pour générer minimum 100usd par mois grâce au trading</li>
             </ul>
             <Link to="/checkout?program=woman-king" className="btn btn-primary">
               Rejoindre Woman King Trade

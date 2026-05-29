@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, CheckCircle2, Copy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle2, Copy } from 'lucide-react';
 import { API_URL } from '../config';
 import './Checkout.css';
 
@@ -14,6 +14,7 @@ const ManualPayment = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [trackingId, setTrackingId] = useState('');
 
   // Fallback if no state
   if (!state || !state.programId || !state.customer) {
@@ -39,13 +40,13 @@ const ManualPayment = () => {
       name: 'MOOV Money',
       number: '(Numéro à venir)',
       recipientName: 'AMEDEOGNONNAN ROSEMONDE GNIDETE KAKPO',
-      color: '#005b82'
+      color: '#ff6600'
     },
     'CELTIIS': {
       name: 'CELTIIS Cash',
       number: '(Numéro à venir)',
       recipientName: 'AMEDEOGNONNAN ROSEMONDE GNIDETE KAKPO',
-      color: '#e5007d'
+      color: '#005b82'
     }
   };
 
@@ -90,6 +91,7 @@ const ManualPayment = () => {
       const data = await response.json();
 
       if (response.ok) {
+        setTrackingId(data.trackingId);
         setSuccess(true);
       } else {
         setError(data.error || "Une erreur est survenue.");
@@ -108,6 +110,7 @@ const ManualPayment = () => {
   };
 
   if (success) {
+    const trackingUrl = `https://rosekakpo.com/track/${trackingId}`;
     return (
       <div className="checkout-page animate-fade-up">
         <div className="checkout-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
@@ -117,11 +120,27 @@ const ManualPayment = () => {
             <p className="mt-4 text-large">
               Merci {customer.firstname} ! Votre paiement est en cours de validation par notre équipe.
             </p>
-            <p className="mt-2 text-muted">
-              Une fois validé, vous recevrez automatiquement vos accès par email pour le programme <strong>{programName}</strong>.
-            </p>
+            
+            <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <h3 style={{ color: '#ffb3c6', marginBottom: '1rem', fontSize: '1.1rem' }}>🔗 Votre lien de suivi de commande</h3>
+              <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>Conservez ce lien précieusement. Dès que nous aurons validé votre paiement, votre accès sera disponible sur cette page :</p>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(0,0,0,0.3)', padding: '0.8rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+                <input type="text" readOnly value={trackingUrl} style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                <button onClick={() => {
+                  navigator.clipboard.writeText(trackingUrl);
+                  alert("Lien copié !");
+                }} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Copier</button>
+              </div>
+              
+              <button onClick={() => navigate(`/track/${trackingId}`)} className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                Accéder à mon suivi
+                <ArrowRight size={18} />
+              </button>
+            </div>
+
             <div className="mt-6">
-              <button onClick={() => navigate('/')} className="btn btn-primary">
+              <button onClick={() => navigate('/')} className="btn btn-outline" style={{ border: 'none', textDecoration: 'underline' }}>
                 Retour à l'accueil
               </button>
             </div>
@@ -158,37 +177,40 @@ const ManualPayment = () => {
                     onClick={() => setSelectedNetwork(key)}
                     style={{ 
                       flex: '1 1 calc(33.333% - 1rem)', 
-                      padding: '1rem', 
+                      padding: '0.5rem', 
                       borderRadius: '12px', 
                       cursor: 'pointer',
                       border: selectedNetwork === key ? `2px solid ${networks[key].color}` : '1px solid rgba(255,255,255,0.1)',
                       backgroundColor: selectedNetwork === key ? 'rgba(255,255,255,0.05)' : 'transparent',
-                      textAlign: 'center',
-                      transition: 'all 0.3s ease'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                      minHeight: '80px'
                     }}
                   >
-                    <strong style={{ display: 'block', color: networks[key].color, fontSize: '1.2rem' }}>{key}</strong>
+                    <img src={`/${key}.png`} alt={networks[key].name} style={{ width: '100%', maxHeight: '70px', objectFit: 'contain' }} />
                   </div>
                 ))}
               </div>
 
-              <div className="payment-instructions glass-panel mb-5" style={{ padding: '1.5rem', borderRadius: '12px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+              <div className="payment-instructions glass-panel mb-5" style={{ padding: '1.5rem', borderRadius: '12px', backgroundColor: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.05)' }}>
                 <h3 style={{ marginBottom: '1rem', color: networks[selectedNetwork].color }}>Détails pour {networks[selectedNetwork].name}</h3>
-                <p style={{ marginBottom: '0.5rem', color: 'rgba(255,255,255,0.7)' }}>Montant à transférer :</p>
-                <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#fff', marginBottom: '1.5rem' }}>
+                <p style={{ marginBottom: '0.5rem', color: '#666' }}>Montant à transférer :</p>
+                <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#333', marginBottom: '1.5rem' }}>
                   {dynamicPrice.toLocaleString()} FCFA
                 </div>
 
-                <p style={{ marginBottom: '0.5rem', color: 'rgba(255,255,255,0.7)' }}>Envoyez au numéro :</p>
+                <p style={{ marginBottom: '0.5rem', color: '#666' }}>Envoyez au numéro :</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff', letterSpacing: '1px' }}>
+                  <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#333', letterSpacing: '1px' }}>
                     {networks[selectedNetwork].number}
                   </span>
                   <button onClick={() => copyToClipboard(networks[selectedNetwork].number)} style={{ background: 'none', border: 'none', color: '#d4af37', cursor: 'pointer' }} title="Copier le numéro">
                     <Copy size={20} />
                   </button>
                 </div>
-                <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginTop: '0' }}>Nom : {networks[selectedNetwork].recipientName}</p>
+                <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '0' }}>Nom : {networks[selectedNetwork].recipientName}</p>
               </div>
 
               <form onSubmit={handleSubmit}>

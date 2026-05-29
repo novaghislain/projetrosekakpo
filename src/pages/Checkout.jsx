@@ -209,7 +209,7 @@ const Checkout = () => {
                 
                 <div className="checkout-trust">
                   <ShieldCheck size={18} className="text-primary" />
-                  <span>Transaction chiffrée SSL de bout en bout via FedaPay</span>
+                  <span>Transaction sécurisée</span>
                 </div>
               </form>
             </div>

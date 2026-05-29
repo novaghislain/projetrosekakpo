@@ -262,14 +262,14 @@ app.delete('/api/admin/enrollments/:id', (req, res) => {
 
 // Créer un article
 app.post('/api/admin/articles', (req, res) => {
-  const { title, category, date, readTime, excerpt, content } = req.body;
+  const { title, category, date, readTime, excerpt, content, image } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({ error: "Titre et contenu obligatoires." });
   }
 
-  const query = `INSERT INTO articles (title, category, date, readTime, excerpt, content) VALUES (?, ?, ?, ?, ?, ?)`;
-  db.run(query, [title, category, date, readTime, excerpt, content], function (err) {
+  const query = `INSERT INTO articles (title, category, date, readTime, excerpt, content, image) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.run(query, [title, category, date, readTime, excerpt, content, image], function (err) {
     if (err) return res.status(500).json({ error: "Erreur de création." });
     res.status(201).json({ success: true, id: this.lastID });
   });
@@ -369,13 +369,13 @@ app.get('/api/ebooks', (req, res) => {
 
 // Créer un ebook
 app.post('/api/admin/ebooks', (req, res) => {
-  const { slug, title, price, description, image } = req.body;
+  const { slug, title, price, description, image, testimonials_json } = req.body;
   if (!slug || !title || price === undefined || !description) {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
-  const query = `INSERT INTO ebooks (slug, title, price, description, image) VALUES (?, ?, ?, ?, ?)`;
+  const query = `INSERT INTO ebooks (slug, title, price, description, image, testimonials_json) VALUES (?, ?, ?, ?, ?, ?)`;
   
-  db.run(query, [slug, title, price, description, image], function (err) {
+  db.run(query, [slug, title, price, description, image, testimonials_json], function (err) {
     if (err) {
       if (err.message.includes('UNIQUE constraint failed')) {
         return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par un autre ebook." });
@@ -388,14 +388,14 @@ app.post('/api/admin/ebooks', (req, res) => {
 
 // Modifier un ebook
 app.put('/api/admin/ebooks/:id', (req, res) => {
-  const { slug, title, price, description, image } = req.body;
+  const { slug, title, price, description, image, testimonials_json } = req.body;
   if (!slug || !title || price === undefined || !description) {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
 
-  const query = `UPDATE ebooks SET slug = ?, title = ?, price = ?, description = ?, image = ? WHERE id = ?`;
+  const query = `UPDATE ebooks SET slug = ?, title = ?, price = ?, description = ?, image = ?, testimonials_json = ? WHERE id = ?`;
   
-  db.run(query, [slug, title, price, description, image, req.params.id], function (err) {
+  db.run(query, [slug, title, price, description, image, testimonials_json, req.params.id], function (err) {
     if (err) {
       if (err.message.includes('UNIQUE constraint failed')) {
         return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par un autre ebook." });
@@ -741,13 +741,25 @@ app.post('/api/payment/manual', (req, res) => {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
 
-  const query = `INSERT INTO manual_payments (program_id, customer_info, network, proof_image, status) VALUES (?, ?, ?, ?, 'pending')`;
-  db.run(query, [programId, JSON.stringify(customer), network, proofImage], function(err) {
+  const crypto = require('crypto');
+  const trackingId = 'TRK-' + crypto.randomBytes(3).toString('hex').toUpperCase();
+
+  const query = `INSERT INTO manual_payments (program_id, customer_info, network, proof_image, status, tracking_id) VALUES (?, ?, ?, ?, 'pending', ?)`;
+  db.run(query, [programId, JSON.stringify(customer), network, proofImage, trackingId], function(err) {
     if (err) {
       console.error("Erreur insertion manual_payment:", err);
       return res.status(500).json({ error: "Erreur lors de la soumission de votre paiement." });
     }
-    res.status(201).json({ success: true, message: "Paiement soumis avec succès. En attente de validation." });
+    res.status(201).json({ success: true, trackingId, message: "Paiement soumis avec succès. En attente de validation." });
+  });
+});
+
+app.get('/api/payment/track/:trackingId', (req, res) => {
+  const { trackingId } = req.params;
+  db.get(`SELECT program_id, status FROM manual_payments WHERE tracking_id = ?`, [trackingId], (err, row) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur" });
+    if (!row) return res.status(404).json({ error: "Lien de suivi invalide ou introuvable." });
+    res.json({ success: true, programId: row.program_id, status: row.status });
   });
 });
 
@@ -769,8 +781,10 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
     if (err || !row) return res.status(404).json({ error: "Paiement introuvable." });
     if (row.status === 'approved') return res.status(400).json({ error: "Déjà approuvé." });
 
-    let customer = {};
-    try { customer = JSON.parse(row.customer_info); } catch(e) {}
+    let customer = row.customer_info;
+    if (typeof customer === 'string') {
+      try { customer = JSON.parse(customer); } catch(e) {}
+    }
     
     const enrollQuery = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
     const programNames = {
@@ -805,6 +819,8 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
               if (row.program_id === 'ebook-vision' || row.program_id === 'ebook-positionner') {
                 const link = row.program_id === 'ebook-vision' ? 'https://projetrosekakpo.onrender.com/EBOOK_FIGURE_BOUGIE_ROSE.pdf' : 'https://projetrosekakpo.onrender.com/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
                 textContent += `Voici le lien pour télécharger votre E-Book : ${link}\n\n`;
+              } else if (row.program_id === 'woman-king') {
+                textContent += `Veuillez rejoindre le groupe WhatsApp exclusif de la formation Woman King Trade :\nWhatsApp: https://chat.whatsapp.com/EpqfnVvALmuCKrJ9FlK70P?s=cl&p=i&mlu=4\n\n`;
               } else {
                 textContent += `Veuillez rejoindre nos canaux de communication :\nWhatsApp: https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA\nTelegram: https://t.me/+hXBcjA-rPjpmZGRk\n\n`;
               }

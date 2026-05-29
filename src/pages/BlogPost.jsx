@@ -75,8 +75,11 @@ const BlogPost = () => {
           </div>
         </header>
 
-        {/* Image de couverture supprimée selon la demande */}
-
+        {article.image && (
+          <div className="post-cover-image-container animate-fade-up delay-100" style={{ width: '100%', marginBottom: '2rem', borderRadius: '16px', overflow: 'hidden' }}>
+            <img src={article.image} alt={article.title} style={{ width: '100%', maxHeight: '500px', objectFit: 'cover' }} />
+          </div>
+        )}
         <div className="post-content-layout">
 
           <div 

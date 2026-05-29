@@ -136,6 +136,7 @@ const FormationDetails = () => {
   const objectives = Array.isArray(content.objectives) ? content.objectives : [];
   const audience = Array.isArray(content.targetAudience) ? content.targetAudience : [];
   const included = Array.isArray(content.included) ? content.included : [];
+  const testimonials = Array.isArray(content.testimonials) ? content.testimonials : [];
 
   return (
     <div className="pro-landing-page">
@@ -307,6 +308,20 @@ const FormationDetails = () => {
             </section>
           )}
         </div>
+
+        {/* TESTIMONIALS */}
+        {testimonials.length > 0 && (
+          <section className="pro-section" style={{ marginTop: '2rem' }}>
+            <h2 className="section-title text-center mb-4 text-gradient">Ce qu'elles en disent</h2>
+            <div style={{ display: 'flex', gap: '1.5rem', overflowX: 'auto', paddingBottom: '1rem', scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}>
+              {testimonials.map((img, idx) => (
+                <div key={idx} style={{ flex: '0 0 auto', width: '300px', scrollSnapAlign: 'center', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <img src={img} alt={`Témoignage ${idx + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* FINAL CTA */}
         <section className="pro-final-cta">

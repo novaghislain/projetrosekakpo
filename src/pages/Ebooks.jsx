@@ -68,25 +68,43 @@ const Ebooks = () => {
             </div>
           ) : (
             <div className="ebooks-only-grid">
-              {ebooks.map((ebook, index) => (
-                <div key={ebook.id} className="ebook-cover-card glass-panel" style={{ animationDelay: `${index * 100}ms` }}>
-                  <Link to={`/checkout?program=${ebook.slug}`} className="ebook-cover-link">
-                    {ebook.image ? (
-                      <img src={ebook.image} alt={ebook.title} className="ebook-cover-image" />
-                    ) : (
-                      <div className="ebook-cover-placeholder">
-                        <BookOpen size={64} color="var(--color-brand-pink)" opacity={0.5} />
+              {ebooks.map((ebook, index) => {
+                const testimonials = ebook.testimonials_json ? JSON.parse(ebook.testimonials_json) : [];
+                return (
+                <div key={ebook.id} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div className="ebook-cover-card glass-panel" style={{ animationDelay: `${index * 100}ms`, height: '100%' }}>
+                    <Link to={`/checkout?program=${ebook.slug}`} className="ebook-cover-link">
+                      {ebook.image ? (
+                        <img src={ebook.image} alt={ebook.title} className="ebook-cover-image" />
+                      ) : (
+                        <div className="ebook-cover-placeholder">
+                          <BookOpen size={64} color="var(--color-brand-pink)" opacity={0.5} />
+                        </div>
+                      )}
+                      <div className="ebook-cover-overlay">
+                        <BookOpen className="ebook-overlay-icon" size={32} />
+                        <h3>{ebook.title}</h3>
+                        <p>{ebook.description}</p>
+                        <span className="ebook-overlay-btn">Obtenir cet E-Book (${ebook.price})</span>
                       </div>
-                    )}
-                    <div className="ebook-cover-overlay">
-                      <BookOpen className="ebook-overlay-icon" size={32} />
-                      <h3>{ebook.title}</h3>
-                      <p>{ebook.description}</p>
-                      <span className="ebook-overlay-btn">Obtenir cet E-Book (${ebook.price})</span>
+                    </Link>
+                  </div>
+                  
+                  {testimonials.length > 0 && (
+                    <div className="ebook-testimonials animate-fade-up">
+                      <h4 className="text-center text-gradient" style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Ce qu'elles en disent</h4>
+                      <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem', scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}>
+                        {testimonials.map((img, idx) => (
+                          <div key={idx} style={{ flex: '0 0 auto', width: '200px', scrollSnapAlign: 'center', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                            <img src={img} alt={`Avis ${idx + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </Link>
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

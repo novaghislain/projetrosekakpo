@@ -17,13 +17,14 @@ import ManualPayment from './pages/ManualPayment'
 import MockCheckout from './pages/MockCheckout'
 import PaymentCallback from './pages/PaymentCallback'
 import FormationDetails from './pages/FormationDetails'
+import Track from './pages/Track'
 import { useContent } from './hooks/useContent'
 
 function App() {
   const location = useLocation()
   const { c } = useContent()
   const isAdmin = location.pathname.startsWith('/admin')
-  const isCheckout = location.pathname.startsWith('/checkout') || location.pathname.startsWith('/mock-checkout') || location.pathname.startsWith('/payment-callback')
+  const isCheckout = location.pathname.startsWith('/checkout') || location.pathname.startsWith('/mock-checkout') || location.pathname.startsWith('/payment-callback') || location.pathname.startsWith('/track')
 
   useEffect(() => {
     // Mise à jour dynamique du SEO
@@ -61,6 +62,7 @@ function App() {
           <Route path="/manual-payment" element={<ManualPayment />} />
           <Route path="/mock-checkout" element={<MockCheckout />} />
           <Route path="/payment-callback" element={<PaymentCallback />} />
+          <Route path="/track/:trackingId" element={<Track />} />
         </Routes>
       </main>
       {!isAdmin && !isCheckout && <Footer />}

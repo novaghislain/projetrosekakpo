@@ -45,7 +45,7 @@ const Admin = () => {
   const [manualPayments, setManualPayments] = useState([]);
   const [formations, setFormations] = useState([]);
   const [ebooks, setEbooks] = useState([]);
-  const [newEbook, setNewEbook] = useState({ slug: '', title: '', price: '', description: '', image: '' });
+  const [newEbook, setNewEbook] = useState({ slug: '', title: '', price: '', description: '', image: '', testimonials: [] });
   const [showEbookForm, setShowEbookForm] = useState(false);
   const [editingEbookId, setEditingEbookId] = useState(null);
   const [resources, setResources] = useState([]);
@@ -85,7 +85,8 @@ const Admin = () => {
     date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }),
     readTime: '5 min',
     excerpt: '',
-    content: ''
+    content: '',
+    image: ''
   });
 
   const [newCollab, setNewCollab] = useState({
@@ -106,7 +107,8 @@ const Admin = () => {
     targetAudience: '',
     included: '',
     authorBio: '',
-    expirationDate: ''
+    expirationDate: '',
+    testimonials: []
   });
   const [showFormationForm, setShowFormationForm] = useState(false);
   const [editingFormationId, setEditingFormationId] = useState(null);
@@ -228,7 +230,7 @@ const Admin = () => {
       });
       if (response.ok) {
         alert("Article publié avec succès !");
-        setNewArticle({ ...newArticle, title: '', category: '', excerpt: '', content: '' });
+        setNewArticle({ ...newArticle, title: '', category: '', excerpt: '', content: '', image: '' });
         fetchData();
       }
     } catch (error) {
@@ -308,11 +310,14 @@ const Admin = () => {
   };
 
   
-  const handleApproveManualPayment = async (id) => {
+  const handleApproveManualPayment = async (payment) => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/manual-payments/${id}/approve`, { method: 'POST' });
+      const response = await fetch(`${API_URL}/api/admin/manual-payments/${payment.id}/approve`, { method: 'POST' });
       if (response.ok) {
-        alert("Paiement validé avec succès ! Le client a reçu son accès par email.");
+        const waLink = getWhatsAppLink(payment);
+        if (waLink !== '#') {
+          window.open(waLink, '_blank');
+        }
         fetchData();
       } else {
         const data = await response.json();
@@ -322,11 +327,32 @@ const Admin = () => {
   };
 
   const handleRejectManualPayment = async (id) => {
-    if(!window.confirm("Êtes-vous sûr de vouloir supprimer cette preuve de paiement ?")) return;
+    if (!window.confirm("Êtes-vous sûr de vouloir rejeter/supprimer ce paiement ?")) return;
     try {
-      const response = await fetch(`${API_URL}/api/admin/manual-payments/${id}`, { method: 'DELETE' });
-      if (response.ok) fetchData();
-    } catch(err) { alert("Erreur réseau"); }
+      const res = await fetch(`${API_URL}/api/admin/manual-payments/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchData();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleViewImage = (base64) => {
+    const win = window.open();
+    if (win) {
+      win.document.write(`<body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${base64}" style="max-width:100%;max-height:100%;object-fit:contain;"/></body>`);
+      win.document.title = "Preuve de Paiement";
+      win.document.close();
+    }
+  };
+
+  const getWhatsAppLink = (payment) => {
+    const num = payment.customer_info?.whatsapp?.replace(/[^0-9+]/g, '');
+    if (!num) return '#';
+    let text = `Bonjour ${payment.customer_info?.firstname}, votre paiement a bien été validé !\n\n`;
+    if (payment.program_id === 'woman-king') {
+      text += `Voici le lien exclusif pour rejoindre la formation Woman King Trade :\nhttps://chat.whatsapp.com/EpqfnVvALmuCKrJ9FlK70P?s=cl&p=i&mlu=4`;
+    } else {
+      text += `Veuillez rejoindre nos canaux de communication :\nhttps://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA`;
+    }
+    return `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
   };
 
   const handleLogout = () => {
@@ -370,14 +396,14 @@ const Admin = () => {
   };
 
   // Render a single CMS field
-  const CmsField = ({ fieldKey }) => {
+  const renderCmsField = (fieldKey) => {
     const item = siteContent[fieldKey];
     if (!item) return null;
     const isLong = item.type === 'html' || (editingContent[fieldKey] || '').length > 80;
     const status = contentStatus[fieldKey];
 
     return (
-      <div className="cms-field">
+      <div className="cms-field" key={fieldKey}>
         <label>
           {item.label}
           {item.type === 'html' && <span className="cms-field-hint">(HTML accepté : &lt;strong&gt;, &lt;span&gt;...)</span>}
@@ -485,7 +511,8 @@ const Admin = () => {
       targetAudience: newFormation.targetAudience.split('\\n').filter(s => s.trim() !== ''),
       included: newFormation.included.split('\\n').filter(s => s.trim() !== ''),
       authorBio: newFormation.authorBio,
-      expirationDate: newFormation.expirationDate
+      expirationDate: newFormation.expirationDate,
+      testimonials: newFormation.testimonials
     };
 
     const payload = { ...newFormation, content_json };
@@ -503,7 +530,7 @@ const Admin = () => {
       
       if (response.ok) {
         alert(editingFormationId ? "Formation modifiée avec succès !" : "Formation créée avec succès !");
-        setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '' });
+        setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', testimonials: [] });
         setEditingFormationId(null);
         setShowFormationForm(false);
         fetchData();
@@ -542,7 +569,8 @@ const Admin = () => {
       targetAudience: (content.targetAudience || []).join('\n'),
       included: (content.included || []).join('\n'),
       authorBio: content.authorBio || '',
-      expirationDate: content.expirationDate || ''
+      expirationDate: content.expirationDate || '',
+      testimonials: content.testimonials || []
     });
     setEditingFormationId(f.id);
     setShowFormationForm(true);
@@ -568,10 +596,10 @@ const Admin = () => {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newEbook)
+        body: JSON.stringify({ ...newEbook, testimonials_json: JSON.stringify(newEbook.testimonials) })
       });
       if (response.ok) {
-        setNewEbook({ slug: '', title: '', price: '', description: '', image: '' });
+        setNewEbook({ slug: '', title: '', price: '', description: '', image: '', testimonials: [] });
         setShowEbookForm(false);
         setEditingEbookId(null);
         fetchData();
@@ -605,7 +633,8 @@ const Admin = () => {
       title: f.title,
       price: f.price,
       description: f.description,
-      image: f.image || ''
+      image: f.image || '',
+      testimonials: f.testimonials_json ? JSON.parse(f.testimonials_json) : []
     });
     setEditingEbookId(f.id);
     setShowEbookForm(true);
@@ -1280,15 +1309,41 @@ const Admin = () => {
                       <textarea className="cms-textarea" rows="4" value={newFormation.included} onChange={e => setNewFormation({...newFormation, included: e.target.value})} placeholder="Accès au groupe privé Telegram&#10;Support 24/7&#10;Certificat de fin de formation"></textarea>
                     </div>
 
-                    <div className="form-group">
-                      <label>Biographie de l'auteur (Qui suis-je ?)</label>
-                      <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Un paragraphe court pour vous présenter et asseoir votre autorité.</p>
+                    <div className="form-group mb-4">
+                      <label>Qui suis-je ? (Bio auteur)</label>
                       <textarea className="cms-textarea" rows="4" value={newFormation.authorBio} onChange={e => setNewFormation({...newFormation, authorBio: e.target.value})} placeholder="Je suis Rose Kakpo, Trader indépendante et fondatrice de Woman King Trade. Ma mission est de..."></textarea>
+                    </div>
+
+                    <div className="form-group mb-4">
+                      <label>Captures de témoignages (Optionnel)</label>
+                      <input type="file" accept="image/*" multiple onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        const promises = files.map(file => {
+                          return new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(file);
+                          });
+                        });
+                        Promise.all(promises).then(base64Images => {
+                          setNewFormation(prev => ({...prev, testimonials: [...(prev.testimonials || []), ...base64Images]}));
+                        });
+                      }} className="glass-input" />
+                      {newFormation.testimonials && newFormation.testimonials.length > 0 && (
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                          {newFormation.testimonials.map((img, i) => (
+                            <div key={i} style={{ position: 'relative' }}>
+                              <img src={img} alt="Témoignage" style={{ height: '80px', borderRadius: '4px', objectFit: 'cover' }} />
+                              <button type="button" onClick={() => setNewFormation(prev => ({...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i)}))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
-                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '' }); }} className="btn btn-secondary">Annuler</button>
+                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', testimonials: [] }); }} className="btn btn-secondary">Annuler</button>
                     <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem' }}>{editingFormationId ? 'Mettre à jour la page' : 'Enregistrer et Publier la page'}</button>
                   </div>
                 </form>
@@ -1344,41 +1399,54 @@ const Admin = () => {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Client</th>
-                    <th>WhatsApp</th>
-                    <th>Programme</th>
-                    <th>Réseau</th>
-                    <th>Statut</th>
-                    <th>Preuve</th>
-                    <th>Actions</th>
+                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Date</th>
+                    <th style={{ padding: '1rem', minWidth: '200px' }}>Client</th>
+                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>WhatsApp</th>
+                    <th style={{ padding: '1rem', minWidth: '150px' }}>Programme</th>
+                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Réseau</th>
+                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Statut</th>
+                    <th style={{ padding: '1rem' }}>Preuve</th>
+                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {manualPayments && manualPayments.length > 0 ? (
                     manualPayments.map(payment => (
-                      <tr key={payment.id}>
-                        <td>{new Date(payment.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                        <td>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br/><small>{payment.customer_info?.email}</small></td>
-                        <td>{payment.customer_info?.whatsapp}</td>
-                        <td>{payment.program_id}</td>
-                        <td><strong>{payment.network}</strong></td>
-                        <td>
-                          {payment.status === 'pending' ? <span style={{color: '#ffcc00', fontWeight: 'bold'}}>En attente</span> : <span style={{color: '#4caf50', fontWeight: 'bold'}}>Validé</span>}
+                      <tr key={payment.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                        <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{new Date(payment.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td style={{ padding: '1rem' }}>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br/><small className="text-muted">{payment.customer_info?.email}</small></td>
+                        <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
+                          {payment.customer_info?.whatsapp && (
+                            <a 
+                              href={getWhatsAppLink(payment)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#25D366', textDecoration: 'none', fontWeight: 'bold' }}
+                              title="Envoyer le lien par WhatsApp"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                              {payment.customer_info?.whatsapp}
+                            </a>
+                          )}
                         </td>
-                        <td>
-                          <a href={payment.proof_image} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
-                            Voir image
-                          </a>
+                        <td style={{ padding: '1rem' }}>{payment.program_id}</td>
+                        <td style={{ padding: '1rem' }}><strong>{payment.network}</strong></td>
+                        <td style={{ padding: '1rem' }}>
+                          {payment.status === 'pending' ? <span style={{color: '#ffcc00', fontWeight: 'bold', whiteSpace: 'nowrap'}}>En attente</span> : <span style={{color: '#4caf50', fontWeight: 'bold', whiteSpace: 'nowrap'}}>Validé</span>}
                         </td>
-                        <td>
+                        <td style={{ padding: '1rem' }}>
+                          <button onClick={() => handleViewImage(payment.proof_image)} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+                            Voir l'image
+                          </button>
+                        </td>
+                        <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
                           {payment.status === 'pending' && (
-                            <button onClick={() => handleApproveManualPayment(payment.id)} className="action-btn text-green mr-2" title="Valider et envoyer email">
-                              <CheckCircle2 size={18} />
+                            <button onClick={() => handleApproveManualPayment(payment)} style={{ backgroundColor: '#4caf50', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', marginRight: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500' }} title="Valider et ouvrir WhatsApp">
+                              Approuver
                             </button>
                           )}
-                          <button onClick={() => handleRejectManualPayment(payment.id)} className="action-btn text-red" title="Supprimer">
-                            <Trash2 size={18} />
+                          <button onClick={() => handleRejectManualPayment(payment.id)} style={{ backgroundColor: '#f44336', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500' }} title="Supprimer">
+                            Supprimer
                           </button>
                         </td>
                       </tr>
@@ -1397,7 +1465,7 @@ const Admin = () => {
             <div className="flex-between mb-4">
               <h3 className="mb-0">Mes Ebooks ({ebooks.length})</h3>
               <button className="btn btn-primary" onClick={() => {
-                setNewEbook({ slug: '', title: '', price: '', description: '', image: '' });
+                setNewEbook({ slug: '', title: '', price: '', description: '', image: '', testimonials: [] });
                 setEditingEbookId(null);
                 setShowEbookForm(!showEbookForm);
               }}>
@@ -1441,6 +1509,33 @@ const Admin = () => {
                   <div className="form-group mb-4">
                     <label>Description courte</label>
                     <textarea className="cms-textarea" rows="3" required value={newEbook.description} onChange={e => setNewEbook({...newEbook, description: e.target.value})} placeholder="Courte description du contenu du livre..."></textarea>
+                  </div>
+
+                  <div className="form-group mb-4">
+                    <label>Captures de témoignages (Optionnel)</label>
+                    <input type="file" accept="image/*" multiple onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      const promises = files.map(file => {
+                        return new Promise((resolve) => {
+                          const reader = new FileReader();
+                          reader.onloadend = () => resolve(reader.result);
+                          reader.readAsDataURL(file);
+                        });
+                      });
+                      Promise.all(promises).then(base64Images => {
+                        setNewEbook(prev => ({...prev, testimonials: [...(prev.testimonials || []), ...base64Images]}));
+                      });
+                    }} className="glass-input" />
+                    {newEbook.testimonials && newEbook.testimonials.length > 0 && (
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                        {newEbook.testimonials.map((img, i) => (
+                          <div key={i} style={{ position: 'relative' }}>
+                            <img src={img} alt="Témoignage" style={{ height: '80px', borderRadius: '4px', objectFit: 'cover' }} />
+                            <button type="button" onClick={() => setNewEbook(prev => ({...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i)}))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex-end" style={{ gap: '1rem' }}>
@@ -1540,6 +1635,18 @@ const Admin = () => {
                     <label>Contenu Complet (Supporte l'HTML ex: &lt;h2&gt;, &lt;p&gt;)</label>
                     <textarea required className="glass-input" rows="10" value={newArticle.content} onChange={e => setNewArticle({ ...newArticle, content: e.target.value })}></textarea>
                   </div>
+                  <div className="form-group">
+                    <label>Image de couverture (Optionnel)</label>
+                    <input type="file" accept="image/*" className="glass-input" onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setNewArticle({ ...newArticle, image: reader.result });
+                        reader.readAsDataURL(file);
+                      }
+                    }} />
+                    {newArticle.image && <img src={newArticle.image} alt="Preview" style={{ height: '80px', marginTop: '10px', borderRadius: '8px', objectFit: 'cover' }} />}
+                  </div>
                   <button type="submit" className="btn btn-primary full-width">Publier l'article</button>
                 </form>
               </div>
@@ -1610,9 +1717,7 @@ const Admin = () => {
                   </div>
                   {openSections[section.id] && (
                     <div className="cms-section-body">
-                      {section.keys.map(key => (
-                        <CmsField key={key} fieldKey={key} />
-                      ))}
+                      {section.keys.map(key => renderCmsField(key))}
                     </div>
                   )}
                 </div>
@@ -1785,9 +1890,7 @@ const Admin = () => {
                   </div>
                   {openSections[section.id] && (
                     <div className="cms-section-body">
-                      {section.keys.map(key => (
-                        <CmsField key={key} fieldKey={key} />
-                      ))}
+                      {section.keys.map(key => renderCmsField(key))}
                     </div>
                   )}
                 </div>

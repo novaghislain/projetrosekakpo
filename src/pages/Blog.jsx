@@ -86,8 +86,13 @@ const Blog = () => {
           ) : (
             <div className="blog-grid">
               {filteredArticles.map((article, index) => (
-                <article key={article.id} className={`blog-card glass-panel animate-fade-up delay-${(index % 3) * 100}`}>
-                  <div className="blog-content">
+                <article key={article.id} className={`blog-card glass-panel animate-fade-up delay-${(index % 3) * 100}`} style={{ padding: 0, overflow: 'hidden' }}>
+                  {article.image && (
+                    <div className="blog-image-wrapper">
+                      <img src={article.image} alt={article.title} className="blog-card-image" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <div className="blog-content" style={{ padding: '1.5rem' }}>
                     <div className="blog-meta-top">
                       <span className="blog-category">{article.category}</span>
                       <div className="blog-meta-right">
