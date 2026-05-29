@@ -1334,12 +1334,10 @@ const Admin = () => {
                     <div className="form-group">
                       <label>Image de couverture (Optionnel)</label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ position: 'relative', display: 'inline-block' }}>
-                          <input type="file" accept="image/*" onChange={handleEbookImageUpload} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                          <button type="button" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
-                            <Upload size={18} /> Télécharger une image
-                          </button>
-                        </div>
+                        <label className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center', cursor: 'pointer', margin: 0 }}>
+                          <input type="file" accept="image/*" onChange={handleEbookImageUpload} style={{ display: 'none' }} />
+                          <Upload size={18} /> Télécharger une image
+                        </label>
                         {newEbook.image && (
                           <div style={{ marginTop: '1rem' }}>
                             <img src={newEbook.image} alt="Aperçu" style={{ height: '150px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
