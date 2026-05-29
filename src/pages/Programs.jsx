@@ -117,8 +117,8 @@ const Programs = () => {
                   <span className="price text-green">Offerte</span>
                 </div>
                 <p className="option-desc">Idéal pour faire le point, analyser votre profil et définir un plan.</p>
-                <Link to="/checkout?program=coaching-free" className="btn btn-outline small-btn mt-2">
-                  Réserver (Gratuit)
+                <Link to="/checkout?program=coaching-free" className="btn btn-outline small-btn mt-2" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  Réserver
                 </Link>
               </div>
 
@@ -128,7 +128,7 @@ const Programs = () => {
                   <span className="price text-pink">{prices['coaching']?.toLocaleString()} FCFA</span>
                 </div>
                 <p className="option-desc">Session approfondie d'une heure pour auditer vos graphiques et vos trades.</p>
-                <Link to="/checkout?program=coaching" className="btn btn-primary small-btn mt-2">
+                <Link to="/checkout?program=coaching" className="btn btn-primary small-btn mt-2" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   Réserver un suivi
                 </Link>
               </div>

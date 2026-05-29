@@ -149,7 +149,7 @@ const Home = () => {
               <div className="program-icon pink-bg"><BookOpen size={28} /></div>
               <h3>Woman King Trade</h3>
               <p>Un programme dédié aux femmes débutantes pour découvrir le trading, créer une seconde source de revenus et atteindre leur indépendance financière dans un environnement bienveillant.</p>
-              <Link to="/programs#woman-king" className="btn btn-outline full-width mt-auto">Rejoindre Woman King Trade</Link>
+              <Link to="/programs#woman-king" className="btn btn-outline full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Découvrir le programme</Link>
             </div>
 
             <div className="program-card featured glass-panel animate-fade-up delay-200">
@@ -157,14 +157,14 @@ const Home = () => {
               <div className="program-icon pink-bg"><TrendingUp size={28} /></div>
               <h3>La Stratégie 3S</h3>
               <p>Pour les traders intermédiaires qui stagnent. Structure, analyse et psychologie pour devenir rentable.</p>
-              <Link to="/programs#strategie-3s" className="btn btn-primary full-width mt-auto">Découvrir la Stratégie 3S</Link>
+              <Link to="/programs#strategie-3s" className="btn btn-primary full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Découvrir la Stratégie 3S</Link>
             </div>
 
             <div className="program-card animate-fade-up delay-300">
               <div className="program-icon pink-bg"><Award size={28} /></div>
               <h3>Coaching One-to-One</h3>
               <p>Un accompagnement personnalisé pour débloquer vos difficultés spécifiques avec un audit complet.</p>
-              <Link to="/programs#coaching" className="btn btn-outline full-width mt-auto">Réserver un Coaching</Link>
+              <Link to="/programs#coaching" className="btn btn-outline full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Réserver un Coaching</Link>
             </div>
           </div>
         </div>

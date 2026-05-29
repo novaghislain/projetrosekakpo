@@ -18,9 +18,9 @@
   font-weight: 500;
   margin-bottom: 2rem;
   background: var(--color-white);
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   color: var(--color-gray-600);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .badge svg {
@@ -91,7 +91,7 @@
   flex-shrink: 0;
   transition: transform var(--transition-normal);
   border: 4px solid white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -112,12 +112,20 @@
 }
 
 .drop-shadow {
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
 }
 
-.pink-bg-light { background: linear-gradient(135deg, rgba(253, 242, 248, 0.8), rgba(252, 231, 243, 0.8)); }
-.green-bg-light { background: linear-gradient(135deg, rgba(236, 253, 245, 0.8), rgba(209, 250, 229, 0.8)); }
-.gray-bg-light { background: linear-gradient(135deg, rgba(243, 244, 246, 0.8), rgba(229, 231, 235, 0.8)); }
+.pink-bg-light {
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.8), rgba(252, 231, 243, 0.8));
+}
+
+.green-bg-light {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.8), rgba(209, 250, 229, 0.8));
+}
+
+.gray-bg-light {
+  background: linear-gradient(135deg, rgba(243, 244, 246, 0.8), rgba(229, 231, 235, 0.8));
+}
 
 .text-gradient-green {
   background: var(--gradient-green);
@@ -133,7 +141,7 @@
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   display: inline-block;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -242,7 +250,7 @@
   transition: all var(--transition-fast);
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(5px);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 .glass-input:focus {
@@ -333,21 +341,22 @@
 
 .flyer-card.featured {
   border: 2px solid var(--color-brand-gold);
-  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(212,175,55,0.05));
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(212, 175, 55, 0.05));
 }
 
 @media screen and (max-width: 960px) {
+
   .program-detail-container,
   .program-detail-container.reverse {
     flex-direction: column;
     text-align: center;
     gap: 3rem;
   }
-  
+
   .detail-features li {
     justify-content: center;
   }
-  
+
   .program-detail-icon {
     width: 250px;
     height: 250px;
@@ -361,12 +370,12 @@
     object-fit: cover;
     order: -1;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 1.5rem;
   }
-  
+
   .form-wrapper {
     padding: 2.5rem 1.5rem;
   }
@@ -527,7 +536,7 @@
   justify-content: center;
   opacity: 0;
   transition: opacity var(--transition-normal);
-  padding: 2rem;
+  padding: 1.25rem;
   color: var(--color-white);
   text-align: center;
   backdrop-filter: blur(8px);
@@ -538,24 +547,24 @@
 }
 
 .ebook-overlay-icon {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   color: var(--color-brand-gold, #D4AF37);
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
   animation: floatIcon 3s ease-in-out infinite;
 }
 
 .ebook-cover-overlay h3 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   color: var(--color-white);
   line-height: 1.3;
 }
 
 .ebook-cover-overlay p {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0.9;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0.75rem;
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -564,10 +573,10 @@
   background: var(--color-white);
   color: #2E6F40;
   font-weight: 700;
-  padding: 0.8rem 1.75rem;
+  padding: 0.6rem 1.5rem;
   border-radius: 9999px;
   border: none;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
@@ -579,8 +588,15 @@
 }
 
 @keyframes floatIcon {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
-}
+  0% {
+    transform: translateY(0px);
+  }
 
+  50% {
+    transform: translateY(-6px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
