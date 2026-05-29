@@ -52,7 +52,7 @@
 .social-icon:hover {
   background-color: var(--color-gray-100);
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .footer-links h4 {
@@ -158,7 +158,8 @@
 }
 
 .footer.footer-dark .footer-links a:hover {
-  color: #EC4899; /* Pink CTA */
+  color: #EC4899;
+  /* Pink CTA */
 }
 
 .footer.footer-dark .social-icon {
@@ -170,7 +171,8 @@
 
 .footer.footer-dark .social-icon:hover {
   background-color: #1A1A1A;
-  border-color: #D4AF37; /* Gold */
+  border-color: #D4AF37;
+  /* Gold */
 }
 
 .footer.footer-dark .footer-bottom {

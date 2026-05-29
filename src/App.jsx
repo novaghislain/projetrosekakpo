@@ -1,5 +1,8 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { Toaster, toast } from 'react-hot-toast'
+
+
 import ScrollToTop from './components/ScrollToTop'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -44,6 +47,34 @@ function App() {
 
   return (
     <div className="app-container">
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          style: {
+            borderRadius: '16px',
+            background: 'var(--color-white)',
+            color: 'var(--color-gray-900)',
+            border: '1px solid var(--color-gray-100)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+            padding: '16px 24px',
+            fontWeight: '600',
+            fontFamily: 'var(--font-main)',
+            fontSize: '1.05rem'
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--color-green-500)',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--color-pink-500)',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <ScrollToTop />
       {!isAdmin && !isCheckout && <AnnouncementBanner />}
       {!isAdmin && !isCheckout && <Navbar />}

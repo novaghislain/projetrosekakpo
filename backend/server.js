@@ -162,7 +162,7 @@ app.post('/api/newsletter', (req, res) => {
   const query = `INSERT INTO newsletters (email) VALUES (?)`;
   db.run(query, [email], function (err) {
     if (err) {
-      if (err.message.includes('UNIQUE constraint failed')) {
+      if (err.message.includes('UNIQUE constraint failed') || err.message.includes('duplicate key') || err.code === '23505') {
         return res.status(400).json({ error: "Cet email est déjà inscrit à la newsletter." });
       }
       return res.status(500).json({ error: "Erreur lors de l'inscription à la newsletter." });

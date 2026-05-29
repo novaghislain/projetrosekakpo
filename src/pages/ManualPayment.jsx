@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Upload, CheckCircle2, Copy } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { API_URL } from '../config';
 import './Checkout.css';
 
@@ -106,14 +107,14 @@ const ManualPayment = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    alert("Numéro copié !");
+    toast.success("Numéro copié !");
   };
 
   if (success) {
     const trackingUrl = `https://rosekakpo.com/track/${trackingId}`;
     return (
       <div className="checkout-page animate-fade-up">
-        <div className="checkout-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div className="checkout-container checkout-success-container">
           <div className="status-card glass-panel text-center success-final">
             <CheckCircle2 className="text-green scale-up" size={80} style={{ margin: '0 auto' }} />
             <h2 className="text-gradient-pink mt-4">Preuve soumise avec succès !</h2>
@@ -121,19 +122,19 @@ const ManualPayment = () => {
               Merci {customer.firstname} ! Votre paiement est en cours de validation par notre équipe.
             </p>
             
-            <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-              <h3 style={{ color: '#ffb3c6', marginBottom: '1rem', fontSize: '1.1rem' }}>🔗 Votre lien de suivi de commande</h3>
-              <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>Conservez ce lien précieusement. Dès que nous aurons validé votre paiement, votre accès sera disponible sur cette page :</p>
+            <div className="tracking-info-box">
+              <h3 style={{ color: '#D53F8C', marginBottom: '1rem', fontSize: '1.1rem' }}>🔗 Votre lien de suivi de commande</h3>
+              <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#555' }}>Conservez ce lien précieusement. Dès que nous aurons validé votre paiement, votre accès sera disponible sur cette page :</p>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(0,0,0,0.3)', padding: '0.8rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                <input type="text" readOnly value={trackingUrl} style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+              <div className="tracking-url-box">
+                <input type="text" readOnly value={trackingUrl} className="tracking-input" />
                 <button onClick={() => {
                   navigator.clipboard.writeText(trackingUrl);
-                  alert("Lien copié !");
-                }} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>Copier</button>
+                  toast.success("Lien copié !");
+                }} className="btn btn-outline copy-btn">Copier</button>
               </div>
               
-              <button onClick={() => navigate(`/track/${trackingId}`)} className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+              <button onClick={() => navigate(`/track/${trackingId}`)} className="btn btn-primary w-100" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
                 Accéder à mon suivi
                 <ArrowRight size={18} />
               </button>
@@ -154,7 +155,7 @@ const ManualPayment = () => {
     <div className="checkout-page animate-fade-up">
       <div className="checkout-header">
         <div className="checkout-container">
-          <button onClick={() => navigate(-1)} className="checkout-back" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontSize: '1rem' }}>
+          <button onClick={() => navigate(-1)} className="checkout-back" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#555', fontSize: '1rem' }}>
             <ArrowLeft size={18} /> Retour
           </button>
         </div>
@@ -168,67 +169,59 @@ const ManualPayment = () => {
               <h2 className="form-title">Paiement Manuel</h2>
               <p className="form-subtitle">Transférez le montant exact pour valider votre commande.</p>
               
-              {error && <div className="checkout-error mb-4" style={{ backgroundColor: 'rgba(255,0,0,0.1)', color: '#ff4d4d', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,0,0,0.2)' }}>{error}</div>}
+              {error && <div className="checkout-error mb-4" style={{ backgroundColor: 'rgba(255,0,0,0.05)', color: '#ff4d4d', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,0,0,0.1)' }}>{error}</div>}
 
-              <div className="network-selector mb-5" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="network-selector mb-5" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 {Object.keys(networks).map((key) => (
                   <div 
                     key={key}
                     onClick={() => setSelectedNetwork(key)}
+                    className="network-card"
                     style={{ 
-                      flex: '1 1 calc(33.333% - 1rem)', 
-                      padding: '0.5rem', 
-                      borderRadius: '12px', 
-                      cursor: 'pointer',
-                      border: selectedNetwork === key ? `2px solid ${networks[key].color}` : '1px solid rgba(255,255,255,0.1)',
-                      backgroundColor: selectedNetwork === key ? 'rgba(255,255,255,0.05)' : 'transparent',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'all 0.3s ease',
-                      minHeight: '80px'
+                      border: selectedNetwork === key ? `2px solid ${networks[key].color}` : '1px solid rgba(0,0,0,0.1)',
+                      backgroundColor: selectedNetwork === key ? 'rgba(0,0,0,0.02)' : 'transparent',
                     }}
                   >
-                    <img src={`/${key}.png`} alt={networks[key].name} style={{ width: '100%', maxHeight: '70px', objectFit: 'contain' }} />
+                    <img src={`/${key}.png`} alt={networks[key].name} style={{ width: '100%', maxHeight: '40px', objectFit: 'contain' }} />
                   </div>
                 ))}
               </div>
 
-              <div className="payment-instructions glass-panel mb-5" style={{ padding: '1.5rem', borderRadius: '12px', backgroundColor: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                <h3 style={{ marginBottom: '1rem', color: networks[selectedNetwork].color }}>Détails pour {networks[selectedNetwork].name}</h3>
-                <p style={{ marginBottom: '0.5rem', color: '#666' }}>Montant à transférer :</p>
-                <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#333', marginBottom: '1.5rem' }}>
+              <div className="payment-instructions glass-panel mb-5">
+                <h3 style={{ marginBottom: '1rem', color: networks[selectedNetwork].color, fontSize: '1.1rem' }}>Détails pour {networks[selectedNetwork].name}</h3>
+                <p className="instruction-label">Montant à transférer :</p>
+                <div className="instruction-value price-highlight">
                   {dynamicPrice.toLocaleString()} FCFA
                 </div>
 
-                <p style={{ marginBottom: '0.5rem', color: '#666' }}>Envoyez au numéro :</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#333', letterSpacing: '1px' }}>
+                <p className="instruction-label">Envoyez au numéro :</p>
+                <div className="phone-row">
+                  <span className="phone-number">
                     {networks[selectedNetwork].number}
                   </span>
-                  <button onClick={() => copyToClipboard(networks[selectedNetwork].number)} style={{ background: 'none', border: 'none', color: '#d4af37', cursor: 'pointer' }} title="Copier le numéro">
-                    <Copy size={20} />
+                  <button onClick={() => copyToClipboard(networks[selectedNetwork].number)} className="copy-icon-btn" title="Copier le numéro">
+                    <Copy size={18} />
                   </button>
                 </div>
-                <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '0' }}>Nom : {networks[selectedNetwork].recipientName}</p>
+                <p className="recipient-name">Nom : {networks[selectedNetwork].recipientName}</p>
               </div>
 
               <form onSubmit={handleSubmit}>
                 <div className="form-group mb-4">
-                  <label style={{ display: 'block', marginBottom: '1rem', fontWeight: '500' }}>Preuve de transfert (Capture d'écran)</label>
-                  <label className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center', cursor: 'pointer', margin: 0, padding: '1rem', borderStyle: 'dashed' }}>
+                  <label className="upload-label">Preuve de transfert (Capture d'écran)</label>
+                  <label className="btn btn-outline upload-btn">
                     <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                     <Upload size={20} /> Sélectionner une image
                   </label>
                   
                   {proofImage && (
-                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                      <img src={proofImage} alt="Preuve" style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '8px', objectFit: 'contain' }} />
+                    <div className="proof-image-container">
+                      <img src={proofImage} alt="Preuve" className="proof-image" />
                     </div>
                   )}
                 </div>
 
-                <button type="submit" disabled={loading} className="checkout-submit-btn pulse-glow mt-4" style={{ width: '100%', padding: '1.2rem' }}>
+                <button type="submit" disabled={loading} className="btn btn-primary submit-payment-btn">
                   {loading ? 'Soumission...' : "Valider mon paiement"}
                 </button>
               </form>
@@ -238,18 +231,18 @@ const ManualPayment = () => {
           <div className="checkout-right">
             <div className="checkout-summary-box">
               <h3 className="summary-title">Récapitulatif</h3>
-              <div className="summary-item-card" style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <div className="summary-item-card">
                 <div className="summary-item-info">
-                  <h4>{programName}</h4>
+                  <h4 className="program-name-summary">{programName}</h4>
                 </div>
               </div>
               <div className="summary-price-row">
                 <span>Client</span>
-                <span>{customer.firstname} {customer.lastname}</span>
+                <span className="customer-name-summary">{customer.firstname} {customer.lastname}</span>
               </div>
-              <div className="summary-price-row">
+              <div className="summary-total-row">
                 <span>Total à payer</span>
-                <span className="total-price" style={{ fontSize: '1.2rem' }}>{dynamicPrice.toLocaleString()} FCFA</span>
+                <span className="total-price">{dynamicPrice.toLocaleString()} FCFA</span>
               </div>
             </div>
           </div>

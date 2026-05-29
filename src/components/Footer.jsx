@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Instagram, Youtube, Send, Facebook, ExternalLink } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import './Footer.css'
 import { API_URL } from '../config';
 
@@ -16,6 +17,7 @@ const Footer = () => {
       })
       .catch(() => {});
   }, []);
+  
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     const emailInput = e.target.querySelector('input[type="email"]');
@@ -30,14 +32,14 @@ const Footer = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        alert("Inscription à la newsletter réussie !");
+        toast.success("Inscription à la newsletter réussie !");
         e.target.reset();
       } else {
-        alert(data.error || "Une erreur est survenue.");
+        toast.error(data.error || "Une erreur est survenue.");
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur de connexion au serveur.");
+      toast.error("Erreur de connexion au serveur.");
     }
   };
 
