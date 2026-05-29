@@ -29,18 +29,7 @@ const Ebooks = () => {
             slug: 'ebook-vision',
             title: 'De la vision à la maîtrise',
             price: 15.00,
-            description: `Tu peux passer des années à trader… ou poser dès maintenant les bonnes bases.
-
-De la vision à la maîtrise du Trading est un guide pratique et structuré conçu pour t’aider à comprendre le marché simplement, sans surcharge ni confusion.
-
-Tu y découvriras :
-• Les bases essentielles pour analyser le marché
-• Comment construire un vrai plan de trading
-• La gestion du risque et du capital
-• La psychologie du trader
-• Des conseils concrets adaptés aux débutants
-
-Une méthode claire, pratique et orientée résultats pour avancer avec confiance et arrêter d’improviser.`,
+            description: 'Découvrez la puissance de l\'analyse des bougies japonaises.',
             image: '/cover-positionner.jpeg'
           },
           {
@@ -48,11 +37,7 @@ Une méthode claire, pratique et orientée résultats pour avancer avec confianc
             slug: 'ebook-positionner',
             title: 'Se positionner intelligemment',
             price: 15.00,
-            description: `Et si les bougies du marché pouvaient enfin devenir un langage que tu comprends réellement ?
-
-Dans cet ebook, tu vas apprendre à reconnaître les figures de bougies les plus importantes, comprendre ce qu’elles signifient et surtout savoir comment les utiliser pour éviter les entrées inutiles et mieux te positionner sur le marché.
-
-Un guide simple, pratique et accessible, conçu pour t’aider à développer une lecture plus intelligente du marché même si tu débutes en trading.`,
+            description: 'Le guide pratique pour débuter le trading sereinement.',
             image: '/book.png'
           }
         ])
@@ -71,7 +56,7 @@ Un guide simple, pratique et accessible, conçu pour t’aider à développer un
 
       <section id="ebooks" className="section bg-light" style={{ minHeight: '60vh' }}>
         <div className="container animate-fade-up delay-100">
-          
+
           {loading ? (
             <div className="text-center" style={{ padding: '4rem 0' }}>
               <div className="spinner"></div>
