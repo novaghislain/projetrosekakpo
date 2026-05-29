@@ -25,6 +25,7 @@ try {
 }
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 
 // Middleware
@@ -731,6 +732,112 @@ app.get('/api/payment/verify/:id', async (req, res) => {
 });
 
 // Démarrer le serveur
+
+// --- PAIEMENTS MANUELS ---
+
+app.post('/api/payment/manual', (req, res) => {
+  const { programId, customer, network, proofImage } = req.body;
+  if (!programId || !customer || !network || !proofImage) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+
+  const query = `INSERT INTO manual_payments (program_id, customer_info, network, proof_image, status) VALUES (?, ?, ?, ?, 'pending')`;
+  db.run(query, [programId, JSON.stringify(customer), network, proofImage], function(err) {
+    if (err) {
+      console.error("Erreur insertion manual_payment:", err);
+      return res.status(500).json({ error: "Erreur lors de la soumission de votre paiement." });
+    }
+    res.status(201).json({ success: true, message: "Paiement soumis avec succès. En attente de validation." });
+  });
+});
+
+app.get('/api/admin/manual-payments', (req, res) => {
+  db.all(`SELECT * FROM manual_payments ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur" });
+    const parsed = rows.map(r => {
+      try { r.customer_info = JSON.parse(r.customer_info); } catch(e) {}
+      return r;
+    });
+    res.json(parsed);
+  });
+});
+
+app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
+  const { id } = req.params;
+  
+  db.get(`SELECT * FROM manual_payments WHERE id = ?`, [id], (err, row) => {
+    if (err || !row) return res.status(404).json({ error: "Paiement introuvable." });
+    if (row.status === 'approved') return res.status(400).json({ error: "Déjà approuvé." });
+
+    let customer = {};
+    try { customer = JSON.parse(row.customer_info); } catch(e) {}
+    
+    const enrollQuery = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
+    const programNames = {
+      'woman-king': 'Woman King Trade',
+      'strategie-3s': 'Stratégie 3S',
+      'coaching-free': 'Coaching One-to-One (1ère Séance)',
+      'coaching': 'Coaching One-to-One (Suivi)',
+      'ebook-vision': 'E-Book : De la vision à la maîtrise',
+      'ebook-positionner': 'E-Book : Se positionner intelligemment'
+    };
+    const programmeName = programNames[row.program_id] || row.program_id;
+    
+    db.run(enrollQuery, [`${customer.firstname} ${customer.lastname}`, customer.email, customer.whatsapp, 'N/A', programmeName], (err2) => {
+      if (err2) console.error("Erreur insertion enrollments:", err2);
+      
+      db.run(`UPDATE manual_payments SET status = 'approved' WHERE id = ?`, [id], (err3) => {
+        
+        db.all("SELECT key, value FROM content WHERE section = 'mail'", (errMail, rowsMail) => {
+          if (!errMail && rowsMail && rowsMail.length > 0) {
+            const mailConfig = {};
+            rowsMail.forEach(r => { mailConfig[r.key] = r.value });
+            
+            if (mailConfig.smtp_user && mailConfig.smtp_pass) {
+              const transporter = require('nodemailer').createTransport({
+                host: mailConfig.smtp_host || 'smtp.gmail.com',
+                port: parseInt(mailConfig.smtp_port) || 465,
+                secure: parseInt(mailConfig.smtp_port) === 465,
+                auth: { user: mailConfig.smtp_user, pass: mailConfig.smtp_pass }
+              });
+
+              let textContent = `Bonjour ${customer.firstname},\n\nVotre paiement a été validé avec succès pour : ${programmeName}.\n\n`;
+              if (row.program_id === 'ebook-vision' || row.program_id === 'ebook-positionner') {
+                const link = row.program_id === 'ebook-vision' ? 'https://projetrosekakpo.onrender.com/EBOOK_FIGURE_BOUGIE_ROSE.pdf' : 'https://projetrosekakpo.onrender.com/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
+                textContent += `Voici le lien pour télécharger votre E-Book : ${link}\n\n`;
+              } else {
+                textContent += `Veuillez rejoindre nos canaux de communication :\nWhatsApp: https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA\nTelegram: https://t.me/+hXBcjA-rPjpmZGRk\n\n`;
+              }
+              textContent += `Merci pour votre confiance,\nL'équipe Rose Kakpo`;
+
+              const mailOptions = {
+                from: `"Rose Kakpo" <${mailConfig.smtp_user}>`,
+                to: customer.email,
+                subject: `Accès à votre programme : ${programmeName}`,
+                text: textContent
+              };
+
+              transporter.sendMail(mailOptions, (error) => {
+                if (error) console.error("Erreur d'envoi d'email :", error);
+              });
+            }
+          }
+        });
+
+        res.json({ success: true });
+      });
+    });
+  });
+});
+
+app.delete('/api/admin/manual-payments/:id', (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM manual_payments WHERE id = ?`, [id], function(err) {
+    if (err) return res.status(500).json({ error: "Erreur serveur" });
+    res.json({ success: true });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Serveur Backend démarré sur http://localhost:${PORT}`);
 });

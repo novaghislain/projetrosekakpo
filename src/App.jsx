@@ -13,6 +13,7 @@ import BlogPost from './pages/BlogPost'
 import Admin from './pages/Admin'
 import Contact from './pages/Contact'
 import Checkout from './pages/Checkout'
+import ManualPayment from './pages/ManualPayment'
 import MockCheckout from './pages/MockCheckout'
 import PaymentCallback from './pages/PaymentCallback'
 import FormationDetails from './pages/FormationDetails'
@@ -57,6 +58,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/manual-payment" element={<ManualPayment />} />
           <Route path="/mock-checkout" element={<MockCheckout />} />
           <Route path="/payment-callback" element={<PaymentCallback />} />
         </Routes>

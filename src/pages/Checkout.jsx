@@ -124,23 +124,31 @@ const Checkout = () => {
     setError('')
 
     try {
-      const response = await fetch(`${API_URL}/api/payment/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          programId,
-          customer: formData,
-          sessionType: programId === 'coaching-free' ? 'free' : 'paid'
+      if (programId === 'coaching-free') {
+        // Le coaching gratuit continue d'utiliser l'ancien flux direct
+        const response = await fetch(`${API_URL}/api/payment/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ programId, customer: formData, sessionType: 'free' })
         })
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.url) {
-        window.location.href = data.url
+        const data = await response.json()
+        if (response.ok && data.url) {
+          window.location.href = data.url
+        } else {
+          setError(data.error || "Erreur.")
+          setLoading(false)
+        }
       } else {
-        setError(data.error || "Une erreur est survenue lors de l'initialisation.")
-        setLoading(false)
+        // Redirection vers la page de paiement manuel temporaire
+        navigate('/manual-payment', { 
+          state: { 
+            programId, 
+            programName: program.name,
+            dynamicPrice, 
+            dynamicUsdPrice,
+            customer: formData 
+          } 
+        });
       }
     } catch (err) {
       console.error(err)

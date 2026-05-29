@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Users, BookOpen, MessageSquare, Trash2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload } from 'lucide-react';
+import { Mail, Users, BookOpen, MessageSquare, Trash2, CreditCard, CheckCircle2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Admin.css';
 import { API_URL } from '../config';
@@ -42,6 +42,7 @@ const Admin = () => {
   const [contacts, setContacts] = useState([]);
   const [newsletters, setNewsletters] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
+  const [manualPayments, setManualPayments] = useState([]);
   const [formations, setFormations] = useState([]);
   const [ebooks, setEbooks] = useState([]);
   const [newEbook, setNewEbook] = useState({ slug: '', title: '', price: '', description: '', image: '' });
@@ -177,7 +178,7 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks] = await Promise.all([
+      const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks, resManual] = await Promise.all([
         fetch(`${API_URL}/api/admin/contacts`).then(res => res.json()),
         fetch(`${API_URL}/api/admin/newsletters`).then(res => res.json()),
         fetch(`${API_URL}/api/admin/enrollments`).then(res => res.json()),
@@ -185,7 +186,8 @@ const Admin = () => {
         fetch(`${API_URL}/api/prices`).then(res => res.json()),
         fetch(`${API_URL}/api/content`).then(res => res.json()),
         fetch(`${API_URL}/api/admin/formations`).then(res => res.json()),
-        fetch(`${API_URL}/api/ebooks`).then(res => res.json())
+        fetch(`${API_URL}/api/ebooks`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/manual-payments`).then(res => res.json())
       ]);
       setContacts(resContacts);
       setNewsletters(resNewsletters);
@@ -195,6 +197,7 @@ const Admin = () => {
       setSiteContent(resContent);
       setFormations(resFormations);
       setEbooks(resEbooks);
+      if(Array.isArray(resManual)) setManualPayments(resManual);
 
       const editMap = {};
       resPrices.forEach(p => {
@@ -302,6 +305,28 @@ const Admin = () => {
       console.error("Erreur de mise à jour:", error);
       alert("Impossible de se connecter au serveur.");
     }
+  };
+
+  
+  const handleApproveManualPayment = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin/manual-payments/${id}/approve`, { method: 'POST' });
+      if (response.ok) {
+        alert("Paiement validé avec succès ! Le client a reçu son accès par email.");
+        fetchData();
+      } else {
+        const data = await response.json();
+        alert(data.error || "Erreur lors de la validation.");
+      }
+    } catch(err) { alert("Erreur réseau"); }
+  };
+
+  const handleRejectManualPayment = async (id) => {
+    if(!window.confirm("Êtes-vous sûr de vouloir supprimer cette preuve de paiement ?")) return;
+    try {
+      const response = await fetch(`${API_URL}/api/admin/manual-payments/${id}`, { method: 'DELETE' });
+      if (response.ok) fetchData();
+    } catch(err) { alert("Erreur réseau"); }
   };
 
   const handleLogout = () => {
@@ -782,6 +807,14 @@ const Admin = () => {
         </button>
         <button className={`admin-tab ${activeTab === 'formations' ? 'active' : ''}`} onClick={() => setActiveTab('formations')}>
           <BookOpen size={18} /> Mes Formations ({formations.length})
+        </button>
+        <button className={`admin-tab ${activeTab === 'manual-payments' ? 'active' : ''}`} onClick={() => setActiveTab('manual-payments')}>
+          <CreditCard size={18} /> Preuves de Paiement
+          {manualPayments && manualPayments.filter(m => m.status === 'pending').length > 0 && (
+            <span style={{background:'#e5007d', color:'white', borderRadius:'50%', padding:'2px 6px', fontSize:'0.7rem', marginLeft:'auto'}}>
+              {manualPayments.filter(m => m.status === 'pending').length}
+            </span>
+          )}
         </button>
         <button className={`admin-tab ${activeTab === 'ebooks' ? 'active' : ''}`} onClick={() => setActiveTab('ebooks')}>
           <BookOpen size={18} /> Mes Ebooks ({ebooks.length})
@@ -1298,6 +1331,64 @@ const Admin = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        
+        {activeTab === 'manual-payments' && (
+          <div className="admin-section animate-fade-up">
+            <div className="admin-header-flex">
+              <h2><CreditCard size={24} className="text-pink" /> Preuves de Paiement (Mobile Money)</h2>
+            </div>
+            <div className="admin-card glass-panel" style={{ overflowX: 'auto' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>WhatsApp</th>
+                    <th>Programme</th>
+                    <th>Réseau</th>
+                    <th>Statut</th>
+                    <th>Preuve</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {manualPayments && manualPayments.length > 0 ? (
+                    manualPayments.map(payment => (
+                      <tr key={payment.id}>
+                        <td>{new Date(payment.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                        <td>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br/><small>{payment.customer_info?.email}</small></td>
+                        <td>{payment.customer_info?.whatsapp}</td>
+                        <td>{payment.program_id}</td>
+                        <td><strong>{payment.network}</strong></td>
+                        <td>
+                          {payment.status === 'pending' ? <span style={{color: '#ffcc00', fontWeight: 'bold'}}>En attente</span> : <span style={{color: '#4caf50', fontWeight: 'bold'}}>Validé</span>}
+                        </td>
+                        <td>
+                          <a href={payment.proof_image} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                            Voir image
+                          </a>
+                        </td>
+                        <td>
+                          {payment.status === 'pending' && (
+                            <button onClick={() => handleApproveManualPayment(payment.id)} className="action-btn text-green mr-2" title="Valider et envoyer email">
+                              <CheckCircle2 size={18} />
+                            </button>
+                          )}
+                          <button onClick={() => handleRejectManualPayment(payment.id)} className="action-btn text-red" title="Supprimer">
+                            <Trash2 size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="8" className="text-center text-muted">Aucun paiement manuel enregistré.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
