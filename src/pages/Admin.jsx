@@ -467,7 +467,7 @@ const Admin = () => {
     
     try {
       const method = editingFormationId ? 'PUT' : 'POST';
-      const url = editingFormationId ? `/api/admin/formations/${editingFormationId}` : '/api/admin/formations';
+      const url = editingFormationId ? `${API_URL}/api/admin/formations/${editingFormationId}` : `${API_URL}/api/admin/formations`;
       
       const response = await fetch(url, {
         method,
@@ -536,7 +536,7 @@ const Admin = () => {
 
   const handleCreateEbook = async (e) => {
     e.preventDefault();
-    const url = editingEbookId ? `/api/admin/ebooks/${editingEbookId}` : '/api/admin/ebooks';
+    const url = editingEbookId ? `${API_URL}/api/admin/ebooks/${editingEbookId}` : `${API_URL}/api/admin/ebooks`;
     const method = editingEbookId ? 'PUT' : 'POST';
 
     try {
