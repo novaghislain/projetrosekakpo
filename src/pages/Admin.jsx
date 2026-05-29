@@ -1210,7 +1210,7 @@ const Admin = () => {
 
         {activeTab === 'formations' && (
           <div className="admin-panel animate-fade-up">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div className="admin-section-header">
               <h2 className="text-gradient m-0">Formations & Landing Pages</h2>
               {!showFormationForm && (
                 <button onClick={() => { setShowFormationForm(true); setEditingFormationId(null); }} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1220,14 +1220,14 @@ const Admin = () => {
             </div>
 
             {showFormationForm ? (
-              <div className="glass-panel" style={{ padding: '2rem', marginTop: '1rem' }}>
+              <div className="glass-panel admin-form-container">
                 <h3 className="mb-4">{editingFormationId ? 'Modifier la formation' : 'Créer une nouvelle page de formation'}</h3>
                 <form onSubmit={handleCreateFormation}>
                   
                   {/* Section 1: Informations */}
-                  <div style={{ background: 'rgba(255,255,255,0.5)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--color-gray-200)' }}>
+                  <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>1. Informations de base</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div className="admin-form-grid-2">
                       <div className="form-group">
                         <label>Titre de la formation</label>
                         <input type="text" className="cms-input" required placeholder="Ex: Woman King Trade" value={newFormation.title} onChange={e => {
@@ -1244,9 +1244,9 @@ const Admin = () => {
                   </div>
 
                   {/* Section 2: Tarification & Capacité */}
-                  <div style={{ background: 'rgba(255,255,255,0.5)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--color-gray-200)' }}>
+                  <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>2. Tarification & Inscriptions</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div className="admin-form-grid-2">
                       <div className="form-group">
                         <label>Prix (en FCFA)</label>
                         <input type="number" className="cms-input" required placeholder="Ex: 35000" value={newFormation.price} onChange={e => setNewFormation({...newFormation, price: e.target.value})} />
@@ -1265,7 +1265,7 @@ const Admin = () => {
                   </div>
 
                   {/* Section 3: Médias & Contenu */}
-                  <div style={{ background: 'rgba(255,255,255,0.5)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--color-gray-200)' }}>
+                  <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>3. Visuels & Contenu de la page</h4>
                     <div className="form-group mb-4">
                       <label>Affiche / Flyer de la formation</label>
@@ -1291,7 +1291,7 @@ const Admin = () => {
                   </div>
 
                   {/* Section 4: Générateur Landing Page Pro */}
-                  <div style={{ background: 'rgba(255,255,255,0.5)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--color-gray-200)' }}>
+                  <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>4. Sections Landing Page Pro</h4>
                     
                     <div className="form-group mb-4">
@@ -1404,7 +1404,7 @@ const Admin = () => {
             <div className="admin-header-flex">
               <h2><CreditCard size={24} className="text-pink" /> Preuves de Paiement (Mobile Money)</h2>
             </div>
-            <div className="admin-card glass-panel" style={{ overflowX: 'auto' }}>
+            <div className="admin-card glass-panel" style={{ overflowX: 'auto', padding: '0' }}>
               <table className="admin-table">
                 <thead>
                   <tr>
