@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
@@ -33,194 +33,54 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Base de données
-const dbPath = path.resolve(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Erreur lors de la connexion à la base de données:', err.message);
-  } else {
-    console.log('Connecté à la base de données SQLite.');
 
-    // Création des tables si elles n'existent pas
-    db.serialize(() => {
-      // Table Contacts
-      db.run(`CREATE TABLE IF NOT EXISTS contacts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nom TEXT NOT NULL,
-        email TEXT NOT NULL,
-        sujet TEXT,
-        message TEXT NOT NULL,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
-      // Table Newsletters
-      db.run(`CREATE TABLE IF NOT EXISTS newsletters (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+pool.on('error', (err) => {
+  console.error('Erreur inattendue sur le client PostgreSQL', err);
+});
 
-      // Table Enrollments
-      db.run(`CREATE TABLE IF NOT EXISTS enrollments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nom TEXT NOT NULL,
-        email TEXT NOT NULL,
-        whatsapp TEXT NOT NULL,
-        niveau TEXT NOT NULL,
-        programme TEXT NOT NULL,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+console.log('Connecté à la base de données PostgreSQL (Supabase).');
 
-      // Table Articles
-      db.run(`CREATE TABLE IF NOT EXISTS articles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        category TEXT NOT NULL,
-        date TEXT NOT NULL,
-        readTime TEXT NOT NULL,
-        excerpt TEXT NOT NULL,
-        content TEXT NOT NULL,
-        author TEXT DEFAULT 'Rose Kakpo',
-        authorRole TEXT DEFAULT 'Tradeuse & Formatrice'
-      )`);
+// Convertit les ? en $1, $2, etc. pour PostgreSQL
+function convertToPg(sql) {
+  let i = 1;
+  return sql.replace(/\?/g, () => '$' + (i++));
+}
 
-      // Table Formations (Dynamic Landing Pages)
-      db.run(`CREATE TABLE IF NOT EXISTS formations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        slug TEXT UNIQUE NOT NULL,
-        title TEXT NOT NULL,
-        price REAL NOT NULL,
-        capacity INTEGER NOT NULL,
-        program TEXT NOT NULL,
-        image TEXT,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
-
-      // Table Ebooks
-      db.run(`CREATE TABLE IF NOT EXISTS ebooks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        slug TEXT UNIQUE NOT NULL,
-        title TEXT NOT NULL,
-        price REAL NOT NULL,
-        description TEXT NOT NULL,
-        image TEXT,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`, () => {
-        // Seed default ebooks if empty
-        db.get("SELECT COUNT(*) as count FROM ebooks", (err, row) => {
-          if (!err && row && row.count === 0) {
-            db.run(`INSERT INTO ebooks (slug, title, price, description, image) VALUES 
-              ('ebook-vision', 'De la vision à la maîtrise', 15.00, 'Découvrez la puissance de l''analyse des bougies japonaises.', '/cover-positionner.jpeg'),
-              ('ebook-positionner', 'Se positionner intelligemment', 15.00, 'Le guide pratique pour débuter le trading sereinement.', '/book.png')
-            `);
-          }
-        });
-      });
-
-      // Table Content (CMS)
-      db.run(`CREATE TABLE IF NOT EXISTS content (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        label TEXT NOT NULL,
-        section TEXT NOT NULL,
-        type TEXT DEFAULT 'text'
-      )`, () => {
-        db.get("SELECT COUNT(*) as count FROM content", (err, row) => {
-          if (!err && row && row.count === 0) {
-            const defaultContent = [
-              // Hero
-              ['hero_title', 'Le trading simplifié pour les femmes <span>ambitieuses</span>', 'Titre principal Hero', 'hero', 'html'],
-              ['hero_subtitle', "Je t'aide à comprendre le trading, la discipline et l'éducation financière à travers un accompagnement de proximité.", 'Sous-titre Hero', 'hero', 'text'],
-              ['hero_benefit_1', 'Approche 100% adaptée aux débutants', 'Avantage 1 (Hero)', 'hero', 'text'],
-              ['hero_benefit_3', 'Communauté active et bienveillante', 'Avantage 3 (Hero)', 'hero', 'text'],
-              ['hero_stat_1', '+500', 'Statistique 1 - Nombre', 'hero', 'text'],
-              ['hero_stat_1_label', 'Femmes formées', 'Statistique 1 - Label', 'hero', 'text'],
-              ['hero_stat_2', '3 ans', 'Statistique 2 - Nombre', 'hero', 'text'],
-              ['hero_stat_2_label', "D'expérience", 'Statistique 2 - Label', 'hero', 'text'],
-              // About (page Accueil)
-              ['about_quote', "Le trading n'est pas un jeu de hasard, c'est une compétence qui s'acquiert avec la bonne méthode et la bonne psychologie.", 'Citation Rose (page Accueil)', 'about_preview', 'text'],
-              ['about_intro', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la RMICLASS, un écosystème spécialisé dans l'éducation au trading. Passionnée par le digital et les marchés financiers, j'accompagne les débutants qui souhaitent apprendre le trading avec plus de simplicité, de compréhension et de proximité.", 'Présentation courte (page Accueil)', 'about_preview', 'html'],
-              // About page
-              ['about_story_1', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la <strong>RMICLASS</strong>. Passionnée par le digital et les marchés financiers, j'accompagne les personnes qui souhaitent découvrir le trading avec plus de simplicité et de proximité.", 'Mon histoire - Paragraphe 1', 'about_page', 'html'],
-              ['about_story_2', "Mon objectif ne se limite pas au partage de connaissances. À travers cette plateforme, j'ai voulu créer un espace où les débutants peuvent apprendre à leur rythme, sans se sentir dépassés par la complexité de cet univers.", 'Mon histoire - Paragraphe 2', 'about_page', 'text'],
-              ['about_story_3', "Quand j'ai découvert le trading, je me suis rapidement heurtée à la complexité de cet univers : termes techniques, trop d'informations et très peu de clarté. Comme beaucoup, je m'y suis perdue et avec le temps, l'apprentissage et mes <strong>3 années d'expérience</strong> acquises au sein de la <strong>RMICLASS</strong>, j'ai pu développer une compréhension solide des marchés.", 'Mon histoire - Paragraphe 3', 'about_page', 'html'],
-              ['about_mission', "Accompagner les personnes qui souhaitent découvrir le trading autrement : avec plus de simplicité, de compréhension et de structure. Mon but est de vous faire gagner du temps et de vous éviter les erreurs classiques que rencontrent énormément de débutants.", 'Ma Mission', 'about_page', 'text'],
-              ['about_vision', "À travers cette plateforme, je souhaite rendre l'apprentissage du trading plus humain, plus clair et plus accessible à une nouvelle génération tournée vers le digital, l'indépendance financière et l'évolution personnelle.", 'Ma Vision', 'about_page', 'text'],
-              // Témoignages
-              ['testimonial_1_text', "Formation très claire. J'avais peur de me lancer mais Rose a su rendre les choses tellement simples à comprendre !", 'Témoignage 1 - Texte', 'testimonials', 'text'],
-              ['testimonial_1_author', 'Sarah L.', 'Témoignage 1 - Auteur', 'testimonials', 'text'],
-              ['testimonial_2_text', "J'ai enfin compris le trading grâce au programme 3S. Ma psychologie a complètement changé devant les graphiques.", 'Témoignage 2 - Texte', 'testimonials', 'text'],
-              ['testimonial_2_author', 'Marc E.', 'Témoignage 2 - Auteur', 'testimonials', 'text'],
-              // CTA
-              ['cta_title', 'Prête à commencer ton parcours financier ?', 'CTA - Titre', 'cta', 'text'],
-              ['cta_subtitle', 'Rejoignez une communauté bienveillante et passez à l\'action dès aujourd\'hui pour transformer votre avenir.', 'CTA - Sous-titre', 'cta', 'text'],
-              // Contact
-              ['contact_email', 'contact@rose-kakpo.com', 'Adresse e-mail de contact', 'contact', 'text'],
-              ['contact_phone', '+229 01 02 03 04', 'Numéro de téléphone public', 'contact', 'text'],
-              ['contact_whatsapp', '', 'Lien WhatsApp (ex: https://wa.me/22901020304)', 'contact', 'text'],
-              ['contact_facebook', '', 'Lien Facebook', 'contact', 'text'],
-              ['contact_instagram', '', 'Lien Instagram', 'contact', 'text'],
-              ['contact_telegram', '', 'Lien Telegram / Canal', 'contact', 'text'],
-              // SEO & Mail
-              ['seo_title', 'Rose Kakpo - Trading', 'Titre principal du site (SEO)', 'seo', 'text'],
-              ['seo_description', 'Découvrez mon parcours et mes formations pour maîtriser le trading.', 'Description du site (SEO)', 'seo', 'textarea'],
-              ['ceo_forward_email', '', 'E-mail de réception des formulaires de contact', 'mail', 'text'],
-              ['smtp_host', 'smtp.gmail.com', 'Serveur SMTP', 'mail', 'text'],
-              ['smtp_port', '465', 'Port SMTP', 'mail', 'text'],
-              ['smtp_user', '', 'E-mail expéditeur', 'mail', 'text'],
-              ['smtp_pass', '', 'Mot de passe d\'application SMTP', 'mail', 'text']
-            ];
-            const stmt = db.prepare("INSERT INTO content (key, value, label, section, type) VALUES (?, ?, ?, ?, ?)");
-            defaultContent.forEach(([k, v, l, s, t]) => stmt.run(k, v, l, s, t));
-            stmt.finalize();
-            console.log('Contenu par défaut du site inséré.');
-          }
-        });
-      });
-
-      // Table Prices
-      db.run(`CREATE TABLE IF NOT EXISTS prices (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        price REAL NOT NULL
-      )`, () => {
-        // Seed initial values if empty
-        db.get("SELECT COUNT(*) as count FROM prices", (err, row) => {
-          if (!err && row && row.count === 0) {
-            const stmt = db.prepare("INSERT INTO prices (id, name, price) VALUES (?, ?, ?)");
-            stmt.run("woman-king", "Woman King Trade", 25000);
-            stmt.run("strategie-3s", "Stratégie 3S", 50000);
-            stmt.run("coaching-free", "Coaching One-to-One (1ère Séance)", 0);
-            stmt.run("coaching", "Coaching One-to-One (Suivi)", 15000);
-            stmt.run("ebook-vision", "E-Book : De la vision à la maîtrise", 5000);
-            stmt.run("ebook-positionner", "E-Book : Se positionner intelligemment", 5000);
-            stmt.finalize();
-            console.log('Tarifs par défaut insérés en base de données.');
-          }
-        });
-      });
-
-      // Table Users (Admins & Collaborators)
-      db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT DEFAULT 'collaborateur',
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`, () => {
-        // Seed initial admin user if empty
-        db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
-          if (!err && row && row.count === 0) {
-            db.run("INSERT INTO users (username, password, role) VALUES ('rose', 'rose2024', 'admin')", (err2) => {
-              if (!err2) {
-                console.log('Administrateur par défaut inséré (rose/rose2024).');
-              }
-            });
-          }
-        });
-      });
+// Shim (adaptateur) pour simuler l'API sqlite3 et éviter de réécrire toutes les routes
+const db = {
+  all: (sql, params, callback) => {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    pool.query(convertToPg(sql), params, (err, res) => {
+      callback(err, res ? res.rows : []);
+    });
+  },
+  get: (sql, params, callback) => {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    pool.query(convertToPg(sql), params, (err, res) => {
+      callback(err, res && res.rows.length > 0 ? res.rows[0] : null);
+    });
+  },
+  run: function(sql, params, callback) {
+    if (typeof params === 'function') {
+      callback = params;
+      params = [];
+    }
+    pool.query(convertToPg(sql), params, (err, res) => {
+      if (callback) callback.call({ lastID: null, changes: res ? res.rowCount : 0 }, err);
     });
   }
-});
+};
 
 // === ROUTES PUBLIQUES ===
 
