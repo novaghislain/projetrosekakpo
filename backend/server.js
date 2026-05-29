@@ -759,7 +759,21 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
   db.get(`SELECT program_id, status FROM manual_payments WHERE tracking_id = ?`, [trackingId], (err, row) => {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     if (!row) return res.status(404).json({ error: "Lien de suivi invalide ou introuvable." });
-    res.json({ success: true, programId: row.program_id, status: row.status });
+    
+    if (row.status === 'approved') {
+      db.get(`SELECT content_json FROM formations WHERE slug = ?`, [row.program_id], (err2, formRow) => {
+        let accessLink = null;
+        if (formRow && formRow.content_json) {
+          try {
+            const content = JSON.parse(formRow.content_json);
+            accessLink = content.accessLink || null;
+          } catch(e) {}
+        }
+        res.json({ success: true, programId: row.program_id, status: row.status, accessLink });
+      });
+    } else {
+      res.json({ success: true, programId: row.program_id, status: row.status });
+    }
   });
 });
 

@@ -105,7 +105,7 @@ const Footer = () => {
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} Rose Kakpo. Tous droits réservés.</p>
           <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
-            <span>Développé par <strong style={{ color: 'var(--color-gray-800)' }}>NovaTech Vision</strong></span>
+            <span>Développé par <a href="https://novatechvision.com" target="_blank" rel="noreferrer" style={{ color: 'var(--color-gray-800)', textDecoration: 'none' }}><strong>NovaTech Vision</strong></a></span>
             <span style={{ opacity: 0.5 }}>|</span>
             <a href="mailto:contact@novatechvision.com" style={{ color: 'inherit', textDecoration: 'none' }}>contact@novatechvision.com</a>
             <span style={{ opacity: 0.5 }}>|</span>

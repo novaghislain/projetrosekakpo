@@ -108,6 +108,7 @@ const Admin = () => {
     included: '',
     authorBio: '',
     expirationDate: '',
+    accessLink: '',
     testimonials: []
   });
   const [showFormationForm, setShowFormationForm] = useState(false);
@@ -512,6 +513,7 @@ const Admin = () => {
       included: newFormation.included.split('\\n').filter(s => s.trim() !== ''),
       authorBio: newFormation.authorBio,
       expirationDate: newFormation.expirationDate,
+      accessLink: newFormation.accessLink,
       testimonials: newFormation.testimonials
     };
 
@@ -530,7 +532,7 @@ const Admin = () => {
       
       if (response.ok) {
         alert(editingFormationId ? "Formation modifiée avec succès !" : "Formation créée avec succès !");
-        setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', testimonials: [] });
+        setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] });
         setEditingFormationId(null);
         setShowFormationForm(false);
         fetchData();
@@ -570,6 +572,7 @@ const Admin = () => {
       included: (content.included || []).join('\n'),
       authorBio: content.authorBio || '',
       expirationDate: content.expirationDate || '',
+      accessLink: content.accessLink || '',
       testimonials: content.testimonials || []
     });
     setEditingFormationId(f.id);
@@ -1310,6 +1313,12 @@ const Admin = () => {
                     </div>
 
                     <div className="form-group mb-4">
+                      <label>Lien d'accès (WhatsApp, Telegram, Drive...)</label>
+                      <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Ce lien sera fourni automatiquement au client après paiement validé.</p>
+                      <input type="url" className="cms-input" value={newFormation.accessLink || ''} onChange={e => setNewFormation({...newFormation, accessLink: e.target.value})} placeholder="Ex: https://chat.whatsapp.com/votre_lien" />
+                    </div>
+
+                    <div className="form-group mb-4">
                       <label>Qui suis-je ? (Bio auteur)</label>
                       <textarea className="cms-textarea" rows="4" value={newFormation.authorBio} onChange={e => setNewFormation({...newFormation, authorBio: e.target.value})} placeholder="Je suis Rose Kakpo, Trader indépendante et fondatrice de Woman King Trade. Ma mission est de..."></textarea>
                     </div>
@@ -1343,7 +1352,7 @@ const Admin = () => {
                   </div>
 
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
-                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', testimonials: [] }); }} className="btn btn-secondary">Annuler</button>
+                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] }); }} className="btn btn-secondary">Annuler</button>
                     <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem' }}>{editingFormationId ? 'Mettre à jour la page' : 'Enregistrer et Publier la page'}</button>
                   </div>
                 </form>

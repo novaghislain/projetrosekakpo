@@ -8,6 +8,7 @@ const Track = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState('loading'); // loading, pending, approved, rejected, not_found
   const [programId, setProgramId] = useState('');
+  const [accessLink, setAccessLink] = useState('');
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -17,6 +18,7 @@ const Track = () => {
           const data = await response.json();
           setStatus(data.status);
           setProgramId(data.programId);
+          if (data.accessLink) setAccessLink(data.accessLink);
         } else {
           setStatus('not_found');
         }
@@ -63,17 +65,20 @@ const Track = () => {
     }
 
     if (status === 'approved') {
-      let link = '';
-      let buttonText = '';
-      if (programId === 'woman-king') {
-        link = 'https://chat.whatsapp.com/EpqfnVvALmuCKrJ9FlK70P?s=cl&p=i&mlu=4';
-        buttonText = 'Rejoindre Woman King Trade';
-      } else if (programId === 'ebook-vision' || programId === 'ebook-positionner') {
-        link = programId === 'ebook-vision' ? 'https://projetrosekakpo.onrender.com/EBOOK_FIGURE_BOUGIE_ROSE.pdf' : 'https://projetrosekakpo.onrender.com/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
+      let link = accessLink || '';
+      let buttonText = 'Rejoindre la Communauté';
+      if (!link) {
+        if (programId === 'woman-king') {
+          link = 'https://chat.whatsapp.com/EpqfnVvALmuCKrJ9FlK70P?s=cl&p=i&mlu=4';
+          buttonText = 'Rejoindre Woman King Trade';
+        } else if (programId === 'ebook-vision' || programId === 'ebook-positionner') {
+          link = programId === 'ebook-vision' ? 'https://projetrosekakpo.onrender.com/EBOOK_FIGURE_BOUGIE_ROSE.pdf' : 'https://projetrosekakpo.onrender.com/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
+          buttonText = 'Télécharger l\'E-Book';
+        } else {
+          link = 'https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA';
+        }
+      } else if (programId.includes('ebook')) {
         buttonText = 'Télécharger l\'E-Book';
-      } else {
-        link = 'https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA';
-        buttonText = 'Rejoindre la Communauté';
       }
 
       return (
