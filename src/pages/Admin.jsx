@@ -69,7 +69,12 @@ const Admin = () => {
 
   // Derive notifications
   const notifications = [
-    ...contacts.map(c => ({ id: `msg-${c.id}`, type: 'messages', text: `Nouveau message de ${c.nom}`, date: c.date })),
+    ...contacts.map(c => {
+      let title = `Nouveau message de ${c.nom}`;
+      if (c.status === 'waiting') title = `Nouvelle réponse de ${c.nom}`;
+      const extract = c.lastMessage ? c.lastMessage.substring(0, 20) + '...' : '';
+      return { id: `msg-${c.id}-${new Date(c.date).getTime()}`, type: 'messages', text: `${title} : ${extract}`, date: c.date };
+    }),
     ...enrollments.map(e => ({ id: `enr-${e.id}`, type: 'inscriptions', text: `Nouvelle inscription : ${e.nom}`, date: e.date })),
     ...newsletters.map(n => ({ id: `nsl-${n.id}`, type: 'newsletter', text: `Nouvel abonné : ${n.email}`, date: n.date }))
   ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
@@ -193,9 +198,47 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [replyingToContact, setReplyingToContact] = useState(null);
+  const [replyHistory, setReplyHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const fetchReplyHistory = async (contactId) => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/contacts/${contactId}/history`);
+      if (res.ok) {
+        const data = await res.json();
+        setReplyHistory(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (replyingToContact) {
+      fetchReplyHistory(replyingToContact.id);
+    } else {
+      setReplyHistory([]);
+    }
+  }, [replyingToContact]);
+
+  const handleDeleteReply = async (index) => {
+    if (!replyingToContact) return;
+    if (window.confirm("Supprimer ce message ?")) {
+      try {
+        const res = await fetch(`${API_URL}/api/contacts/${replyingToContact.id}/message/${index}`, { method: 'DELETE' });
+        if (res.ok) {
+          fetchReplyHistory(replyingToContact.id);
+        }
+      } catch (e) {}
+    }
+  };
   const [replyMessage, setReplyMessage] = useState('');
   const [replySubject, setReplySubject] = useState('');
   const [replySending, setReplySending] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [securityForm, setSecurityForm] = useState({
     currentPassword: '',
@@ -353,19 +396,15 @@ const Admin = () => {
         body: JSON.stringify({ message: replyMessage, subject: replySubject })
       });
       if (response.ok) {
-        setSuccessMessage('Réponse envoyée avec succès.');
-
-        // Mark as replied
-        if (!repliedContacts.includes(replyingToContact.id)) {
-          const newReplied = [...repliedContacts, replyingToContact.id];
-          setRepliedContacts(newReplied);
-          localStorage.setItem('rose_replied_contacts', JSON.stringify(newReplied));
-        }
+        setSuccessMessage('Réponse publiée avec succès sur la page de Suivi !');
 
         setReplyingToContact(null);
         setReplyMessage('');
         setReplySubject('');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        fetchData();
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 1500);
       } else {
         const err = await response.json().catch(() => ({ error: 'Erreur inconnue du serveur' }));
         const errorMsg = err.error || 'Erreur lors de l\'envoi de la réponse';
@@ -1249,19 +1288,27 @@ const Admin = () => {
                 <thead><tr><th>Date</th><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th><th>Action</th></tr></thead>
                 <tbody>
                   {contacts.map(c => (
-                    <tr key={c.id} style={{ background: repliedContacts.includes(c.id) ? 'rgba(46, 111, 64, 0.05)' : 'transparent' }}>
+                    <tr key={c.id} style={{ background: c.status === 'replied' ? 'rgba(46, 111, 64, 0.05)' : (c.status === 'waiting' ? 'rgba(244,114,182,0.1)' : 'transparent') }}>
                       <td>{new Date(c.date).toLocaleDateString()}</td>
                       <td>
                         {c.nom}
-                        {repliedContacts.includes(c.id) && (
+                        {c.status === 'replied' && (
                           <span style={{ marginLeft: '8px', fontSize: '0.7rem', background: 'var(--color-brand-green)', color: 'white', padding: '2px 6px', borderRadius: '12px' }}>
                             Répondu
                           </span>
                         )}
+                        {c.status === 'waiting' && (
+                          <span style={{ marginLeft: '8px', fontSize: '0.7rem', background: 'var(--color-pink)', color: 'white', padding: '2px 6px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
+                            Non répondu
+                          </span>
+                        )}
                       </td>
                       <td>{c.email}</td>
-                      <td>{c.sujet}</td>
-                      <td>{c.message}</td>
+                      <td>Message Site</td>
+                      <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.status === 'waiting' && <strong style={{ color: 'var(--color-pink)' }}>[Nouveau] </strong>}
+                        {c.lastMessage || c.message}
+                      </td>
                       <td style={{ display: 'flex', gap: '8px' }}>
                         <button
                           onClick={() => {
@@ -1269,12 +1316,13 @@ const Admin = () => {
                             setReplySubject(`Réponse à : ${c.sujet || 'Votre message sur Rose Kakpo'}`);
 
                             // Marquer la notification comme lue automatiquement
-                            const notifId = `msg-${c.id}`;
+                            const notifId = `msg-${c.id}-${new Date(c.date).getTime()}`;
                             if (!readNotifications.includes(notifId)) {
                               const newReads = [...readNotifications, notifId];
                               setReadNotifications(newReads);
                               localStorage.setItem('rose_read_notifs', JSON.stringify(newReads));
                             }
+                            // Fetch history is handled by useEffect
                           }}
                           className="btn btn-primary small-btn-admin"
                           style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -2174,31 +2222,71 @@ const Admin = () => {
       {/* Modal de réponse (placé à la racine pour éviter les problèmes de z-index avec animate-fade-up) */}
       {replyingToContact && (
         <div className="modal-overlay">
-          <div className="modal-content glass-panel" style={{ maxWidth: '600px' }}>
-            <h3>Répondre à {replyingToContact.nom}</h3>
-            <div className="form-group mb-3 mt-3">
-              <label>Sujet</label>
+          <div className="modal-content glass-panel" style={{ maxWidth: '600px', width: '100%', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3>Conversation avec {replyingToContact.nom}</h3>
+              <button className="btn-icon" onClick={() => setReplyingToContact(null)}><Trash2 size={20} opacity={0} /><span style={{fontSize:'1.5rem', cursor:'pointer'}}>&times;</span></button>
+            </div>
+            
+            <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '400px', overflowY: 'auto', paddingRight: '10px', marginBottom: '1rem', border: '1px solid rgba(0,0,0,0.1)', padding: '10px', borderRadius: '8px' }}>
+              {/* Message initial du client */}
+              <div className="chat-bubble client-bubble" style={{ alignSelf: 'flex-start', background: 'rgba(0,0,0,0.05)', color: 'var(--color-text)', padding: '12px 18px', borderRadius: '18px 18px 18px 2px', maxWidth: '80%', position: 'relative' }}>
+                <strong style={{ fontSize: '0.8rem', color: 'var(--color-text)', display: 'block', marginBottom: '4px' }}>Message initial</strong>
+                <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{replyingToContact.message}</p>
+                <span style={{ fontSize: '0.7rem', opacity: 0.7, display: 'block', textAlign: 'left', marginTop: '5px' }}>{replyingToContact.date ? new Date(replyingToContact.date).toLocaleDateString('fr-FR') : ''}</span>
+              </div>
+
+              {/* Historique des réponses */}
+              {loadingHistory ? (
+                <p className="text-center text-gray">Chargement de l'historique...</p>
+              ) : (
+                (replyHistory || []).map((h, i) => (
+                  <div key={i} className="chat-bubble" style={{ 
+                    alignSelf: h.sender === 'admin' ? 'flex-end' : 'flex-start',
+                    background: h.sender === 'admin' ? 'var(--gradient-pink)' : 'rgba(0,0,0,0.05)',
+                    color: h.sender === 'admin' ? 'white' : 'var(--color-text)',
+                    padding: '12px 18px', 
+                    borderRadius: h.sender === 'admin' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
+                    maxWidth: '80%',
+                    position: 'relative'
+                  }}>
+                    <button 
+                      onClick={() => handleDeleteReply(i)}
+                      style={{ position: 'absolute', top: '5px', right: h.sender === 'admin' ? '10px' : '-25px', background: 'none', border: 'none', color: h.sender === 'admin' ? 'rgba(255,255,255,0.8)' : 'var(--color-pink)', cursor: 'pointer' }}
+                      title="Supprimer ce message"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    {h.sender === 'client' && <strong style={{ fontSize: '0.8rem', color: 'var(--color-text)', display: 'block', marginBottom: '4px' }}>Client ({replyingToContact.nom})</strong>}
+                    <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{h.message}</p>
+                    <span style={{ fontSize: '0.7rem', opacity: 0.7, display: 'block', textAlign: h.sender === 'admin' ? 'right' : 'left', marginTop: '5px' }}>{h.date ? new Date(h.date).toLocaleDateString('fr-FR') : ''}</span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="form-group mb-3">
               <input
                 type="text"
-                className="glass-input"
+                className="cms-input"
+                placeholder="Sujet de la réponse (Optionnel)"
                 value={replySubject}
                 onChange={e => setReplySubject(e.target.value)}
               />
             </div>
             <div className="form-group mb-3">
-              <label>Message de réponse</label>
               <textarea
-                className="glass-input"
-                rows="6"
+                className="cms-textarea"
+                rows="3"
                 value={replyMessage}
                 onChange={e => setReplyMessage(e.target.value)}
-                placeholder={`Tapez votre réponse à ${replyingToContact.email} ici...`}
+                placeholder={`Tapez votre nouvelle réponse à ${replyingToContact.email} ici...`}
               ></textarea>
             </div>
-            <div className="modal-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button className="btn btn-secondary" onClick={() => setReplyingToContact(null)}>Annuler</button>
+            <div className="flex-end gap-10 mt-4">
+              <button className="btn btn-secondary" onClick={() => setReplyingToContact(null)}>Fermer</button>
               <button className="btn btn-primary" onClick={handleSendReply} disabled={replySending || !replyMessage.trim()}>
-                {replySending ? 'Envoi...' : 'Envoyer'}
+                {replySending ? 'Publication...' : (successMessage === 'Réponse publiée avec succès sur la page de Suivi !' ? 'Publié !' : 'Envoyer')}
               </button>
             </div>
           </div>

@@ -266,7 +266,42 @@ app.get('/api/formations/:slug', (req, res) => {
 app.get('/api/admin/contacts', (req, res) => {
   db.all(`SELECT * FROM contacts ORDER BY date DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Erreur." });
-    res.json(rows);
+    
+    // Fetch all replies to determine status
+    db.all(`SELECT key, value FROM content WHERE key LIKE 'reply_contact_%'`, [], (err2, replies) => {
+      if (err2) console.error('Erreur LIKE:', err2);
+      if (err2 || !replies) return res.json(rows);
+
+      const repliesMap = {};
+      replies.forEach(r => {
+        try {
+          repliesMap[r.key] = JSON.parse(r.value);
+        } catch (e) {}
+      });
+
+      const updatedRows = rows.map(c => {
+        const replyKey = `reply_contact_${c.id}`;
+        const replyData = repliesMap[replyKey];
+        let status = 'new';
+        let lastMessage = c.message;
+
+        if (replyData) {
+          let history = [];
+          if (replyData.history) history = replyData.history;
+          else if (replyData.message) history = [{ sender: 'admin', message: replyData.message }];
+
+          if (history.length > 0) {
+            const lastMsg = history[history.length - 1];
+            status = lastMsg.sender === 'admin' ? 'replied' : 'waiting';
+            lastMessage = lastMsg.message;
+          }
+        }
+
+        return { ...c, status, lastMessage };
+      });
+
+      res.json(updatedRows);
+    });
   });
 });
 
@@ -283,26 +318,164 @@ app.post('/api/admin/contacts/:id/reply', (req, res) => {
       return res.status(404).json({ error: "Contact introuvable." });
     }
 
-    // Au lieu d'envoyer un email SMTP (trop complexe), on sauvegarde la réponse dans le contenu
     const replyKey = `reply_contact_${contactId}`;
-    const replyData = JSON.stringify({
-      subject: subject || `Réponse à votre message`,
-      message: message,
-      date: new Date().toISOString()
-    });
+    const finalSubject = subject || `Réponse à votre message`;
+    const newMessage = { sender: 'admin', message: message, date: new Date().toISOString() };
 
-    db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
-      if (errUpd) return res.status(500).json({ error: "Erreur de sauvegarde de la réponse." });
+    db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (err, row) => {
+      let history = [];
+      if (row && row.value) {
+        try {
+          const parsed = JSON.parse(row.value);
+          if (parsed.history) {
+            history = parsed.history;
+          } else if (parsed.message) {
+            // Migration de l'ancien format
+            history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
+          }
+        } catch (e) {}
+      }
+      history.push(newMessage);
 
-      if (this.changes === 0) {
-        db.run(`INSERT INTO content (section, key, value) VALUES ('custom', ?, ?)`, [replyKey, replyData], function (errIns) {
-          if (errIns) return res.status(500).json({ error: "Erreur de création de la réponse." });
-          res.json({ success: true, message: "Réponse enregistrée avec succès pour le suivi client." });
+      const replyData = JSON.stringify({
+        subject: finalSubject,
+        history: history
+      });
+
+      if (row) {
+        // UPDATE existant
+        db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
+          if (errUpd) return res.status(500).json({ error: "Erreur de sauvegarde de la réponse." });
+          res.json({ success: true, message: "Réponse publiée sur le site avec succès." });
         });
       } else {
-        res.json({ success: true, message: "Réponse mise à jour avec succès." });
+        // INSERT nouveau
+        db.run(`INSERT INTO content (section, key, value, label) VALUES ('custom', ?, ?, 'Conversation Client')`, [replyKey, replyData], function (errIns) {
+          if (errIns) {
+            console.error("SQL Error Insert Reply:", errIns);
+            return res.status(500).json({ error: "Erreur de création de la réponse." });
+          }
+          res.json({ success: true, message: "Réponse publiée sur le site avec succès." });
+        });
       }
     });
+  });
+});
+
+app.post('/api/contacts/:id/client-reply', (req, res) => {
+  const { message, email } = req.body;
+  const contactId = req.params.id;
+
+  if (!message || !email) {
+    return res.status(400).json({ error: "Le message et l'email sont requis." });
+  }
+
+  // Vérifier que le contact appartient bien à cet email
+  db.get(`SELECT * FROM contacts WHERE id = ? AND email = ?`, [contactId, email.toLowerCase().trim()], (err, contact) => {
+    if (err || !contact) return res.status(404).json({ error: "Contact introuvable ou non autorisé." });
+
+    const replyKey = `reply_contact_${contactId}`;
+    const newMessage = { sender: 'client', message: message, date: new Date().toISOString() };
+
+    db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (errContent, row) => {
+      let history = [];
+      let subject = `Réponse à votre message`;
+      if (row && row.value) {
+        try {
+          const parsed = JSON.parse(row.value);
+          subject = parsed.subject || subject;
+          if (parsed.history) {
+            history = parsed.history;
+          } else if (parsed.message) {
+            history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
+          }
+        } catch (e) {}
+      }
+      history.push(newMessage);
+
+      const replyData = JSON.stringify({
+        subject: subject,
+        history: history
+      });
+
+      if (row) {
+        db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
+          if (errUpd) return res.status(500).json({ error: "Erreur d'envoi." });
+          db.run(`UPDATE contacts SET date = CURRENT_TIMESTAMP WHERE id = ?`, [contactId], () => {
+            res.json({ success: true, message: "Message envoyé avec succès." });
+          });
+        });
+      } else {
+        db.run(`INSERT INTO content (section, key, value, label) VALUES ('custom', ?, ?, 'Conversation Client')`, [replyKey, replyData], function (errIns) {
+          if (errIns) return res.status(500).json({ error: "Erreur d'envoi." });
+          db.run(`UPDATE contacts SET date = CURRENT_TIMESTAMP WHERE id = ?`, [contactId], () => {
+            res.json({ success: true, message: "Message envoyé avec succès." });
+          });
+        });
+      }
+    });
+  });
+});
+
+app.get('/api/admin/contacts/:id/history', (req, res) => {
+  const contactId = req.params.id;
+  const replyKey = `reply_contact_${contactId}`;
+  
+  db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (err, row) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur." });
+    
+    let history = [];
+    if (row && row.value) {
+      try {
+        const parsed = JSON.parse(row.value);
+        if (parsed.history) {
+          history = parsed.history;
+        } else if (parsed.message) {
+          history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
+        }
+      } catch (e) {}
+    }
+    res.json(history);
+  });
+});
+
+app.delete('/api/contacts/:id/message/:index', (req, res) => {
+  const contactId = req.params.id;
+  const index = parseInt(req.params.index, 10);
+  const replyKey = `reply_contact_${contactId}`;
+
+  if (isNaN(index)) {
+    return res.status(400).json({ error: "Index invalide." });
+  }
+
+  db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (err, row) => {
+    if (err || !row || !row.value) return res.status(404).json({ error: "Conversation introuvable." });
+    
+    try {
+      const parsed = JSON.parse(row.value);
+      let history = [];
+      if (parsed.history) {
+        history = parsed.history;
+      } else if (parsed.message) {
+        history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
+      }
+
+      if (index >= 0 && index < history.length) {
+        history.splice(index, 1);
+        
+        parsed.history = history;
+        const replyData = JSON.stringify(parsed);
+        
+        db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
+          if (errUpd) return res.status(500).json({ error: "Erreur lors de la suppression." });
+          res.json({ success: true });
+        });
+      } else {
+        res.status(404).json({ error: "Message introuvable à cet index." });
+      }
+    } catch (e) {
+      res.status(500).json({ error: "Données corrompues." });
+    }
   });
 });
 
@@ -343,8 +516,9 @@ app.post('/api/admin/articles', (req, res) => {
   }
 
   const readTimeVal = readTime || req.body.readtime || '5 min';
+  const dateVal = date || new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
   const query = `INSERT INTO articles (title, category, date, readTime, excerpt, content, image) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  db.run(query, [title, category, date, readTimeVal, excerpt, content, image], function (err) {
+  db.run(query, [title, category, dateVal, readTimeVal, excerpt, content, image], function (err) {
     if (err) return res.status(500).json({ error: "Erreur de création." });
     res.status(201).json({ success: true, id: this.lastID });
   });
