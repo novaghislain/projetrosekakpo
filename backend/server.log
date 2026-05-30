@@ -1,0 +1,171 @@
+Fichier .env chargé.
+Connecté à la base de données PostgreSQL (Supabase).
+Serveur Backend démarré sur http://localhost:3001
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 359,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducation financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 358,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducatio financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 359,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducation financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 358,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducatio financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 359,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducation financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}
+ERREUR LORS DE LA MISE A JOUR: error: null value in column "date" of relation "articles" violates not-null constraint
+    at parseErrorMessage (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:305:11)
+    at Parser.handlePacket (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:143:27)
+    at Parser.parse (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/parser.js:37:38)
+    at TLSSocket.<anonymous> (/Users/gottinsogbossi/projetrosekakpo/backend/node_modules/pg-protocol/dist/index.js:11:42)
+    at TLSSocket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 359,
+  severity: 'ERROR',
+  code: '23502',
+  detail: "Failing row contains (5, Les voisins sont là pour manger, Éducation Financière, null, 5 min, , <p>L'éducation financière commence à la maison.</p>, Rose Kakpo, Tradeuse & Formatrice, ).",
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'articles',
+  column: 'date',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1981',
+  routine: 'ExecConstraints'
+}

@@ -16,6 +16,7 @@ const Navbar = () => {
     { name: 'Formations', path: '/programs' },
     { name: 'Ebooks', path: '/ebooks' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Témoignages', path: '/temoignages' },
     { name: 'Contact', path: '/contact' },
   ]
 

@@ -21,6 +21,8 @@ import MockCheckout from './pages/MockCheckout'
 import PaymentCallback from './pages/PaymentCallback'
 import FormationDetails from './pages/FormationDetails'
 import Track from './pages/Track'
+import SuiviMessages from './pages/SuiviMessages'
+import TestimonialsPage from './pages/TestimonialsPage'
 import { useContent } from './hooks/useContent'
 
 function App() {
@@ -94,6 +96,8 @@ function App() {
           <Route path="/mock-checkout" element={<MockCheckout />} />
           <Route path="/payment-callback" element={<PaymentCallback />} />
           <Route path="/track/:trackingId" element={<Track />} />
+          <Route path="/suivi" element={<SuiviMessages />} />
+          <Route path="/temoignages" element={<TestimonialsPage />} />
         </Routes>
       </main>
       {!isAdmin && !isCheckout && <Footer />}

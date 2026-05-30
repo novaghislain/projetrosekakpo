@@ -4,7 +4,16 @@ import { useContent } from '../hooks/useContent'
 import './Home.css'
 
 const Home = () => {
-  const { c } = useContent();
+  const { c, content } = useContent();
+
+  const getHeroTitle = () => {
+    let title = c('hero_title', 'Le trading simplifié pour les femmes ambitieuses');
+    // On enlève d'éventuels vieux tags span pour être sûr
+    title = title.replace(/<span[^>]*>(.*?)<\/span>/gi, '$1');
+    // On force le dégradé en CSS en ligne pour contourner tout conflit de style
+    title = title.replace(/(ambitieuses)/i, '<span style="background: linear-gradient(135deg, var(--color-brand-pink), var(--color-brand-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">$1</span>');
+    return title;
+  };
 
   return (
     <div className="home">
@@ -12,7 +21,7 @@ const Home = () => {
       <section className="hero">
         <div className="container hero-container animate-fade-up">
           <div className="hero-content">
-            <h1 dangerouslySetInnerHTML={{ __html: c('hero_title', 'Le trading simplifié pour les femmes <span class="text-gradient">ambitieuses</span>') }} />
+            <h1 dangerouslySetInnerHTML={{ __html: getHeroTitle() }} />
             <p className="hero-subtitle">
               {c('hero_subtitle', "Maîtrisez le trading et prenez le contrôle de vos finances. Je vous accompagne pas-à-pas vers la rentabilité grâce à des stratégies simples et une discipline de fer.")}
             </p>
@@ -178,28 +187,67 @@ const Home = () => {
             <p className="subtitle-large">Découvrez les retours des personnes que j'ai accompagnées.</p>
           </div>
           <div className="testimonials-grid">
-            <div className="testimonial-card glass-panel animate-fade-up delay-100">
-              <div className="stars">
-                <Star fill="#F472B6" color="#F472B6" size={20} />
-                <Star fill="#F472B6" color="#F472B6" size={20} />
-                <Star fill="#F472B6" color="#F472B6" size={20} />
-                <Star fill="#F472B6" color="#F472B6" size={20} />
-                <Star fill="#F472B6" color="#F472B6" size={20} />
-              </div>
-              <p className="testimonial-text">"{c('testimonial_1_text', "Formation très claire. J'avais peur de me lancer mais Rose a su rendre les choses tellement simples à comprendre !")}"</p>
-              <p className="testimonial-author">- {c('testimonial_1_author', 'Sarah L.')}</p>
-            </div>
-            <div className="testimonial-card glass-panel animate-fade-up delay-200">
-              <div className="stars">
-                <Star fill="#2E6F40" color="#2E6F40" size={20} />
-                <Star fill="#2E6F40" color="#2E6F40" size={20} />
-                <Star fill="#2E6F40" color="#2E6F40" size={20} />
-                <Star fill="#2E6F40" color="#2E6F40" size={20} />
-                <Star fill="#2E6F40" color="#2E6F40" size={20} />
-              </div>
-              <p className="testimonial-text">"{c('testimonial_2_text', "J'ai enfin compris le trading grâce au programme 3S. Ma psychologie a complètement changé devant les graphiques.")}"</p>
-              <p className="testimonial-author">- {c('testimonial_2_author', 'Marc E.')}</p>
-            </div>
+            {(() => {
+              let dynamicTestimonials = [];
+              if (content?.testimonials?.value) {
+                try {
+                  dynamicTestimonials = JSON.parse(content.testimonials.value);
+                } catch(e) {}
+              }
+
+              if (dynamicTestimonials.length > 0) {
+                return dynamicTestimonials.map(t => (
+                  <div key={t.id} className="testimonial-card glass-panel animate-fade-up">
+                    {(t.images && t.images.length > 0) ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+                        {t.images.map((img, i) => (
+                          <div key={i} style={{ width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
+                            <img src={img} alt={`Témoignage ${i+1}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (t.image && (
+                      <div style={{ width: '100%', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px' }}>
+                        <img src={t.image} alt="Témoignage" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                      </div>
+                    ))}
+                    <div className="stars">
+                      {Array(t.rating).fill(0).map((_, i) => <Star key={i} fill="#F472B6" color="#F472B6" size={20} />)}
+                    </div>
+                    {t.message && <p className="testimonial-text">"{t.message}"</p>}
+                    <p className="testimonial-author">- {t.nom}</p>
+                  </div>
+                ));
+              }
+
+              // Fallback to static if none
+              return (
+                <>
+                  <div className="testimonial-card glass-panel animate-fade-up">
+                    <div className="stars">
+                      <Star fill="#F472B6" color="#F472B6" size={20} />
+                      <Star fill="#F472B6" color="#F472B6" size={20} />
+                      <Star fill="#F472B6" color="#F472B6" size={20} />
+                      <Star fill="#F472B6" color="#F472B6" size={20} />
+                      <Star fill="#F472B6" color="#F472B6" size={20} />
+                    </div>
+                    <p className="testimonial-text">"{c('testimonial_1_text', "Formation très claire. J'avais peur de me lancer mais Rose a su rendre les choses tellement simples à comprendre !")}"</p>
+                    <p className="testimonial-author">- {c('testimonial_1_author', 'Sarah L.')}</p>
+                  </div>
+                  <div className="testimonial-card glass-panel animate-fade-up delay-200">
+                    <div className="stars">
+                      <Star fill="#2E6F40" color="#2E6F40" size={20} />
+                      <Star fill="#2E6F40" color="#2E6F40" size={20} />
+                      <Star fill="#2E6F40" color="#2E6F40" size={20} />
+                      <Star fill="#2E6F40" color="#2E6F40" size={20} />
+                      <Star fill="#2E6F40" color="#2E6F40" size={20} />
+                    </div>
+                    <p className="testimonial-text">"{c('testimonial_2_text', "J'ai enfin compris le trading grâce au programme 3S. Ma psychologie a complètement changé devant les graphiques.")}"</p>
+                    <p className="testimonial-author">- {c('testimonial_2_author', 'Marc E.')}</p>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       </section>

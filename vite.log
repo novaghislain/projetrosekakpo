@@ -1,0 +1,16 @@
+
+> rose-kapo-website@0.0.0 dev
+> vite --host
+
+
+  VITE v5.4.21  ready in 139 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://192.168.120.63:5173/
+2:20:42 PM [vite] hmr update /src/pages/Admin.jsx
+2:34:47 PM [vite] hmr update /src/pages/Admin.jsx
+2:58:38 PM [vite] hmr update /src/pages/Admin.jsx
+3:35:31 PM [vite] hmr update /src/pages/Admin.jsx
+3:38:17 PM [vite] hmr update /src/pages/Admin.jsx
+3:38:39 PM [vite] hmr update /src/pages/Admin.jsx
+3:39:09 PM [vite] hmr update /src/pages/Admin.jsx

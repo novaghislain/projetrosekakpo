@@ -77,7 +77,7 @@ const db = {
       callback(err, res && res.rows.length > 0 ? res.rows[0] : null);
     });
   },
-  run: function(sql, params, callback) {
+  run: function (sql, params, callback) {
     if (typeof params === 'function') {
       callback = params;
       params = [];
@@ -90,6 +90,44 @@ const db = {
 
 // === ROUTES PUBLIQUES ===
 
+// Route publique pour le suivi des messages clients
+app.get('/api/contacts/track', (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ error: "L'adresse email est requise." });
+
+  // 1. Trouver tous les messages envoyés par cet email
+  db.all(`SELECT * FROM contacts WHERE email = ? ORDER BY date DESC`, [email.toLowerCase().trim()], (err, messages) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur." });
+    if (!messages || messages.length === 0) {
+      return res.json([]); // Aucun message trouvé
+    }
+
+    // 2. Pour chaque message, chercher si une réponse existe dans la table content
+    const messageIds = messages.map(m => m.id);
+    const replyKeys = messageIds.map(id => `'reply_contact_${id}'`).join(',');
+
+    db.all(`SELECT key, value FROM content WHERE key IN (${replyKeys})`, (errReplies, repliesRows) => {
+      if (errReplies) return res.status(500).json({ error: "Erreur serveur lors de la récupération des réponses." });
+
+      const repliesMap = {};
+      (repliesRows || []).forEach(row => {
+        try {
+          repliesMap[row.key] = JSON.parse(row.value);
+        } catch (e) { }
+      });
+
+      const fullMessages = messages.map(msg => ({
+        ...msg,
+        reply: repliesMap[`reply_contact_${msg.id}`] || null
+      }));
+
+      res.json(fullMessages);
+    });
+  });
+});
+
+// === ROUTES ARTICLES (BLOG) ===
+
 // 1. Sauvegarder un message de contact
 app.post('/api/contact', (req, res) => {
   const { nom, email, message } = req.body;
@@ -98,18 +136,18 @@ app.post('/api/contact', (req, res) => {
   }
 
   const query = `INSERT INTO contacts (nom, email, message) VALUES (?, ?, ?)`;
-  db.run(query, [nom, email, message], function(err) {
+  db.run(query, [nom, email, message], function (err) {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Erreur lors de l'envoi du message." });
     }
-    
+
     // Tentative d'envoi d'e-mail via nodemailer
     db.all("SELECT key, value FROM content WHERE section = 'mail'", (errMail, rows) => {
       if (!errMail && rows && rows.length > 0) {
         const mailConfig = {};
         rows.forEach(r => { mailConfig[r.key] = r.value });
-        
+
         if (mailConfig.ceo_forward_email && mailConfig.smtp_user && mailConfig.smtp_pass) {
           const transporter = nodemailer.createTransport({
             host: mailConfig.smtp_host || 'smtp.gmail.com',
@@ -145,7 +183,7 @@ app.post('/api/contact', (req, res) => {
 
 app.delete('/api/admin/contacts/:id', (req, res) => {
   const { id } = req.params;
-  db.run(`DELETE FROM contacts WHERE id = ?`, [id], function(err) {
+  db.run(`DELETE FROM contacts WHERE id = ?`, [id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     res.json({ success: true, deleted: this.changes });
   });
@@ -184,7 +222,7 @@ app.post('/api/enroll', (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Erreur lors de l'inscription au programme." });
     }
-    
+
     if (programSlug) {
       db.run(`UPDATE formations SET capacity = capacity - 1 WHERE slug = ? AND capacity > 0`, [programSlug], (err2) => {
         if (err2) console.error("Erreur décrémentation capacité:", err2);
@@ -232,6 +270,42 @@ app.get('/api/admin/contacts', (req, res) => {
   });
 });
 
+app.post('/api/admin/contacts/:id/reply', (req, res) => {
+  const { message, subject } = req.body;
+  const contactId = req.params.id;
+
+  if (!message) {
+    return res.status(400).json({ error: "Le message ne peut pas être vide." });
+  }
+
+  db.get(`SELECT * FROM contacts WHERE id = ?`, [contactId], (err, contact) => {
+    if (err || !contact) {
+      return res.status(404).json({ error: "Contact introuvable." });
+    }
+
+    // Au lieu d'envoyer un email SMTP (trop complexe), on sauvegarde la réponse dans le contenu
+    const replyKey = `reply_contact_${contactId}`;
+    const replyData = JSON.stringify({
+      subject: subject || `Réponse à votre message`,
+      message: message,
+      date: new Date().toISOString()
+    });
+
+    db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
+      if (errUpd) return res.status(500).json({ error: "Erreur de sauvegarde de la réponse." });
+
+      if (this.changes === 0) {
+        db.run(`INSERT INTO content (section, key, value) VALUES ('custom', ?, ?)`, [replyKey, replyData], function (errIns) {
+          if (errIns) return res.status(500).json({ error: "Erreur de création de la réponse." });
+          res.json({ success: true, message: "Réponse enregistrée avec succès pour le suivi client." });
+        });
+      } else {
+        res.json({ success: true, message: "Réponse mise à jour avec succès." });
+      }
+    });
+  });
+});
+
 app.get('/api/admin/newsletters', (req, res) => {
   db.all(`SELECT * FROM newsletters ORDER BY date DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Erreur." });
@@ -240,7 +314,7 @@ app.get('/api/admin/newsletters', (req, res) => {
 });
 
 app.delete('/api/admin/newsletters/:id', (req, res) => {
-  db.run(`DELETE FROM newsletters WHERE id = ?`, [req.params.id], function(err) {
+  db.run(`DELETE FROM newsletters WHERE id = ?`, [req.params.id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur." });
     res.json({ success: true });
   });
@@ -254,7 +328,7 @@ app.get('/api/admin/enrollments', (req, res) => {
 });
 
 app.delete('/api/admin/enrollments/:id', (req, res) => {
-  db.run(`DELETE FROM enrollments WHERE id = ?`, [req.params.id], function(err) {
+  db.run(`DELETE FROM enrollments WHERE id = ?`, [req.params.id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur." });
     res.json({ success: true });
   });
@@ -268,8 +342,9 @@ app.post('/api/admin/articles', (req, res) => {
     return res.status(400).json({ error: "Titre et contenu obligatoires." });
   }
 
+  const readTimeVal = readTime || req.body.readtime || '5 min';
   const query = `INSERT INTO articles (title, category, date, readTime, excerpt, content, image) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  db.run(query, [title, category, date, readTime, excerpt, content, image], function (err) {
+  db.run(query, [title, category, date, readTimeVal, excerpt, content, image], function (err) {
     if (err) return res.status(500).json({ error: "Erreur de création." });
     res.status(201).json({ success: true, id: this.lastID });
   });
@@ -280,6 +355,24 @@ app.delete('/api/admin/articles/:id', (req, res) => {
   db.run(`DELETE FROM articles WHERE id = ?`, [req.params.id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur." });
     res.json({ success: true });
+  });
+});
+
+// Modifier un article
+app.put('/api/admin/articles/:id', (req, res) => {
+  const { title, category, date, readTime, excerpt, content, image } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ error: "Titre et contenu obligatoires." });
+  }
+
+  const readTimeVal = readTime || req.body.readtime || '5 min';
+  const query = `UPDATE articles SET title = ?, category = ?, date = ?, readTime = ?, excerpt = ?, content = ?, image = ? WHERE id = ?`;
+  db.run(query, [title, category, date, readTimeVal, excerpt, content, image, req.params.id], function (err) {
+    if (err) {
+      console.error("ERREUR LORS DE LA MISE A JOUR:", err);
+      return res.status(500).json({ error: "Erreur lors de la mise à jour." });
+    }
+    res.json({ success: true, id: req.params.id });
   });
 });
 
@@ -374,7 +467,7 @@ app.post('/api/admin/ebooks', (req, res) => {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
   const query = `INSERT INTO ebooks (slug, title, price, description, image, testimonials_json) VALUES (?, ?, ?, ?, ?, ?)`;
-  
+
   db.run(query, [slug, title, price, description, image, testimonials_json], function (err) {
     if (err) {
       if (err.message.includes('UNIQUE constraint failed')) {
@@ -394,7 +487,7 @@ app.put('/api/admin/ebooks/:id', (req, res) => {
   }
 
   const query = `UPDATE ebooks SET slug = ?, title = ?, price = ?, description = ?, image = ?, testimonials_json = ? WHERE id = ?`;
-  
+
   db.run(query, [slug, title, price, description, image, testimonials_json, req.params.id], function (err) {
     if (err) {
       if (err.message.includes('UNIQUE constraint failed')) {
@@ -439,8 +532,19 @@ app.put('/api/admin/content/:key', (req, res) => {
 
   db.run(`UPDATE content SET value = ? WHERE key = ?`, [value, key], function (err) {
     if (err) return res.status(500).json({ error: "Erreur lors de la mise à jour du contenu." });
-    if (this.changes === 0) return res.status(404).json({ error: "Clé de contenu introuvable." });
-    res.json({ success: true, message: "Contenu mis à jour avec succès." });
+
+    // Si la clé n'existe pas encore, on l'insère
+    if (this.changes === 0) {
+      db.run(`INSERT INTO content (section, key, value, label) VALUES ('custom', ?, ?, 'Contenu Custom')`, [key, value], function (errInsert) {
+        if (errInsert) {
+          console.error("Erreur SQL lors de l'insert dans content:", errInsert);
+          return res.status(500).json({ error: "Erreur lors de la création du contenu." });
+        }
+        return res.json({ success: true, message: "Contenu créé avec succès." });
+      });
+    } else {
+      res.json({ success: true, message: "Contenu mis à jour avec succès." });
+    }
   });
 });
 
@@ -745,7 +849,7 @@ app.post('/api/payment/manual', (req, res) => {
   const trackingId = 'TRK-' + crypto.randomBytes(3).toString('hex').toUpperCase();
 
   const query = `INSERT INTO manual_payments (program_id, customer_info, network, proof_image, status, tracking_id) VALUES (?, ?, ?, ?, 'pending', ?)`;
-  db.run(query, [programId, JSON.stringify(customer), network, proofImage, trackingId], function(err) {
+  db.run(query, [programId, JSON.stringify(customer), network, proofImage, trackingId], function (err) {
     if (err) {
       console.error("Erreur insertion manual_payment:", err);
       return res.status(500).json({ error: "Erreur lors de la soumission de votre paiement." });
@@ -759,7 +863,7 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
   db.get(`SELECT program_id, status FROM manual_payments WHERE tracking_id = ?`, [trackingId], (err, row) => {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     if (!row) return res.status(404).json({ error: "Lien de suivi invalide ou introuvable." });
-    
+
     if (row.status === 'approved') {
       db.get(`SELECT content_json FROM formations WHERE slug = ?`, [row.program_id], (err2, formRow) => {
         let accessLink = null;
@@ -767,7 +871,7 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
           try {
             const content = JSON.parse(formRow.content_json);
             accessLink = content.accessLink || null;
-          } catch(e) {}
+          } catch (e) { }
         }
         res.json({ success: true, programId: row.program_id, status: row.status, accessLink });
       });
@@ -781,7 +885,7 @@ app.get('/api/admin/manual-payments', (req, res) => {
   db.all(`SELECT * FROM manual_payments ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     const parsed = rows.map(r => {
-      try { r.customer_info = JSON.parse(r.customer_info); } catch(e) {}
+      try { r.customer_info = JSON.parse(r.customer_info); } catch (e) { }
       return r;
     });
     res.json(parsed);
@@ -790,16 +894,16 @@ app.get('/api/admin/manual-payments', (req, res) => {
 
 app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
   const { id } = req.params;
-  
+
   db.get(`SELECT * FROM manual_payments WHERE id = ?`, [id], (err, row) => {
     if (err || !row) return res.status(404).json({ error: "Paiement introuvable." });
     if (row.status === 'approved') return res.status(400).json({ error: "Déjà approuvé." });
 
     let customer = row.customer_info;
     if (typeof customer === 'string') {
-      try { customer = JSON.parse(customer); } catch(e) {}
+      try { customer = JSON.parse(customer); } catch (e) { }
     }
-    
+
     const enrollQuery = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
     const programNames = {
       'woman-king': 'Woman King Trade',
@@ -810,17 +914,17 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
       'ebook-positionner': 'E-Book : Se positionner intelligemment'
     };
     const programmeName = programNames[row.program_id] || row.program_id;
-    
+
     db.run(enrollQuery, [`${customer.firstname} ${customer.lastname}`, customer.email, customer.whatsapp, 'N/A', programmeName], (err2) => {
       if (err2) console.error("Erreur insertion enrollments:", err2);
-      
+
       db.run(`UPDATE manual_payments SET status = 'approved' WHERE id = ?`, [id], (err3) => {
-        
+
         db.all("SELECT key, value FROM content WHERE section = 'mail'", (errMail, rowsMail) => {
           if (!errMail && rowsMail && rowsMail.length > 0) {
             const mailConfig = {};
             rowsMail.forEach(r => { mailConfig[r.key] = r.value });
-            
+
             if (mailConfig.smtp_user && mailConfig.smtp_pass) {
               const transporter = require('nodemailer').createTransport({
                 host: mailConfig.smtp_host || 'smtp.gmail.com',
@@ -862,7 +966,7 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
 
 app.delete('/api/admin/manual-payments/:id', (req, res) => {
   const { id } = req.params;
-  db.run(`DELETE FROM manual_payments WHERE id = ?`, [id], function(err) {
+  db.run(`DELETE FROM manual_payments WHERE id = ?`, [id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     res.json({ success: true });
   });

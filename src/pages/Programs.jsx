@@ -47,12 +47,12 @@ const Programs = () => {
               leur indépendance financière, le tout dans un environnement motivant et accessible.
             </p>
             <ul className="detail-features">
-              <li><CheckCircle size={20} className="text-pink" /> Initiation au trading</li>
-              <li><CheckCircle size={20} className="text-pink" /> Bases essentielles</li>
-              <li><CheckCircle size={20} className="text-pink" /> Accompagnement</li>
+              <li><CheckCircle size={20} className="text-pink" /> Initiation</li>
+              <li><CheckCircle size={20} className="text-pink" /> Base</li>
+              <li><CheckCircle size={20} className="text-pink" /> Méthode d’analyse et stratégie</li>
               <li><CheckCircle size={20} className="text-pink" /> Communauté féminine</li>
               <li><CheckCircle size={20} className="text-pink" /> Suivi et motivation</li>
-              <li><CheckCircle size={20} className="text-pink" /> Plan d’action pour générer minimum 100usd par mois grâce au trading</li>
+              <li><CheckCircle size={20} className="text-pink" /> Plan d’action pour générer minimum 1000usd par mois grâce au trading</li>
             </ul>
             <Link to="/checkout?program=woman-king" className="btn btn-primary">
               Rejoindre Woman King Trade
@@ -88,7 +88,7 @@ const Programs = () => {
             </Link>
           </div>
           <div className="program-detail-photo">
-            <img src="/tradeuse_woman_and_men.jpg" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/strategie-3s.jpeg" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>

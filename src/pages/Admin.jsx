@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Mail, Users, BookOpen, MessageSquare, Trash2, CreditCard, CheckCircle2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
+import { Mail, Users, BookOpen, MessageSquare, Trash2, CreditCard, CheckCircle2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload, Star } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Admin.css';
 import { API_URL } from '../config';
@@ -15,9 +16,9 @@ const fallbackCopy = (text) => {
   textArea.select();
   try {
     document.execCommand('copy');
-    alert("Copié dans le presse-papier !");
+    toast("Copié dans le presse-papier !");
   } catch (err) {
-    alert("Copie manuelle requise : " + text);
+    toast("Copie manuelle requise : " + text);
   }
   textArea.remove();
 };
@@ -25,7 +26,7 @@ const fallbackCopy = (text) => {
 const copyToClipboard = (text) => {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      alert("Copié dans le presse-papier !");
+      toast("Copié dans le presse-papier !");
     }).catch(() => fallbackCopy(text));
   } else {
     fallbackCopy(text);
@@ -37,6 +38,19 @@ const Admin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+
+  const customConfirm = (message, onConfirm) => {
+    toast((t) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <span>{message}</span>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toast.dismiss(t.id)}>Annuler</button>
+          <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.85rem', background: '#dc2626' }} onClick={() => { toast.dismiss(t.id); onConfirm(); }}>Confirmer</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
   const [activeTab, setActiveTab] = useState('overview');
 
   const [contacts, setContacts] = useState([]);
@@ -51,6 +65,7 @@ const Admin = () => {
   const [resources, setResources] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [readNotifications, setReadNotifications] = useState(() => JSON.parse(localStorage.getItem('rose_read_notifs') || '[]'));
+  const [repliedContacts, setRepliedContacts] = useState(() => JSON.parse(localStorage.getItem('rose_replied_contacts') || '[]'));
 
   // Derive notifications
   const notifications = [
@@ -71,6 +86,7 @@ const Admin = () => {
     setShowNotifications(false);
   };
   const [articles, setArticles] = useState([]);
+  const [editingArticleId, setEditingArticleId] = useState(null);
   const [prices, setPrices] = useState([]);
   const [editingPrices, setEditingPrices] = useState({});
   const [collaborators, setCollaborators] = useState([]);
@@ -78,6 +94,66 @@ const Admin = () => {
   const [editingContent, setEditingContent] = useState({});
   const [contentStatus, setContentStatus] = useState({});
   const [openSections, setOpenSections] = useState({ hero: true });
+
+  // Testimonials state
+  const [testimonialsList, setTestimonialsList] = useState([]);
+  const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [editingTestimonialId, setEditingTestimonialId] = useState(null);
+  const [newTestimonial, setNewTestimonial] = useState({ nom: '', message: '', rating: 5, images: [] });
+
+  useEffect(() => {
+    if (siteContent.testimonials && siteContent.testimonials.value) {
+      try {
+        setTestimonialsList(JSON.parse(siteContent.testimonials.value));
+      } catch (e) { }
+    }
+  }, [siteContent]);
+
+  const handleSaveTestimonial = async () => {
+    if (!newTestimonial.nom || (!newTestimonial.message && (!newTestimonial.images || newTestimonial.images.length === 0))) {
+      toast("Le nom est requis, ainsi qu'un message ou une image.");
+      return;
+    }
+    let updated;
+    if (editingTestimonialId) {
+      updated = testimonialsList.map(t => t.id === editingTestimonialId ? { ...newTestimonial, id: editingTestimonialId } : t);
+    } else {
+      updated = [{ ...newTestimonial, id: Date.now() }, ...testimonialsList];
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/admin/content/testimonials`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: JSON.stringify(updated) })
+      });
+      if (res.ok) {
+        setTestimonialsList(updated);
+        setShowTestimonialForm(false);
+        setEditingTestimonialId(null);
+        setNewTestimonial({ nom: '', message: '', rating: 5, images: [] });
+      } else {
+        const err = await res.json();
+        toast("Erreur lors de l'enregistrement: " + (err.error || "L'image est peut-être trop lourde."));
+      }
+    } catch (e) {
+      console.error(e);
+      toast("Erreur de connexion au serveur. L'image est probablement trop lourde pour être envoyée.");
+    }
+  };
+
+  const handleDeleteTestimonial = (id) => {
+    customConfirm("Supprimer ce témoignage ?", async () => {
+      const updated = testimonialsList.filter(t => t.id !== id);
+    try {
+      await fetch(`${API_URL}/api/admin/content/testimonials`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: JSON.stringify(updated) })
+      });
+      setTestimonialsList(updated);
+    } catch (e) { console.error(e); }
+    });
+  };
 
   const [newArticle, setNewArticle] = useState({
     title: '',
@@ -88,6 +164,7 @@ const Admin = () => {
     content: '',
     image: ''
   });
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const [newCollab, setNewCollab] = useState({
     username: '',
@@ -114,6 +191,11 @@ const Admin = () => {
   const [showFormationForm, setShowFormationForm] = useState(false);
   const [editingFormationId, setEditingFormationId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [replyingToContact, setReplyingToContact] = useState(null);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [replySubject, setReplySubject] = useState('');
+  const [replySending, setReplySending] = useState(false);
 
   const [securityForm, setSecurityForm] = useState({
     currentPassword: '',
@@ -159,11 +241,11 @@ const Admin = () => {
           fetchCollaborators();
         }
       } else {
-        alert(data.error || "Identifiant ou mot de passe incorrect.");
+        toast(data.error || "Identifiant ou mot de passe incorrect.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erreur de connexion avec le serveur.");
+      toast("Erreur de connexion avec le serveur.");
     }
   };
 
@@ -200,7 +282,7 @@ const Admin = () => {
       setSiteContent(resContent);
       setFormations(resFormations);
       setEbooks(resEbooks);
-      if(Array.isArray(resManual)) setManualPayments(resManual);
+      if (Array.isArray(resManual)) setManualPayments(resManual);
 
       const editMap = {};
       resPrices.forEach(p => {
@@ -217,76 +299,129 @@ const Admin = () => {
 
     } catch (error) {
       console.error("Erreur de récupération des données:", error);
-      alert("Impossible de charger les données du serveur.");
+      toast("Impossible de charger les données du serveur.");
     }
   };
 
   const handleCreateArticle = async (e) => {
     e.preventDefault();
+    if (!newArticle.title || !newArticle.content || !newArticle.category) {
+      toast("Veuillez remplir le titre, le contenu et choisir une catégorie.");
+      return;
+    }
+    setIsPublishing(true);
     try {
       const response = await fetch(`${API_URL}/api/admin/articles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newArticle)
       });
+
       if (response.ok) {
-        alert("Article publié avec succès !");
-        setNewArticle({ ...newArticle, title: '', category: '', excerpt: '', content: '', image: '' });
+        toast(`Article publié avec succès !`);
+        setNewArticle({ title: '', category: '', excerpt: '', content: '', author: 'Rose Kakpo', authorRole: 'Experte en Trading', image: '' });
+        setShowArticleForm(false);
         fetchData();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        toast(data.error || "Erreur de création.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erreur lors de la publication.");
+      toast("Erreur de réseau : l'image est peut-être trop lourde ou la connexion a été coupée.");
+    } finally {
+      setIsPublishing(false);
     }
   };
 
-  const handleDeleteAnnouncement = async (id) => {
-    if (!window.confirm('Supprimer cette annonce ?')) return;
-    try {
+  const handleDeleteAnnouncement = (id) => {
+    customConfirm('Supprimer cette annonce ?', async () => {
+      try {
       await fetch(`${API_URL}/api/admin/announcements/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
+    });
   };
 
-  const handleDeleteContact = async (id) => {
-    if (!window.confirm('Supprimer ce message ?')) return;
+  const handleSendReply = async () => {
+    if (!replyMessage.trim() || !replyingToContact) return;
+    setReplySending(true);
     try {
+      const response = await fetch(`${API_URL}/api/admin/contacts/${replyingToContact.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: replyMessage, subject: replySubject })
+      });
+      if (response.ok) {
+        setSuccessMessage('Réponse envoyée avec succès.');
+
+        // Mark as replied
+        if (!repliedContacts.includes(replyingToContact.id)) {
+          const newReplied = [...repliedContacts, replyingToContact.id];
+          setRepliedContacts(newReplied);
+          localStorage.setItem('rose_replied_contacts', JSON.stringify(newReplied));
+        }
+
+        setReplyingToContact(null);
+        setReplyMessage('');
+        setReplySubject('');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        const err = await response.json().catch(() => ({ error: 'Erreur inconnue du serveur' }));
+        const errorMsg = err.error || 'Erreur lors de l\'envoi de la réponse';
+        setError(errorMsg);
+        toast(`Échec de l'envoi : ${errorMsg}\n\nAvez-vous bien redémarré le backend ?`);
+      }
+    } catch (err) {
+      setError('Erreur de connexion');
+      toast("Erreur de connexion au serveur ! Avez-vous redémarré le backend Node.js ?");
+    } finally {
+      setReplySending(false);
+    }
+  };
+
+  const handleDeleteContact = (id) => {
+    customConfirm('Supprimer ce message ?', async () => {
+      try {
       await fetch(`${API_URL}/api/admin/contacts/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
+    });
   };
 
-  const handleDeleteNewsletter = async (id) => {
-    if (!window.confirm('Supprimer cet abonné de la newsletter ?')) return;
-    try {
+  const handleDeleteNewsletter = (id) => {
+    customConfirm('Supprimer cet abonné de la newsletter ?', async () => {
+      try {
       await fetch(`${API_URL}/api/admin/newsletters/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
+    });
   };
 
-  const handleDeleteEnrollment = async (id) => {
-    if (!window.confirm('Supprimer cette inscription ?')) return;
-    try {
+  const handleDeleteEnrollment = (id) => {
+    customConfirm('Supprimer cette inscription ?', async () => {
+      try {
       await fetch(`${API_URL}/api/admin/enrollments/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) { console.error(e); }
+    });
   };
 
-  const handleDeleteArticle = async (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cet article ?")) {
+  const handleDeleteArticle = (id) => {
+    customConfirm("Voulez-vous vraiment supprimer cet article ?", async () => {
       try {
         await fetch(`${API_URL}/api/admin/articles/${id}`, { method: 'DELETE' });
         fetchData();
       } catch (error) {
         console.error(error);
       }
-    }
+    });
   };
 
   const handleUpdatePrice = async (id) => {
     const priceValue = parseFloat(editingPrices[id]);
     if (priceValue === undefined || isNaN(priceValue) || priceValue < 0) {
-      alert("Veuillez saisir un prix numérique valide.");
+      toast("Veuillez saisir un prix numérique valide.");
       return;
     }
 
@@ -298,19 +433,19 @@ const Admin = () => {
       });
 
       if (response.ok) {
-        alert("Tarif mis à jour avec succès !");
+        toast("Tarif mis à jour avec succès !");
         fetchData();
       } else {
         const errData = await response.json();
-        alert(errData.error || "Erreur lors de la mise à jour.");
+        toast(errData.error || "Erreur lors de la mise à jour.");
       }
     } catch (error) {
       console.error("Erreur de mise à jour:", error);
-      alert("Impossible de se connecter au serveur.");
+      toast("Impossible de se connecter au serveur.");
     }
   };
 
-  
+
   const handleApproveManualPayment = async (payment) => {
     try {
       const response = await fetch(`${API_URL}/api/admin/manual-payments/${payment.id}/approve`, { method: 'POST' });
@@ -322,9 +457,9 @@ const Admin = () => {
         fetchData();
       } else {
         const data = await response.json();
-        alert(data.error || "Erreur lors de la validation.");
+        toast(data.error || "Erreur lors de la validation.");
       }
-    } catch(err) { alert("Erreur réseau"); }
+    } catch (err) { toast("Erreur réseau"); }
   };
 
   const handleRejectManualPayment = async (id) => {
@@ -501,8 +636,8 @@ const Admin = () => {
 
   const handleCreateFormation = async (e) => {
     e.preventDefault();
-    if (!newFormation.slug || !newFormation.title || !newFormation.price || !newFormation.capacity || !newFormation.program) {
-      alert("Veuillez remplir tous les champs obligatoires.");
+    if (!newFormation.slug || !newFormation.title) {
+      toast("Veuillez au moins remplir le titre et le slug (identifiant URL).");
       return;
     }
 
@@ -518,47 +653,48 @@ const Admin = () => {
     };
 
     const payload = { ...newFormation, content_json };
-    
+
     try {
       const method = editingFormationId ? 'PUT' : 'POST';
       const url = editingFormationId ? `${API_URL}/api/admin/formations/${editingFormationId}` : `${API_URL}/api/admin/formations`;
-      
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(editingFormationId ? "Formation modifiée avec succès !" : "Formation créée avec succès !");
+        toast(editingFormationId ? "Formation modifiée avec succès !" : "Formation créée avec succès !");
         setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] });
         setEditingFormationId(null);
         setShowFormationForm(false);
         fetchData();
       } else {
-        alert(data.error || "Erreur de création.");
+        toast(data.error || "Erreur de création.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erreur serveur.");
+      toast("Erreur serveur.");
     }
   };
 
-  const handleDeleteFormation = async (id) => {
-    if (!window.confirm("Supprimer cette formation ? Le lien public ne marchera plus.")) return;
-    try {
+  const handleDeleteFormation = (id) => {
+    customConfirm("Supprimer cette formation ? Le lien public ne marchera plus.", async () => {
+      try {
       await fetch(`${API_URL}/api/admin/formations/${id}`, { method: 'DELETE' });
       fetchData();
     } catch (e) {
       console.error(e);
     }
+    });
   };
 
   const handleEditFormation = (f) => {
     let content = {};
-    try { content = typeof f.content_json === 'string' ? JSON.parse(f.content_json) : (f.content_json || {}); } catch(e) {}
-    
+    try { content = typeof f.content_json === 'string' ? JSON.parse(f.content_json) : (f.content_json || {}); } catch (e) { }
+
     setNewFormation({
       slug: f.slug,
       title: f.title,
@@ -584,7 +720,7 @@ const Admin = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewEbook({...newEbook, image: reader.result});
+        setNewEbook({ ...newEbook, image: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -606,28 +742,29 @@ const Admin = () => {
         setShowEbookForm(false);
         setEditingEbookId(null);
         fetchData();
-        alert(`Ebook ${editingEbookId ? 'modifié' : 'créé'} avec succès !`);
+        toast(`Ebook ${editingEbookId ? 'modifié' : 'créé'} avec succès !`);
       } else {
         const data = await response.json();
-        alert(data.error || "Erreur de création de l'ebook.");
+        toast(data.error || "Erreur de création de l'ebook.");
       }
     } catch (e) {
-      alert("Erreur de connexion.");
+      toast("Erreur de connexion.");
     }
   };
 
-  const handleDeleteEbook = async (id) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet ebook ?")) return;
-    try {
+  const handleDeleteEbook = (id) => {
+    customConfirm("Êtes-vous sûr de vouloir supprimer cet ebook ?", async () => {
+      try {
       const response = await fetch(`${API_URL}/api/admin/ebooks/${id}`, { method: 'DELETE' });
       if (response.ok) {
         fetchData();
       } else {
-        alert("Erreur lors de la suppression.");
+        toast("Erreur lors de la suppression.");
       }
     } catch (e) {
-      alert("Erreur de connexion.");
+      toast("Erreur de connexion.");
     }
+    });
   };
 
   const handleEditEbook = (f) => {
@@ -646,7 +783,7 @@ const Admin = () => {
   const handleCreateCollaborator = async (e) => {
     e.preventDefault();
     if (!newCollab.username || !newCollab.password) {
-      alert("Tous les champs sont requis.");
+      toast("Tous les champs sont requis.");
       return;
     }
 
@@ -659,41 +796,41 @@ const Admin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Collaborateur ajouté avec succès !");
+        toast("Collaborateur ajouté avec succès !");
         setNewCollab({ username: '', password: '', role: 'collaborateur' });
         fetchCollaborators();
       } else {
-        alert(data.error || "Erreur de création.");
+        toast(data.error || "Erreur de création.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erreur de connexion au serveur.");
+      toast("Erreur de connexion au serveur.");
     }
   };
 
-  const handleDeleteCollaborator = async (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer ce collaborateur ?")) {
+  const handleDeleteCollaborator = (id) => {
+    customConfirm("Voulez-vous vraiment supprimer ce collaborateur ?", async () => {
       try {
         const response = await fetch(`${API_URL}/api/admin/collaborators/${id}`, {
           method: 'DELETE'
         });
         const data = await response.json();
         if (response.ok) {
-          alert("Collaborateur supprimé !");
+          toast("Collaborateur supprimé !");
           fetchCollaborators();
         } else {
-          alert(data.error || "Erreur lors de la suppression.");
+          toast(data.error || "Erreur lors de la suppression.");
         }
       } catch (error) {
         console.error(error);
       }
-    }
+    });
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (securityForm.newPassword !== securityForm.confirmPassword) {
-      alert("Les nouveaux mots de passe ne correspondent pas.");
+      toast("Les nouveaux mots de passe ne correspondent pas.");
       return;
     }
 
@@ -710,14 +847,14 @@ const Admin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Mot de passe modifié avec succès !");
+        toast("Mot de passe modifié avec succès !");
         setSecurityForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
-        alert(data.error || "Erreur lors du changement de mot de passe.");
+        toast(data.error || "Erreur lors du changement de mot de passe.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erreur de connexion.");
+      toast("Erreur de connexion.");
     }
   };
 
@@ -788,41 +925,42 @@ const Admin = () => {
   }
 
   const lowerQuery = searchQuery?.toLowerCase() || '';
-  
-  const filteredContacts = contacts.filter(c => 
-    c.nom?.toLowerCase().includes(lowerQuery) || 
-    c.email?.toLowerCase().includes(lowerQuery) || 
+
+  const filteredContacts = contacts.filter(c =>
+    c.nom?.toLowerCase().includes(lowerQuery) ||
+    c.email?.toLowerCase().includes(lowerQuery) ||
     c.message?.toLowerCase().includes(lowerQuery)
   );
 
-  const filteredEnrollments = enrollments.filter(e => 
-    e.firstname?.toLowerCase().includes(lowerQuery) || 
-    e.lastname?.toLowerCase().includes(lowerQuery) || 
-    e.email?.toLowerCase().includes(lowerQuery) || 
+  const filteredEnrollments = enrollments.filter(e =>
+    e.firstname?.toLowerCase().includes(lowerQuery) ||
+    e.lastname?.toLowerCase().includes(lowerQuery) ||
+    e.email?.toLowerCase().includes(lowerQuery) ||
     e.program_id?.toLowerCase().includes(lowerQuery)
   );
 
-  const filteredNewsletters = newsletters.filter(n => 
+  const filteredNewsletters = newsletters.filter(n =>
     n.email?.toLowerCase().includes(lowerQuery)
   );
 
-  const filteredFormations = formations.filter(f => 
-    f.title?.toLowerCase().includes(lowerQuery) || 
+  const filteredFormations = formations.filter(f =>
+    f.title?.toLowerCase().includes(lowerQuery) ||
     f.slug?.toLowerCase().includes(lowerQuery)
   );
 
-  const filteredArticles = articles.filter(a => 
-    a.title?.toLowerCase().includes(lowerQuery) || 
+  const filteredArticles = articles.filter(a =>
+    a.title?.toLowerCase().includes(lowerQuery) ||
     a.category?.toLowerCase().includes(lowerQuery)
   );
 
-  const filteredCollaborators = collaborators.filter(c => 
-    c.username?.toLowerCase().includes(lowerQuery) || 
+  const filteredCollaborators = collaborators.filter(c =>
+    c.username?.toLowerCase().includes(lowerQuery) ||
     c.role?.toLowerCase().includes(lowerQuery)
   );
 
   return (
     <div className="admin-dashboard">
+      <Toaster position="top-right" toastOptions={{ style: { background: "#fff", color: "#333", border: "1px solid rgba(244, 114, 182, 0.3)", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", borderRadius: "12px", padding: "16px", fontWeight: "600" }, success: { iconTheme: { primary: "#2E6F40", secondary: "#fff" } } }} />
       <div className="admin-sidebar glass-panel">
         <h3 className="mb-4" style={{ color: 'var(--color-brand-green)' }}>Dashboard</h3>
         <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
@@ -840,16 +978,11 @@ const Admin = () => {
         <button className={`admin-tab ${activeTab === 'formations' ? 'active' : ''}`} onClick={() => setActiveTab('formations')}>
           <BookOpen size={18} /> Mes Formations ({formations.length})
         </button>
-        <button className={`admin-tab ${activeTab === 'manual-payments' ? 'active' : ''}`} onClick={() => setActiveTab('manual-payments')}>
-          <CreditCard size={18} /> Preuves de Paiement
-          {manualPayments && manualPayments.filter(m => m.status === 'pending').length > 0 && (
-            <span style={{background:'#e5007d', color:'white', borderRadius:'50%', padding:'2px 6px', fontSize:'0.7rem', marginLeft:'auto'}}>
-              {manualPayments.filter(m => m.status === 'pending').length}
-            </span>
-          )}
-        </button>
         <button className={`admin-tab ${activeTab === 'ebooks' ? 'active' : ''}`} onClick={() => setActiveTab('ebooks')}>
           <BookOpen size={18} /> Mes Ebooks ({ebooks.length})
+        </button>
+        <button className={`admin-tab ${activeTab === 'testimonials' ? 'active' : ''}`} onClick={() => setActiveTab('testimonials')}>
+          <Star size={18} /> Témoignages
         </button>
         <button className={`admin-tab ${activeTab === 'blog' ? 'active' : ''}`} onClick={() => setActiveTab('blog')}>
           <BookOpen size={18} /> Gérer le Blog ({articles.length})
@@ -873,10 +1006,10 @@ const Admin = () => {
           <div className="admin-search" style={{ position: 'relative' }}>
             <Search size={18} className="text-gray" />
             <input type="text" placeholder="Rechercher partout..." className="search-input" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            
+
             {searchQuery.trim() !== '' && (
               <div className="glass-panel" style={{ position: 'absolute', top: '100%', left: 0, width: '400px', zIndex: 1000, marginTop: '0.5rem', maxHeight: '60vh', overflowY: 'auto', padding: '0.5rem 0', boxShadow: 'var(--shadow-lg)' }}>
-                
+
                 {filteredFormations.length > 0 && (
                   <div style={{ padding: '0.5rem 1rem' }}>
                     <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-brand-green)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Formations</h5>
@@ -893,7 +1026,7 @@ const Admin = () => {
                     <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-brand-green)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Inscriptions</h5>
                     {filteredEnrollments.map(e => (
                       <div key={e.id} onClick={() => { setActiveTab('inscriptions'); setSearchQuery(''); }} style={{ cursor: 'pointer', padding: '0.5rem', borderRadius: '4px', background: 'rgba(0,0,0,0.03)', marginBottom: '0.2rem', fontSize: '0.9rem' }}>
-                        👥 {e.firstname} {e.lastname} <br/><small className="text-gray">{e.email}</small>
+                        👥 {e.firstname} {e.lastname} <br /><small className="text-gray">{e.email}</small>
                       </div>
                     ))}
                   </div>
@@ -904,7 +1037,7 @@ const Admin = () => {
                     <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-brand-green)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Messages Reçus</h5>
                     {filteredContacts.map(c => (
                       <div key={c.id} onClick={() => { setActiveTab('messages'); setSearchQuery(''); }} style={{ cursor: 'pointer', padding: '0.5rem', borderRadius: '4px', background: 'rgba(0,0,0,0.03)', marginBottom: '0.2rem', fontSize: '0.9rem' }}>
-                        💬 {c.nom} <br/><small className="text-gray">{c.email}</small>
+                        💬 {c.nom} <br /><small className="text-gray">{c.email}</small>
                       </div>
                     ))}
                   </div>
@@ -944,7 +1077,7 @@ const Admin = () => {
                   <div style={{ padding: '1rem', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-gray-900)' }}>Dernières notifications</h4>
                     {unreadCount > 0 && (
-                      <button 
+                      <button
                         onClick={() => {
                           const allIds = notifications.map(n => n.id);
                           setReadNotifications(allIds);
@@ -961,10 +1094,10 @@ const Admin = () => {
                       {notifications.map(n => {
                         const isRead = readNotifications.includes(n.id);
                         return (
-                          <div 
-                            key={n.id} 
+                          <div
+                            key={n.id}
                             onClick={() => handleNotificationClick(n)}
-                            style={{ 
+                            style={{
                               fontSize: '0.8rem', padding: '0.6rem', borderRadius: '8px',
                               borderBottom: '1px solid var(--color-gray-100)', cursor: 'pointer',
                               background: isRead ? 'transparent' : 'rgba(46, 111, 64, 0.05)',
@@ -1099,12 +1232,12 @@ const Admin = () => {
               </div>
             </div>
             <div className="dashboard-banner glass-panel">
-                <div className="banner-content">
-                  <h3>Prête à partager votre expertise ?</h3>
-                  <p>Vos abonnés attendent vos prochains conseils en trading et mindset.</p>
-                  <button onClick={() => setActiveTab('blog')} className="btn btn-primary mt-3">Rédiger un nouvel article</button>
-                </div>
+              <div className="banner-content">
+                <h3>Prête à partager votre expertise ?</h3>
+                <p>Vos abonnés attendent vos prochains conseils en trading et mindset.</p>
+                <button onClick={() => setActiveTab('blog')} className="btn btn-primary mt-3">Rédiger un nouvel article</button>
               </div>
+            </div>
           </div>
         )}
 
@@ -1116,23 +1249,41 @@ const Admin = () => {
                 <thead><tr><th>Date</th><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th><th>Action</th></tr></thead>
                 <tbody>
                   {contacts.map(c => (
-                    <tr key={c.id}>
+                    <tr key={c.id} style={{ background: repliedContacts.includes(c.id) ? 'rgba(46, 111, 64, 0.05)' : 'transparent' }}>
                       <td>{new Date(c.date).toLocaleDateString()}</td>
-                      <td>{c.nom}</td>
+                      <td>
+                        {c.nom}
+                        {repliedContacts.includes(c.id) && (
+                          <span style={{ marginLeft: '8px', fontSize: '0.7rem', background: 'var(--color-brand-green)', color: 'white', padding: '2px 6px', borderRadius: '12px' }}>
+                            Répondu
+                          </span>
+                        )}
+                      </td>
                       <td>{c.email}</td>
                       <td>{c.sujet}</td>
                       <td>{c.message}</td>
                       <td style={{ display: 'flex', gap: '8px' }}>
-                        <a 
-                          href={`mailto:${c.email}?subject=Réponse à : ${encodeURIComponent(c.sujet || 'Votre message sur Rose Kakpo')}`} 
-                          className="btn btn-primary small-btn-admin" 
-                          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        <button
+                          onClick={() => {
+                            setReplyingToContact(c);
+                            setReplySubject(`Réponse à : ${c.sujet || 'Votre message sur Rose Kakpo'}`);
+
+                            // Marquer la notification comme lue automatiquement
+                            const notifId = `msg-${c.id}`;
+                            if (!readNotifications.includes(notifId)) {
+                              const newReads = [...readNotifications, notifId];
+                              setReadNotifications(newReads);
+                              localStorage.setItem('rose_read_notifs', JSON.stringify(newReads));
+                            }
+                          }}
+                          className="btn btn-primary small-btn-admin"
+                          style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                         >
                           <Mail size={14} /> Répondre
-                        </a>
-                        <button 
-                          onClick={() => handleDeleteContact(c.id)} 
-                          className="btn-icon text-pink" 
+                        </button>
+                        <button
+                          onClick={() => handleDeleteContact(c.id)}
+                          className="btn-icon text-pink"
                           title="Supprimer"
                         >
                           <Trash2 size={16} />
@@ -1144,6 +1295,8 @@ const Admin = () => {
                 </tbody>
               </table>
             </div>
+
+
           </div>
         )}
 
@@ -1162,9 +1315,9 @@ const Admin = () => {
                       <td>{e.niveau}</td>
                       <td><strong style={{ color: 'var(--color-brand-green)' }}>{e.programme}</strong></td>
                       <td>
-                        <button 
-                          onClick={() => handleDeleteEnrollment(e.id)} 
-                          className="btn-icon text-pink" 
+                        <button
+                          onClick={() => handleDeleteEnrollment(e.id)}
+                          className="btn-icon text-pink"
                           title="Supprimer"
                         >
                           <Trash2 size={16} />
@@ -1191,9 +1344,9 @@ const Admin = () => {
                       <td>{new Date(n.date).toLocaleDateString()}</td>
                       <td>{n.email}</td>
                       <td>
-                        <button 
-                          onClick={() => handleDeleteNewsletter(n.id)} 
-                          className="btn-icon text-pink" 
+                        <button
+                          onClick={() => handleDeleteNewsletter(n.id)}
+                          className="btn-icon text-pink"
                           title="Désinscrire"
                         >
                           <Trash2 size={16} />
@@ -1223,17 +1376,17 @@ const Admin = () => {
               <div className="glass-panel admin-form-container">
                 <h3 className="mb-4">{editingFormationId ? 'Modifier la formation' : 'Créer une nouvelle page de formation'}</h3>
                 <form onSubmit={handleCreateFormation}>
-                  
+
                   {/* Section 1: Informations */}
                   <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>1. Informations de base</h4>
                     <div className="admin-form-grid-2">
                       <div className="form-group">
                         <label>Titre de la formation</label>
-                        <input type="text" className="cms-input" required placeholder="Ex: Woman King Trade" value={newFormation.title} onChange={e => {
+                        <input type="text" className="cms-input" placeholder="Ex: Woman King Trade" value={newFormation.title} onChange={e => {
                           const title = e.target.value;
                           const slug = title.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-                          setNewFormation({...newFormation, title, slug});
+                          setNewFormation({ ...newFormation, title, slug });
                         }} />
                       </div>
                       <div className="form-group">
@@ -1249,17 +1402,17 @@ const Admin = () => {
                     <div className="admin-form-grid-2">
                       <div className="form-group">
                         <label>Prix (en FCFA)</label>
-                        <input type="number" className="cms-input" required placeholder="Ex: 35000" value={newFormation.price} onChange={e => setNewFormation({...newFormation, price: e.target.value})} />
+                        <input type="number" className="cms-input" placeholder="Ex: 35000" value={newFormation.price} onChange={e => setNewFormation({ ...newFormation, price: e.target.value })} />
                       </div>
                       <div className="form-group">
                         <label>Nombre de places disponibles</label>
-                        <input type="number" className="cms-input" required placeholder="Ex: 20" value={newFormation.capacity} onChange={e => setNewFormation({...newFormation, capacity: e.target.value})} />
+                        <input type="number" className="cms-input" placeholder="Ex: 20" value={newFormation.capacity} onChange={e => setNewFormation({ ...newFormation, capacity: e.target.value })} />
                       </div>
-                      
+
                       <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                         <label>Date limite d'inscription (Optionnel)</label>
                         <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Laissez vide pour un minuteur journalier (qui s'arrête à minuit tous les soirs).</p>
-                        <input type="datetime-local" className="cms-input" value={newFormation.expirationDate || ''} onChange={e => setNewFormation({...newFormation, expirationDate: e.target.value})} />
+                        <input type="datetime-local" className="cms-input" value={newFormation.expirationDate || ''} onChange={e => setNewFormation({ ...newFormation, expirationDate: e.target.value })} />
                       </div>
                     </div>
                   </div>
@@ -1281,46 +1434,46 @@ const Admin = () => {
                     </div>
                     <div className="form-group">
                       <label>Sous-titre (Phrase d'accroche)</label>
-                      <input type="text" className="cms-input" placeholder="Ex: Devenez experte en 14 jours" value={newFormation.subtitle} onChange={e => setNewFormation({...newFormation, subtitle: e.target.value})} />
+                      <input type="text" className="cms-input" placeholder="Ex: Devenez experte en 14 jours" value={newFormation.subtitle} onChange={e => setNewFormation({ ...newFormation, subtitle: e.target.value })} />
                     </div>
                     <div className="form-group" style={{ marginTop: '1rem' }}>
                       <label>Programme détaillé (Ce que vous allez apprendre)</label>
                       <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Mettez un tiret ou un point pour chaque ligne. Cela créera une belle liste sur la page publique.</p>
-                      <textarea className="cms-textarea" rows="5" required value={newFormation.program} onChange={e => setNewFormation({...newFormation, program: e.target.value})} placeholder="• Initiation au trading&#10;• Comprendre le fonctionnement du marché&#10;• Stratégies de trading..."></textarea>
+                      <textarea className="cms-textarea" rows="5" value={newFormation.program} onChange={e => setNewFormation({ ...newFormation, program: e.target.value })} placeholder="• Initiation au trading&#10;• Comprendre le fonctionnement du marché&#10;• Stratégies de trading..."></textarea>
                     </div>
                   </div>
 
                   {/* Section 4: Générateur Landing Page Pro */}
                   <div className="admin-form-section">
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>4. Sections Landing Page Pro</h4>
-                    
+
                     <div className="form-group mb-4">
                       <label>Objectifs de la Masterclass / Formation</label>
                       <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Une ligne = un objectif. (Entrée pour passer à la ligne)</p>
-                      <textarea className="cms-textarea" rows="4" value={newFormation.objectives} onChange={e => setNewFormation({...newFormation, objectives: e.target.value})} placeholder="Atteindre la rentabilité&#10;Gérer ses émotions&#10;Comprendre l'analyse technique"></textarea>
+                      <textarea className="cms-textarea" rows="4" value={newFormation.objectives} onChange={e => setNewFormation({ ...newFormation, objectives: e.target.value })} placeholder="Atteindre la rentabilité&#10;Gérer ses émotions&#10;Comprendre l'analyse technique"></textarea>
                     </div>
 
                     <div className="form-group mb-4">
                       <label>Pour qui est cette formation ? (Audience)</label>
                       <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Une ligne = une catégorie de personnes. (Entrée pour passer à la ligne)</p>
-                      <textarea className="cms-textarea" rows="4" value={newFormation.targetAudience} onChange={e => setNewFormation({...newFormation, targetAudience: e.target.value})} placeholder="Les femmes ambitieuses&#10;Les débutants en trading&#10;Celles qui veulent une nouvelle source de revenus"></textarea>
+                      <textarea className="cms-textarea" rows="4" value={newFormation.targetAudience} onChange={e => setNewFormation({ ...newFormation, targetAudience: e.target.value })} placeholder="Les femmes ambitieuses&#10;Les débutants en trading&#10;Celles qui veulent une nouvelle source de revenus"></textarea>
                     </div>
 
                     <div className="form-group mb-4">
                       <label>Ce qui est inclus (Bonus & Matériel)</label>
                       <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Une ligne = un bonus. (Entrée pour passer à la ligne)</p>
-                      <textarea className="cms-textarea" rows="4" value={newFormation.included} onChange={e => setNewFormation({...newFormation, included: e.target.value})} placeholder="Accès au groupe privé Telegram&#10;Support 24/7&#10;Certificat de fin de formation"></textarea>
+                      <textarea className="cms-textarea" rows="4" value={newFormation.included} onChange={e => setNewFormation({ ...newFormation, included: e.target.value })} placeholder="Accès au groupe privé Telegram&#10;Support 24/7&#10;Certificat de fin de formation"></textarea>
                     </div>
 
                     <div className="form-group mb-4">
                       <label>Lien d'accès (WhatsApp, Telegram, Drive...)</label>
                       <p className="text-small text-gray" style={{ marginBottom: '0.5rem' }}>Ce lien sera fourni automatiquement au client après paiement validé.</p>
-                      <input type="url" className="cms-input" value={newFormation.accessLink || ''} onChange={e => setNewFormation({...newFormation, accessLink: e.target.value})} placeholder="Ex: https://chat.whatsapp.com/votre_lien" />
+                      <input type="url" className="cms-input" value={newFormation.accessLink || ''} onChange={e => setNewFormation({ ...newFormation, accessLink: e.target.value })} placeholder="Ex: https://chat.whatsapp.com/votre_lien" />
                     </div>
 
                     <div className="form-group mb-4">
                       <label>Qui suis-je ? (Bio auteur)</label>
-                      <textarea className="cms-textarea" rows="4" value={newFormation.authorBio} onChange={e => setNewFormation({...newFormation, authorBio: e.target.value})} placeholder="Je suis Rose Kakpo, Trader indépendante et fondatrice de Woman King Trade. Ma mission est de..."></textarea>
+                      <textarea className="cms-textarea" rows="4" value={newFormation.authorBio} onChange={e => setNewFormation({ ...newFormation, authorBio: e.target.value })} placeholder="Je suis Rose Kakpo, Trader indépendante et fondatrice de Woman King Trade. Ma mission est de..."></textarea>
                     </div>
 
                     <div className="form-group mb-4">
@@ -1335,7 +1488,7 @@ const Admin = () => {
                           });
                         });
                         Promise.all(promises).then(base64Images => {
-                          setNewFormation(prev => ({...prev, testimonials: [...(prev.testimonials || []), ...base64Images]}));
+                          setNewFormation(prev => ({ ...prev, testimonials: [...(prev.testimonials || []), ...base64Images] }));
                         });
                       }} className="glass-input" />
                       {newFormation.testimonials && newFormation.testimonials.length > 0 && (
@@ -1343,7 +1496,7 @@ const Admin = () => {
                           {newFormation.testimonials.map((img, i) => (
                             <div key={i} style={{ position: 'relative' }}>
                               <img src={img} alt="Témoignage" style={{ height: '80px', borderRadius: '4px', objectFit: 'cover' }} />
-                              <button type="button" onClick={() => setNewFormation(prev => ({...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i)}))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
+                              <button type="button" onClick={() => setNewFormation(prev => ({ ...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i) }))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
                             </div>
                           ))}
                         </div>
@@ -1371,11 +1524,11 @@ const Admin = () => {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button 
+                      <button
                         onClick={() => {
                           const fullUrl = `${window.location.origin}/formation/${f.slug}`;
                           copyToClipboard(fullUrl);
-                        }} 
+                        }}
                         className="btn btn-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.9rem' }}>
                         Copier le lien
                       </button>
@@ -1398,7 +1551,7 @@ const Admin = () => {
           </div>
         )}
 
-        
+
         {activeTab === 'manual-payments' && (
           <div className="admin-section animate-fade-up">
             <div className="admin-header-flex">
@@ -1423,12 +1576,12 @@ const Admin = () => {
                     manualPayments.map(payment => (
                       <tr key={payment.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                         <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{new Date(payment.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                        <td style={{ padding: '1rem' }}>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br/><small className="text-muted">{payment.customer_info?.email}</small></td>
+                        <td style={{ padding: '1rem' }}>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br /><small className="text-muted">{payment.customer_info?.email}</small></td>
                         <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
                           {payment.customer_info?.whatsapp && (
-                            <a 
-                              href={getWhatsAppLink(payment)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(payment)}
+                              target="_blank"
                               rel="noreferrer"
                               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#25D366', textDecoration: 'none', fontWeight: 'bold' }}
                               title="Envoyer le lien par WhatsApp"
@@ -1441,7 +1594,7 @@ const Admin = () => {
                         <td style={{ padding: '1rem' }}>{payment.program_id}</td>
                         <td style={{ padding: '1rem' }}><strong>{payment.network}</strong></td>
                         <td style={{ padding: '1rem' }}>
-                          {payment.status === 'pending' ? <span style={{color: '#ffcc00', fontWeight: 'bold', whiteSpace: 'nowrap'}}>En attente</span> : <span style={{color: '#4caf50', fontWeight: 'bold', whiteSpace: 'nowrap'}}>Validé</span>}
+                          {payment.status === 'pending' ? <span style={{ color: '#ffcc00', fontWeight: 'bold', whiteSpace: 'nowrap' }}>En attente</span> : <span style={{ color: '#4caf50', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Validé</span>}
                         </td>
                         <td style={{ padding: '1rem' }}>
                           <button onClick={() => handleViewImage(payment.proof_image)} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
@@ -1489,15 +1642,15 @@ const Admin = () => {
                   <div className="admin-grid mb-4">
                     <div className="form-group">
                       <label>Titre de l'ebook</label>
-                      <input type="text" className="cms-input" required value={newEbook.title} onChange={e => setNewEbook({...newEbook, title: e.target.value})} placeholder="Ex: De la vision à la maîtrise" />
+                      <input type="text" className="cms-input" value={newEbook.title} onChange={e => setNewEbook({ ...newEbook, title: e.target.value })} placeholder="Ex: De la vision à la maîtrise" />
                     </div>
                     <div className="form-group">
                       <label>Lien (slug) unique</label>
-                      <input type="text" className="cms-input" required value={newEbook.slug} onChange={e => setNewEbook({...newEbook, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})} placeholder="Ex: vision-maitrise" />
+                      <input type="text" className="cms-input" value={newEbook.slug} onChange={e => setNewEbook({ ...newEbook, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} placeholder="Ex: vision-maitrise" />
                     </div>
                     <div className="form-group">
                       <label>Prix (USD)</label>
-                      <input type="number" step="0.01" className="cms-input" required value={newEbook.price} onChange={e => setNewEbook({...newEbook, price: e.target.value})} placeholder="Ex: 15.00" />
+                      <input type="number" step="0.01" className="cms-input" value={newEbook.price} onChange={e => setNewEbook({ ...newEbook, price: e.target.value })} placeholder="Ex: 15.00" />
                     </div>
                     <div className="form-group">
                       <label>Image de couverture (Optionnel)</label>
@@ -1514,10 +1667,10 @@ const Admin = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="form-group mb-4">
                     <label>Description courte</label>
-                    <textarea className="cms-textarea" rows="3" required value={newEbook.description} onChange={e => setNewEbook({...newEbook, description: e.target.value})} placeholder="Courte description du contenu du livre..."></textarea>
+                    <textarea className="cms-textarea" rows="3" value={newEbook.description} onChange={e => setNewEbook({ ...newEbook, description: e.target.value })} placeholder="Courte description du contenu du livre..."></textarea>
                   </div>
 
                   <div className="form-group mb-4">
@@ -1532,7 +1685,7 @@ const Admin = () => {
                         });
                       });
                       Promise.all(promises).then(base64Images => {
-                        setNewEbook(prev => ({...prev, testimonials: [...(prev.testimonials || []), ...base64Images]}));
+                        setNewEbook(prev => ({ ...prev, testimonials: [...(prev.testimonials || []), ...base64Images] }));
                       });
                     }} className="glass-input" />
                     {newEbook.testimonials && newEbook.testimonials.length > 0 && (
@@ -1540,7 +1693,7 @@ const Admin = () => {
                         {newEbook.testimonials.map((img, i) => (
                           <div key={i} style={{ position: 'relative' }}>
                             <img src={img} alt="Témoignage" style={{ height: '80px', borderRadius: '4px', objectFit: 'cover' }} />
-                            <button type="button" onClick={() => setNewEbook(prev => ({...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i)}))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
+                            <button type="button" onClick={() => setNewEbook(prev => ({ ...prev, testimonials: prev.testimonials.filter((_, idx) => idx !== i) }))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' }}>X</button>
                           </div>
                         ))}
                       </div>
@@ -1608,7 +1761,11 @@ const Admin = () => {
                       <strong>{a.title}</strong>
                       <span className="text-small text-gray d-block">{a.category} - {a.date}</span>
                     </div>
-                    <button onClick={() => handleDeleteArticle(a.id)} className="btn-icon text-pink"><Trash2 size={18} /></button>
+                    <div>
+                      <button onClick={() => handleDeleteArticle(a.id)} className="btn-icon text-pink" title="Supprimer">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1618,7 +1775,7 @@ const Admin = () => {
                 <form onSubmit={handleCreateArticle}>
                   <div className="form-group">
                     <label>Titre de l'article</label>
-                    <input type="text" required className="glass-input" value={newArticle.title} onChange={e => setNewArticle({ ...newArticle, title: e.target.value })} />
+                    <input type="text" className="glass-input" value={newArticle.title} onChange={e => setNewArticle({ ...newArticle, title: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>Catégorie</label>
@@ -1638,17 +1795,22 @@ const Admin = () => {
                   </div>
                   <div className="form-group">
                     <label>Court résumé (Excerpt)</label>
-                    <textarea required className="glass-input" rows="2" value={newArticle.excerpt} onChange={e => setNewArticle({ ...newArticle, excerpt: e.target.value })}></textarea>
+                    <textarea className="glass-input" rows="2" value={newArticle.excerpt} onChange={e => setNewArticle({ ...newArticle, excerpt: e.target.value })}></textarea>
                   </div>
                   <div className="form-group">
                     <label>Contenu Complet (Supporte l'HTML ex: &lt;h2&gt;, &lt;p&gt;)</label>
-                    <textarea required className="glass-input" rows="10" value={newArticle.content} onChange={e => setNewArticle({ ...newArticle, content: e.target.value })}></textarea>
+                    <textarea className="glass-input" rows="10" value={newArticle.content} onChange={e => setNewArticle({ ...newArticle, content: e.target.value })}></textarea>
                   </div>
                   <div className="form-group">
                     <label>Image de couverture (Optionnel)</label>
                     <input type="file" accept="image/*" className="glass-input" onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
+                        if (file.size > 3 * 1024 * 1024) {
+                          toast("Cette image est trop lourde. Veuillez choisir une image de moins de 3 Mo.");
+                          e.target.value = '';
+                          return;
+                        }
                         const reader = new FileReader();
                         reader.onloadend = () => setNewArticle({ ...newArticle, image: reader.result });
                         reader.readAsDataURL(file);
@@ -1656,7 +1818,9 @@ const Admin = () => {
                     }} />
                     {newArticle.image && <img src={newArticle.image} alt="Preview" style={{ height: '80px', marginTop: '10px', borderRadius: '8px', objectFit: 'cover' }} />}
                   </div>
-                  <button type="submit" className="btn btn-primary full-width">Publier l'article</button>
+                  <button type="submit" className="btn btn-primary full-width" disabled={isPublishing}>
+                    {isPublishing ? 'Publication en cours...' : 'Publier l\'article'}
+                  </button>
                 </form>
               </div>
             </div>
@@ -1907,7 +2071,139 @@ const Admin = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'testimonials' && (
+          <div className="admin-panel animate-fade-up">
+            <div className="admin-section-header">
+              <h2 className="text-gradient">Témoignages</h2>
+              <button className="btn btn-primary" onClick={() => {
+                setEditingTestimonialId(null);
+                setNewTestimonial({ nom: '', message: '', rating: 5, images: [] });
+                setShowTestimonialForm(!showTestimonialForm);
+              }}>
+                {showTestimonialForm ? 'Annuler' : '+ Ajouter un témoignage'}
+              </button>
+            </div>
+
+            {showTestimonialForm && (
+              <div className="glass-panel p-6 mb-8 form-anim">
+                <h3 className="mb-4">{editingTestimonialId ? 'Modifier le témoignage' : 'Ajouter un témoignage'}</h3>
+                <div className="form-group mb-3">
+                  <label>Nom du client</label>
+                  <input type="text" className="glass-input" value={newTestimonial.nom} onChange={e => setNewTestimonial({ ...newTestimonial, nom: e.target.value })} placeholder="ex: Sarah K." />
+                </div>
+                <div className="form-group mb-3">
+                  <label>Message</label>
+                  <textarea className="glass-input" rows="4" value={newTestimonial.message} onChange={e => setNewTestimonial({ ...newTestimonial, message: e.target.value })} placeholder="Facultatif si vous ajoutez une capture d'écran"></textarea>
+                </div>
+                <div className="form-group mb-3">
+                  <label>Captures d'écran (Optionnel - Plusieurs possibles)</label>
+                  <input type="file" className="glass-input" accept="image/*" multiple onChange={(e) => {
+                    const files = Array.from(e.target.files);
+                    const promises = files.map(file => {
+                      return new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(file);
+                      });
+                    });
+                    Promise.all(promises).then(base64Images => {
+                      setNewTestimonial(prev => ({ ...prev, images: [...(prev.images || []), ...base64Images] }));
+                    });
+                  }} />
+                  {newTestimonial.images && newTestimonial.images.length > 0 && (
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                      {newTestimonial.images.map((img, i) => (
+                        <div key={i} style={{ position: 'relative' }}>
+                          <img src={img} alt="Preview" style={{ height: '80px', borderRadius: '4px', objectFit: 'cover' }} />
+                          <button type="button" onClick={() => setNewTestimonial(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&times;</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="form-group mb-3">
+                  <label>Note sur 5</label>
+                  <select className="glass-input" value={newTestimonial.rating} onChange={e => setNewTestimonial({ ...newTestimonial, rating: parseInt(e.target.value) })}>
+                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} étoiles</option>)}
+                  </select>
+                </div>
+                <button className="btn btn-primary" onClick={handleSaveTestimonial}>Enregistrer</button>
+              </div>
+            )}
+
+            {!showTestimonialForm && (
+              <div className="data-table-wrapper glass-panel">
+                <table className="data-table">
+                  <thead><tr><th>Nom</th><th>Message</th><th>Note</th><th>Action</th></tr></thead>
+                  <tbody>
+                    {testimonialsList.map(t => (
+                      <tr key={t.id}>
+                        <td><strong>{t.nom}</strong></td>
+                        <td>
+                          {t.image && <img src={t.image} alt="Capture" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '10px' }} />}
+                          {t.images && t.images.map((img, i) => <img key={i} src={img} alt="Capture" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '10px' }} />)}
+                          {t.message ? t.message.substring(0, 50) + '...' : <span className="text-gray italic">Image uniquement</span>}
+                        </td>
+                        <td>{'⭐'.repeat(t.rating)}</td>
+                        <td>
+                          <button className="btn-icon" onClick={() => {
+                            setEditingTestimonialId(t.id);
+                            const existingImages = t.images || [];
+                            if (t.image && existingImages.length === 0) existingImages.push(t.image);
+                            setNewTestimonial({ nom: t.nom, message: t.message, rating: t.rating, images: existingImages });
+                            setShowTestimonialForm(true);
+                          }} title="Modifier" style={{ marginRight: '10px' }}>
+                            <Edit3 size={16} className="text-blue" />
+                          </button>
+                          <button className="btn-icon" onClick={() => handleDeleteTestimonial(t.id)} title="Supprimer">
+                            <Trash2 size={16} className="text-pink" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {testimonialsList.length === 0 && <tr><td colSpan="4" className="text-center">Aucun témoignage.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Modal de réponse (placé à la racine pour éviter les problèmes de z-index avec animate-fade-up) */}
+      {replyingToContact && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-panel" style={{ maxWidth: '600px' }}>
+            <h3>Répondre à {replyingToContact.nom}</h3>
+            <div className="form-group mb-3 mt-3">
+              <label>Sujet</label>
+              <input
+                type="text"
+                className="glass-input"
+                value={replySubject}
+                onChange={e => setReplySubject(e.target.value)}
+              />
+            </div>
+            <div className="form-group mb-3">
+              <label>Message de réponse</label>
+              <textarea
+                className="glass-input"
+                rows="6"
+                value={replyMessage}
+                onChange={e => setReplyMessage(e.target.value)}
+                placeholder={`Tapez votre réponse à ${replyingToContact.email} ici...`}
+              ></textarea>
+            </div>
+            <div className="modal-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+              <button className="btn btn-secondary" onClick={() => setReplyingToContact(null)}>Annuler</button>
+              <button className="btn btn-primary" onClick={handleSendReply} disabled={replySending || !replyMessage.trim()}>
+                {replySending ? 'Envoi...' : 'Envoyer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
