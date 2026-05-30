@@ -72,14 +72,53 @@ const Admin = () => {
     ...contacts.map(c => {
       let title = `Nouveau message de ${c.nom}`;
       if (c.status === 'waiting') title = `Nouvelle réponse de ${c.nom}`;
-      const extract = c.lastMessage ? c.lastMessage.substring(0, 20) + '...' : '';
+      const msgText = (c.lastMessage || c.message || '');
+      const extract = typeof msgText === 'string' ? msgText.substring(0, 20) + '...' : '';
       return { id: `msg-${c.id}-${new Date(c.date).getTime()}`, type: 'messages', text: `${title} : ${extract}`, date: c.date };
     }),
-    ...enrollments.map(e => ({ id: `enr-${e.id}`, type: 'inscriptions', text: `Nouvelle inscription : ${e.nom}`, date: e.date })),
-    ...newsletters.map(n => ({ id: `nsl-${n.id}`, type: 'newsletter', text: `Nouvel abonné : ${n.email}`, date: n.date }))
+    ...enrollments.map(e => ({ id: `enr-${e.id}`, type: 'inscriptions', text: `Nouvelle inscription : ${e.firstname || e.nom}`, date: e.date })),
+    ...newsletters.map(n => ({ id: `nsl-${n.id}`, type: 'newsletter', text: `Nouvel abonné : ${n.email}`, date: n.date })),
+    ...manualPayments.map(m => {
+      const name = m.customer_info ? `${m.customer_info.firstname} ${m.customer_info.lastname}` : m.nom;
+      return { id: `man-${m.id}`, type: 'manual-payments', text: `Nouveau paiement manuel : ${name}`, date: m.date };
+    })
   ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
 
   const unreadCount = notifications.filter(n => !readNotifications.includes(n.id)).length;
+  const [prevUnreadCount, setPrevUnreadCount] = useState(unreadCount);
+
+  const playNotificationSound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      const playBeep = (time, freq) => {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(freq, time);
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.5, time + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start(time);
+        oscillator.stop(time + 0.3);
+      };
+
+      // Double "ding!"
+      playBeep(audioCtx.currentTime, 880);
+      playBeep(audioCtx.currentTime + 0.15, 1100);
+    } catch (e) {
+      console.log("Audio not supported");
+    }
+  };
+
+  useEffect(() => {
+    if (unreadCount > prevUnreadCount) {
+      playNotificationSound();
+    }
+    setPrevUnreadCount(unreadCount);
+  }, [unreadCount, prevUnreadCount]);
 
   const handleNotificationClick = (n) => {
     if (!readNotifications.includes(n.id)) {
@@ -257,6 +296,13 @@ const Admin = () => {
         if (userData.role === 'admin') {
           fetchCollaborators();
         }
+
+        // Auto-refresh data every 15 seconds
+        const intervalId = setInterval(() => {
+          fetchData();
+        }, 15000);
+
+        return () => clearInterval(intervalId);
       } catch (e) {
         console.error(e);
       }
@@ -317,18 +363,18 @@ const Admin = () => {
         fetch(`${API_URL}/api/ebooks`).then(res => res.json()),
         fetch(`${API_URL}/api/admin/manual-payments`).then(res => res.json())
       ]);
-      setContacts(resContacts);
-      setNewsletters(resNewsletters);
-      setEnrollments(resEnrollments);
-      setArticles(resArticles);
-      setPrices(resPrices);
-      setSiteContent(resContent);
-      setFormations(resFormations);
-      setEbooks(resEbooks);
-      if (Array.isArray(resManual)) setManualPayments(resManual);
+      setContacts(Array.isArray(resContacts) ? resContacts : []);
+      setNewsletters(Array.isArray(resNewsletters) ? resNewsletters : []);
+      setEnrollments(Array.isArray(resEnrollments) ? resEnrollments : []);
+      setArticles(Array.isArray(resArticles) ? resArticles : []);
+      setPrices(Array.isArray(resPrices) ? resPrices : []);
+      setSiteContent(resContent && !resContent.error ? resContent : {});
+      setFormations(Array.isArray(resFormations) ? resFormations : []);
+      setEbooks(Array.isArray(resEbooks) ? resEbooks : []);
+      setManualPayments(Array.isArray(resManual) ? resManual : []);
 
       const editMap = {};
-      resPrices.forEach(p => {
+      (Array.isArray(resPrices) ? resPrices : []).forEach(p => {
         editMap[p.id] = p.price;
       });
       setEditingPrices(editMap);
@@ -519,10 +565,13 @@ const Admin = () => {
   };
 
   const getWhatsAppLink = (payment) => {
-    const num = payment.customer_info?.whatsapp?.replace(/[^0-9+]/g, '');
+    const rawNum = payment.customer_info?.whatsapp || payment.telephone;
+    const num = rawNum?.replace(/[^0-9+]/g, '');
     if (!num) return '#';
-    let text = `Bonjour ${payment.customer_info?.firstname}, votre paiement a bien été validé !\n\n`;
-    if (payment.program_id === 'woman-king') {
+    const firstname = payment.customer_info?.firstname || payment.nom || '';
+    let text = `Bonjour ${firstname}, votre paiement a bien été validé !\n\n`;
+    const programId = payment.program_id || payment.programme;
+    if (programId === 'woman-king') {
       text += `Voici le lien exclusif pour rejoindre la formation Woman King Trade :\nhttps://chat.whatsapp.com/EpqfnVvALmuCKrJ9FlK70P?s=cl&p=i&mlu=4`;
     } else {
       text += `Veuillez rejoindre nos canaux de communication :\nhttps://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA`;
@@ -1010,6 +1059,9 @@ const Admin = () => {
         </button>
         <button className={`admin-tab ${activeTab === 'inscriptions' ? 'active' : ''}`} onClick={() => setActiveTab('inscriptions')}>
           <Users size={18} /> Inscriptions ({enrollments.length})
+        </button>
+        <button className={`admin-tab ${activeTab === 'manual-payments' ? 'active' : ''}`} onClick={() => setActiveTab('manual-payments')}>
+          <CreditCard size={18} /> Paiements Manuels ({manualPayments?.length || 0})
         </button>
         <button className={`admin-tab ${activeTab === 'newsletter' ? 'active' : ''}`} onClick={() => setActiveTab('newsletter')}>
           <Mail size={18} /> Newsletter ({newsletters.length})
@@ -1624,9 +1676,9 @@ const Admin = () => {
                     manualPayments.map(payment => (
                       <tr key={payment.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                         <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{new Date(payment.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                        <td style={{ padding: '1rem' }}>{payment.customer_info?.firstname} {payment.customer_info?.lastname}<br /><small className="text-muted">{payment.customer_info?.email}</small></td>
+                        <td style={{ padding: '1rem' }}>{payment.customer_info ? `${payment.customer_info.firstname} ${payment.customer_info.lastname}` : payment.nom}<br /><small className="text-muted">{payment.customer_info?.email || payment.email}</small></td>
                         <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
-                          {payment.customer_info?.whatsapp && (
+                          {(payment.customer_info?.whatsapp || payment.telephone) && (
                             <a
                               href={getWhatsAppLink(payment)}
                               target="_blank"
@@ -1635,17 +1687,17 @@ const Admin = () => {
                               title="Envoyer le lien par WhatsApp"
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                              {payment.customer_info?.whatsapp}
+                              {payment.customer_info?.whatsapp || payment.telephone}
                             </a>
                           )}
                         </td>
-                        <td style={{ padding: '1rem' }}>{payment.program_id}</td>
-                        <td style={{ padding: '1rem' }}><strong>{payment.network}</strong></td>
+                        <td style={{ padding: '1rem' }}>{payment.program_id || payment.programme}</td>
+                        <td style={{ padding: '1rem' }}><strong>{payment.network || payment.methode}</strong></td>
                         <td style={{ padding: '1rem' }}>
                           {payment.status === 'pending' ? <span style={{ color: '#ffcc00', fontWeight: 'bold', whiteSpace: 'nowrap' }}>En attente</span> : <span style={{ color: '#4caf50', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Validé</span>}
                         </td>
                         <td style={{ padding: '1rem' }}>
-                          <button onClick={() => handleViewImage(payment.proof_image)} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => handleViewImage(payment.proof_image || payment.preuve_paiement)} style={{ background: 'none', border: 'none', color: '#007bff', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                             Voir l'image
                           </button>
                         </td>

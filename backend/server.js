@@ -1078,6 +1078,10 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
       try { customer = JSON.parse(customer); } catch (e) { }
     }
 
+    const customerName = customer ? `${customer.firstname || ''} ${customer.lastname || ''}`.trim() : (row.nom || '');
+    const customerEmail = customer ? customer.email : (row.email || '');
+    const customerPhone = customer ? customer.whatsapp : (row.telephone || '');
+
     const enrollQuery = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
     const programNames = {
       'woman-king': 'Woman King Trade',
@@ -1087,9 +1091,9 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
       'ebook-vision': 'E-Book : De la vision à la maîtrise',
       'ebook-positionner': 'E-Book : Se positionner intelligemment'
     };
-    const programmeName = programNames[row.program_id] || row.program_id;
+    const programmeName = programNames[row.program_id] || row.program_id || row.programme || 'Programme inconnu';
 
-    db.run(enrollQuery, [`${customer.firstname} ${customer.lastname}`, customer.email, customer.whatsapp, 'N/A', programmeName], (err2) => {
+    db.run(enrollQuery, [customerName, customerEmail, customerPhone, 'N/A', programmeName], (err2) => {
       if (err2) console.error("Erreur insertion enrollments:", err2);
 
       db.run(`UPDATE manual_payments SET status = 'approved' WHERE id = ?`, [id], (err3) => {
@@ -1107,7 +1111,7 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
                 auth: { user: mailConfig.smtp_user, pass: mailConfig.smtp_pass }
               });
 
-              let textContent = `Bonjour ${customer.firstname},\n\nVotre paiement a été validé avec succès pour : ${programmeName}.\n\n`;
+              let textContent = `Bonjour ${customer ? customer.firstname : (row.nom || '')},\n\nVotre paiement a été validé avec succès pour : ${programmeName}.\n\n`;
               if (row.program_id === 'ebook-vision' || row.program_id === 'ebook-positionner') {
                 const link = row.program_id === 'ebook-vision' ? 'https://projetrosekakpo.onrender.com/EBOOK_FIGURE_BOUGIE_ROSE.pdf' : 'https://projetrosekakpo.onrender.com/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
                 textContent += `Voici le lien pour télécharger votre E-Book : ${link}\n\n`;
@@ -1120,7 +1124,7 @@ app.post('/api/admin/manual-payments/:id/approve', (req, res) => {
 
               const mailOptions = {
                 from: `"Rose Kakpo" <${mailConfig.smtp_user}>`,
-                to: customer.email,
+                to: customerEmail,
                 subject: `Accès à votre programme : ${programmeName}`,
                 text: textContent
               };
