@@ -1057,7 +1057,10 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
 
 app.get('/api/admin/manual-payments', (req, res) => {
   db.all(`SELECT * FROM manual_payments ORDER BY id DESC`, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: "Erreur serveur" });
+    if (err) {
+      console.error("Erreur SELECT manual_payments:", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
     const parsed = rows.map(r => {
       try { r.customer_info = JSON.parse(r.customer_info); } catch (e) { }
       return r;

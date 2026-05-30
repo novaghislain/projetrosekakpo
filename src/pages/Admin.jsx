@@ -352,26 +352,29 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
+      const safeFetch = (url) => fetch(url).then(res => res.json()).catch(err => ({ error: true, details: err }));
+
       const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks, resManual] = await Promise.all([
-        fetch(`${API_URL}/api/admin/contacts`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/newsletters`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/enrollments`).then(res => res.json()),
-        fetch(`${API_URL}/api/articles`).then(res => res.json()),
-        fetch(`${API_URL}/api/prices`).then(res => res.json()),
-        fetch(`${API_URL}/api/content`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/formations`).then(res => res.json()),
-        fetch(`${API_URL}/api/ebooks`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/manual-payments`).then(res => res.json())
+        safeFetch(`${API_URL}/api/admin/contacts`),
+        safeFetch(`${API_URL}/api/admin/newsletters`),
+        safeFetch(`${API_URL}/api/admin/enrollments`),
+        safeFetch(`${API_URL}/api/articles`),
+        safeFetch(`${API_URL}/api/prices`),
+        safeFetch(`${API_URL}/api/content`),
+        safeFetch(`${API_URL}/api/admin/formations`),
+        safeFetch(`${API_URL}/api/ebooks`),
+        safeFetch(`${API_URL}/api/admin/manual-payments`)
       ]);
-      setContacts(Array.isArray(resContacts) ? resContacts : []);
-      setNewsletters(Array.isArray(resNewsletters) ? resNewsletters : []);
-      setEnrollments(Array.isArray(resEnrollments) ? resEnrollments : []);
-      setArticles(Array.isArray(resArticles) ? resArticles : []);
-      setPrices(Array.isArray(resPrices) ? resPrices : []);
-      setSiteContent(resContent && !resContent.error ? resContent : {});
-      setFormations(Array.isArray(resFormations) ? resFormations : []);
-      setEbooks(Array.isArray(resEbooks) ? resEbooks : []);
-      setManualPayments(Array.isArray(resManual) ? resManual : []);
+
+      setContacts(prev => Array.isArray(resContacts) ? resContacts : prev);
+      setNewsletters(prev => Array.isArray(resNewsletters) ? resNewsletters : prev);
+      setEnrollments(prev => Array.isArray(resEnrollments) ? resEnrollments : prev);
+      setArticles(prev => Array.isArray(resArticles) ? resArticles : prev);
+      setPrices(prev => Array.isArray(resPrices) ? resPrices : prev);
+      setSiteContent(prev => resContent && !resContent.error ? resContent : prev);
+      setFormations(prev => Array.isArray(resFormations) ? resFormations : prev);
+      setEbooks(prev => Array.isArray(resEbooks) ? resEbooks : prev);
+      setManualPayments(prev => Array.isArray(resManual) ? resManual : prev);
 
       const editMap = {};
       (Array.isArray(resPrices) ? resPrices : []).forEach(p => {
