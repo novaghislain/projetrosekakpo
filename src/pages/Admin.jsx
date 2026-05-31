@@ -90,7 +90,7 @@ const Admin = () => {
   const playNotificationSound = () => {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
+
       const playBeep = (time, freq) => {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
@@ -188,14 +188,14 @@ const Admin = () => {
   const handleDeleteTestimonial = (id) => {
     customConfirm("Supprimer ce témoignage ?", async () => {
       const updated = testimonialsList.filter(t => t.id !== id);
-    try {
-      await fetch(`${API_URL}/api/admin/content/testimonials`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: JSON.stringify(updated) })
-      });
-      setTestimonialsList(updated);
-    } catch (e) { console.error(e); }
+      try {
+        await fetch(`${API_URL}/api/admin/content/testimonials`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: JSON.stringify(updated) })
+        });
+        setTestimonialsList(updated);
+      } catch (e) { console.error(e); }
     });
   };
 
@@ -271,7 +271,7 @@ const Admin = () => {
         if (res.ok) {
           fetchReplyHistory(replyingToContact.id);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   };
   const [replyMessage, setReplyMessage] = useState('');
@@ -352,29 +352,26 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const safeFetch = (url) => fetch(url).then(res => res.json()).catch(err => ({ error: true, details: err }));
-
       const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks, resManual] = await Promise.all([
-        safeFetch(`${API_URL}/api/admin/contacts`),
-        safeFetch(`${API_URL}/api/admin/newsletters`),
-        safeFetch(`${API_URL}/api/admin/enrollments`),
-        safeFetch(`${API_URL}/api/articles`),
-        safeFetch(`${API_URL}/api/prices`),
-        safeFetch(`${API_URL}/api/content`),
-        safeFetch(`${API_URL}/api/admin/formations`),
-        safeFetch(`${API_URL}/api/ebooks`),
-        safeFetch(`${API_URL}/api/admin/manual-payments`)
+        fetch(`${API_URL}/api/admin/contacts`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/newsletters`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/enrollments`).then(res => res.json()),
+        fetch(`${API_URL}/api/articles`).then(res => res.json()),
+        fetch(`${API_URL}/api/prices`).then(res => res.json()),
+        fetch(`${API_URL}/api/content`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/formations`).then(res => res.json()),
+        fetch(`${API_URL}/api/ebooks`).then(res => res.json()),
+        fetch(`${API_URL}/api/admin/manual-payments`).then(res => res.json())
       ]);
-
-      setContacts(prev => Array.isArray(resContacts) ? resContacts : prev);
-      setNewsletters(prev => Array.isArray(resNewsletters) ? resNewsletters : prev);
-      setEnrollments(prev => Array.isArray(resEnrollments) ? resEnrollments : prev);
-      setArticles(prev => Array.isArray(resArticles) ? resArticles : prev);
-      setPrices(prev => Array.isArray(resPrices) ? resPrices : prev);
-      setSiteContent(prev => resContent && !resContent.error ? resContent : prev);
-      setFormations(prev => Array.isArray(resFormations) ? resFormations : prev);
-      setEbooks(prev => Array.isArray(resEbooks) ? resEbooks : prev);
-      setManualPayments(prev => Array.isArray(resManual) ? resManual : prev);
+      setContacts(Array.isArray(resContacts) ? resContacts : []);
+      setNewsletters(Array.isArray(resNewsletters) ? resNewsletters : []);
+      setEnrollments(Array.isArray(resEnrollments) ? resEnrollments : []);
+      setArticles(Array.isArray(resArticles) ? resArticles : []);
+      setPrices(Array.isArray(resPrices) ? resPrices : []);
+      setSiteContent(resContent && !resContent.error ? resContent : {});
+      setFormations(Array.isArray(resFormations) ? resFormations : []);
+      setEbooks(Array.isArray(resEbooks) ? resEbooks : []);
+      setManualPayments(Array.isArray(resManual) ? resManual : []);
 
       const editMap = {};
       (Array.isArray(resPrices) ? resPrices : []).forEach(p => {
@@ -429,9 +426,9 @@ const Admin = () => {
   const handleDeleteAnnouncement = (id) => {
     customConfirm('Supprimer cette annonce ?', async () => {
       try {
-      await fetch(`${API_URL}/api/admin/announcements/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (e) { console.error(e); }
+        await fetch(`${API_URL}/api/admin/announcements/${id}`, { method: 'DELETE' });
+        fetchData();
+      } catch (e) { console.error(e); }
     });
   };
 
@@ -471,27 +468,27 @@ const Admin = () => {
   const handleDeleteContact = (id) => {
     customConfirm('Supprimer ce message ?', async () => {
       try {
-      await fetch(`${API_URL}/api/admin/contacts/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (e) { console.error(e); }
+        await fetch(`${API_URL}/api/admin/contacts/${id}`, { method: 'DELETE' });
+        fetchData();
+      } catch (e) { console.error(e); }
     });
   };
 
   const handleDeleteNewsletter = (id) => {
     customConfirm('Supprimer cet abonné de la newsletter ?', async () => {
       try {
-      await fetch(`${API_URL}/api/admin/newsletters/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (e) { console.error(e); }
+        await fetch(`${API_URL}/api/admin/newsletters/${id}`, { method: 'DELETE' });
+        fetchData();
+      } catch (e) { console.error(e); }
     });
   };
 
   const handleDeleteEnrollment = (id) => {
     customConfirm('Supprimer cette inscription ?', async () => {
       try {
-      await fetch(`${API_URL}/api/admin/enrollments/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (e) { console.error(e); }
+        await fetch(`${API_URL}/api/admin/enrollments/${id}`, { method: 'DELETE' });
+        fetchData();
+      } catch (e) { console.error(e); }
     });
   };
 
@@ -774,11 +771,11 @@ const Admin = () => {
   const handleDeleteFormation = (id) => {
     customConfirm("Supprimer cette formation ? Le lien public ne marchera plus.", async () => {
       try {
-      await fetch(`${API_URL}/api/admin/formations/${id}`, { method: 'DELETE' });
-      fetchData();
-    } catch (e) {
-      console.error(e);
-    }
+        await fetch(`${API_URL}/api/admin/formations/${id}`, { method: 'DELETE' });
+        fetchData();
+      } catch (e) {
+        console.error(e);
+      }
     });
   };
 
@@ -846,15 +843,15 @@ const Admin = () => {
   const handleDeleteEbook = (id) => {
     customConfirm("Êtes-vous sûr de vouloir supprimer cet ebook ?", async () => {
       try {
-      const response = await fetch(`${API_URL}/api/admin/ebooks/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        fetchData();
-      } else {
-        toast("Erreur lors de la suppression.");
+        const response = await fetch(`${API_URL}/api/admin/ebooks/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchData();
+        } else {
+          toast("Erreur lors de la suppression.");
+        }
+      } catch (e) {
+        toast("Erreur de connexion.");
       }
-    } catch (e) {
-      toast("Erreur de connexion.");
-    }
     });
   };
 
@@ -2280,9 +2277,9 @@ const Admin = () => {
           <div className="modal-content glass-panel" style={{ maxWidth: '600px', width: '100%', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3>Conversation avec {replyingToContact.nom}</h3>
-              <button className="btn-icon" onClick={() => setReplyingToContact(null)}><Trash2 size={20} opacity={0} /><span style={{fontSize:'1.5rem', cursor:'pointer'}}>&times;</span></button>
+              <button className="btn-icon" onClick={() => setReplyingToContact(null)}><Trash2 size={20} opacity={0} /><span style={{ fontSize: '1.5rem', cursor: 'pointer' }}>&times;</span></button>
             </div>
-            
+
             <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '400px', overflowY: 'auto', paddingRight: '10px', marginBottom: '1rem', border: '1px solid rgba(0,0,0,0.1)', padding: '10px', borderRadius: '8px' }}>
               {/* Message initial du client */}
               <div className="chat-bubble client-bubble" style={{ alignSelf: 'flex-start', background: 'rgba(0,0,0,0.05)', color: 'var(--color-text)', padding: '12px 18px', borderRadius: '18px 18px 18px 2px', maxWidth: '80%', position: 'relative' }}>
@@ -2296,16 +2293,16 @@ const Admin = () => {
                 <p className="text-center text-gray">Chargement de l'historique...</p>
               ) : (
                 (replyHistory || []).map((h, i) => (
-                  <div key={i} className="chat-bubble" style={{ 
+                  <div key={i} className="chat-bubble" style={{
                     alignSelf: h.sender === 'admin' ? 'flex-end' : 'flex-start',
                     background: h.sender === 'admin' ? 'var(--gradient-pink)' : 'rgba(0,0,0,0.05)',
                     color: h.sender === 'admin' ? 'white' : 'var(--color-text)',
-                    padding: '12px 18px', 
+                    padding: '12px 18px',
                     borderRadius: h.sender === 'admin' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
                     maxWidth: '80%',
                     position: 'relative'
                   }}>
-                    <button 
+                    <button
                       onClick={() => handleDeleteReply(i)}
                       style={{ position: 'absolute', top: '5px', right: h.sender === 'admin' ? '10px' : '-25px', background: 'none', border: 'none', color: h.sender === 'admin' ? 'rgba(255,255,255,0.8)' : 'var(--color-pink)', cursor: 'pointer' }}
                       title="Supprimer ce message"

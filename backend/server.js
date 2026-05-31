@@ -266,7 +266,7 @@ app.get('/api/formations/:slug', (req, res) => {
 app.get('/api/admin/contacts', (req, res) => {
   db.all(`SELECT * FROM contacts ORDER BY date DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Erreur." });
-    
+
     // Fetch all replies to determine status
     db.all(`SELECT key, value FROM content WHERE key LIKE 'reply_contact_%'`, [], (err2, replies) => {
       if (err2) console.error('Erreur LIKE:', err2);
@@ -276,7 +276,7 @@ app.get('/api/admin/contacts', (req, res) => {
       replies.forEach(r => {
         try {
           repliesMap[r.key] = JSON.parse(r.value);
-        } catch (e) {}
+        } catch (e) { }
       });
 
       const updatedRows = rows.map(c => {
@@ -333,7 +333,7 @@ app.post('/api/admin/contacts/:id/reply', (req, res) => {
             // Migration de l'ancien format
             history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
           }
-        } catch (e) {}
+        } catch (e) { }
       }
       history.push(newMessage);
 
@@ -389,7 +389,7 @@ app.post('/api/contacts/:id/client-reply', (req, res) => {
           } else if (parsed.message) {
             history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
           }
-        } catch (e) {}
+        } catch (e) { }
       }
       history.push(newMessage);
 
@@ -420,10 +420,10 @@ app.post('/api/contacts/:id/client-reply', (req, res) => {
 app.get('/api/admin/contacts/:id/history', (req, res) => {
   const contactId = req.params.id;
   const replyKey = `reply_contact_${contactId}`;
-  
+
   db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (err, row) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
-    
+
     let history = [];
     if (row && row.value) {
       try {
@@ -433,7 +433,7 @@ app.get('/api/admin/contacts/:id/history', (req, res) => {
         } else if (parsed.message) {
           history = [{ sender: 'admin', message: parsed.message, date: parsed.date || new Date().toISOString() }];
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     res.json(history);
   });
@@ -450,7 +450,7 @@ app.delete('/api/contacts/:id/message/:index', (req, res) => {
 
   db.get(`SELECT value FROM content WHERE key = ?`, [replyKey], (err, row) => {
     if (err || !row || !row.value) return res.status(404).json({ error: "Conversation introuvable." });
-    
+
     try {
       const parsed = JSON.parse(row.value);
       let history = [];
@@ -462,10 +462,10 @@ app.delete('/api/contacts/:id/message/:index', (req, res) => {
 
       if (index >= 0 && index < history.length) {
         history.splice(index, 1);
-        
+
         parsed.history = history;
         const replyData = JSON.stringify(parsed);
-        
+
         db.run(`UPDATE content SET value = ? WHERE key = ?`, [replyData, replyKey], function (errUpd) {
           if (errUpd) return res.status(500).json({ error: "Erreur lors de la suppression." });
           res.json({ success: true });
@@ -1057,10 +1057,7 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
 
 app.get('/api/admin/manual-payments', (req, res) => {
   db.all(`SELECT * FROM manual_payments ORDER BY id DESC`, [], (err, rows) => {
-    if (err) {
-      console.error("Erreur SELECT manual_payments:", err);
-      return res.status(500).json({ error: "Erreur serveur" });
-    }
+    if (err) return res.status(500).json({ error: "Erreur serveur" });
     const parsed = rows.map(r => {
       try { r.customer_info = JSON.parse(r.customer_info); } catch (e) { }
       return r;
