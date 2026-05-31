@@ -352,26 +352,27 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const [resContacts, resNewsletters, resEnrollments, resArticles, resPrices, resContent, resFormations, resEbooks, resManual] = await Promise.all([
-        fetch(`${API_URL}/api/admin/contacts`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/newsletters`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/enrollments`).then(res => res.json()),
-        fetch(`${API_URL}/api/articles`).then(res => res.json()),
-        fetch(`${API_URL}/api/prices`).then(res => res.json()),
-        fetch(`${API_URL}/api/content`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/formations`).then(res => res.json()),
-        fetch(`${API_URL}/api/ebooks`).then(res => res.json()),
-        fetch(`${API_URL}/api/admin/manual-payments`).then(res => res.json())
-      ]);
-      setContacts(Array.isArray(resContacts) ? resContacts : []);
-      setNewsletters(Array.isArray(resNewsletters) ? resNewsletters : []);
-      setEnrollments(Array.isArray(resEnrollments) ? resEnrollments : []);
-      setArticles(Array.isArray(resArticles) ? resArticles : []);
-      setPrices(Array.isArray(resPrices) ? resPrices : []);
-      setSiteContent(resContent && !resContent.error ? resContent : {});
-      setFormations(Array.isArray(resFormations) ? resFormations : []);
-      setEbooks(Array.isArray(resEbooks) ? resEbooks : []);
-      setManualPayments(Array.isArray(resManual) ? resManual : []);
+      const safeFetch = (url) => fetch(url).then(res => res.json()).catch(err => ({ error: true }));
+
+      const resContacts = await safeFetch(`${API_URL}/api/admin/contacts`);
+      const resNewsletters = await safeFetch(`${API_URL}/api/admin/newsletters`);
+      const resEnrollments = await safeFetch(`${API_URL}/api/admin/enrollments`);
+      const resArticles = await safeFetch(`${API_URL}/api/articles`);
+      const resPrices = await safeFetch(`${API_URL}/api/prices`);
+      const resContent = await safeFetch(`${API_URL}/api/content`);
+      const resFormations = await safeFetch(`${API_URL}/api/admin/formations`);
+      const resEbooks = await safeFetch(`${API_URL}/api/ebooks`);
+      const resManual = await safeFetch(`${API_URL}/api/admin/manual-payments`);
+
+      setContacts(prev => Array.isArray(resContacts) ? resContacts : prev);
+      setNewsletters(prev => Array.isArray(resNewsletters) ? resNewsletters : prev);
+      setEnrollments(prev => Array.isArray(resEnrollments) ? resEnrollments : prev);
+      setArticles(prev => Array.isArray(resArticles) ? resArticles : prev);
+      setPrices(prev => Array.isArray(resPrices) ? resPrices : prev);
+      setSiteContent(prev => resContent && !resContent.error ? resContent : prev);
+      setFormations(prev => Array.isArray(resFormations) ? resFormations : prev);
+      setEbooks(prev => Array.isArray(resEbooks) ? resEbooks : prev);
+      setManualPayments(prev => Array.isArray(resManual) ? resManual : prev);
 
       const editMap = {};
       (Array.isArray(resPrices) ? resPrices : []).forEach(p => {
@@ -1749,8 +1750,8 @@ const Admin = () => {
                       <input type="text" className="cms-input" value={newEbook.slug} onChange={e => setNewEbook({ ...newEbook, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} placeholder="Ex: vision-maitrise" />
                     </div>
                     <div className="form-group">
-                      <label>Prix (USD)</label>
-                      <input type="number" step="0.01" className="cms-input" value={newEbook.price} onChange={e => setNewEbook({ ...newEbook, price: e.target.value })} placeholder="Ex: 15.00" />
+                      <label>Prix (FCFA)</label>
+                      <input type="number" step="1" className="cms-input" value={newEbook.price} onChange={e => setNewEbook({ ...newEbook, price: e.target.value })} placeholder="Ex: 5000" />
                     </div>
                     <div className="form-group">
                       <label>Image de couverture (Optionnel)</label>
@@ -1830,7 +1831,7 @@ const Admin = () => {
                       </td>
                       <td><strong>{eb.title}</strong></td>
                       <td><code>{eb.slug}</code></td>
-                      <td>${eb.price}</td>
+                      <td>{eb.price} FCFA</td>
                       <td><div style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{eb.description}</div></td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>

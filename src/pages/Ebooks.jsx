@@ -85,7 +85,7 @@ const Ebooks = () => {
                         <BookOpen className="ebook-overlay-icon" size={32} />
                         <h3>{ebook.title}</h3>
                         <p>{ebook.description}</p>
-                        <span className="ebook-overlay-btn">Obtenir cet E-Book (${ebook.price})</span>
+                        <span className="ebook-overlay-btn">Obtenir cet E-Book (${Math.round(ebook.price / 625)})</span>
                       </div>
                     </Link>
                   </div>

@@ -86,10 +86,26 @@ const Checkout = () => {
         })
         .catch(err => console.error("Error loading prices:", err))
     } else {
-      // Dynamic Formation
+      // Dynamic Formation or Ebook
       fetch(`${API_URL}/api/formations/${programId}`)
-        .then(res => {
-          if (!res.ok) throw new Error("Formation introuvable");
+        .then(async (res) => {
+          if (!res.ok) {
+            // If not found in formations, check ebooks
+            const ebookRes = await fetch(`${API_URL}/api/ebooks`);
+            if (ebookRes.ok) {
+              const ebooksList = await ebookRes.json();
+              const foundEbook = ebooksList.find(e => e.slug === programId);
+              if (foundEbook) {
+                return {
+                  title: foundEbook.title,
+                  price: foundEbook.price, // Ebook price is now stored in FCFA!
+                  program: foundEbook.description,
+                  image: foundEbook.image
+                };
+              }
+            }
+            throw new Error("Programme introuvable");
+          }
           return res.json();
         })
         .then(data => {
@@ -97,15 +113,15 @@ const Checkout = () => {
             name: data.title,
             price: data.price,
             usdPrice: Math.round(data.price / 625),
-            desc: 'Accès complet à la formation et ses bonus.',
-            features: data.program.split('\n').filter(Boolean).map(l => l.replace(/^•\s*/, ''))
+            desc: 'Accès complet au programme.',
+            features: data.program ? data.program.split('\n').filter(Boolean).map(l => l.replace(/^•\s*/, '')) : []
           })
           setDynamicPrice(data.price)
           setDynamicUsdPrice(Math.round(data.price / 625))
           setImage(data.image)
         })
         .catch(err => {
-           console.error("Erreur:", err);
+           console.error("Erreur Checkout:", err);
            navigate('/programs');
         })
     }
