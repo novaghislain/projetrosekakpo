@@ -83,33 +83,61 @@ const FormationDetails = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchFormation = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/formations/${slug}`);
-        if (!response.ok) {
-          throw new Error("Formation introuvable");
-        }
-        const data = await response.json();
-        
-        // Parse content_json if it exists and is a string
-        if (data.content_json && typeof data.content_json === 'string') {
-          try {
-            data.content_json = JSON.parse(data.content_json);
-          } catch (e) {
-            console.error("Erreur parsing content_json", e);
-            data.content_json = { subtitle: "", objectives: [], targetAudience: [], included: [], authorBio: "" };
+    let cancelled = false;
+
+    const fetchWithRetry = async (retries = 5, delay = 800) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const response = await fetch(`${API_URL}/api/formations/${slug}`, { cache: 'no-store' });
+          if (!response.ok) {
+            // Si c'est une vraie 404, pas besoin de réessayer
+            if (response.status === 404) {
+              throw new Error('NOT_FOUND');
+            }
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const data = await response.json();
+
+          // Parse content_json if it exists and is a string
+          if (data.content_json && typeof data.content_json === 'string') {
+            try {
+              data.content_json = JSON.parse(data.content_json);
+            } catch (e) {
+              console.error("Erreur parsing content_json", e);
+              data.content_json = { subtitle: "", objectives: [], targetAudience: [], included: [], authorBio: "" };
+            }
+          }
+
+          if (!cancelled) {
+            setFormation(data);
+            setLoading(false);
+          }
+          return; // succès, on arrête
+        } catch (err) {
+          if (cancelled) return;
+          // Si c'est une 404 réelle, on arrête tout de suite
+          if (err.message === 'NOT_FOUND') {
+            setError("Formation introuvable");
+            setLoading(false);
+            return;
+          }
+          // Sinon on réessaie après un délai
+          if (attempt < retries) {
+            console.warn(`Tentative ${attempt}/${retries} échouée, nouveau essai dans ${delay}ms...`);
+            await new Promise(res => setTimeout(res, delay));
+            delay = Math.min(delay * 1.5, 4000); // backoff exponentiel, max 4s
+          } else {
+            // Toutes les tentatives ont échoué
+            setError(err.message);
+            setLoading(false);
           }
         }
-        
-        setFormation(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchFormation();
+    fetchWithRetry();
+
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) {

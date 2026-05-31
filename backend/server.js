@@ -32,6 +32,12 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 if (!process.env.DATABASE_URL) {
   console.error("❌ ERREUR CRITIQUE: La variable d'environnement DATABASE_URL est manquante.");
@@ -51,7 +57,7 @@ pool.on('error', (err) => {
 
 console.log('Connecté à la base de données PostgreSQL (Supabase).');
 
-// Migration automatique pour s'assurer que toutes les colonnes requises existent
+// Migration automatique pour s'assurer que toutes les colonnes requises existent et configurer la base de données
 (async () => {
   const migrations = [
     { table: 'formations', column: 'content_json', query: "ALTER TABLE formations ADD COLUMN content_json TEXT DEFAULT '{}'" },
@@ -71,6 +77,14 @@ console.log('Connecté à la base de données PostgreSQL (Supabase).');
         console.error(`[Migration] Erreur lors de l'ajout de '${m.column}' à '${m.table}':`, err.message);
       }
     }
+  }
+
+  // Supprimer la contrainte UNIQUE sur formations.slug pour permettre d'avoir les mêmes liens/slugs
+  try {
+    await pool.query("ALTER TABLE formations DROP CONSTRAINT IF EXISTS formations_slug_key");
+    console.log("[Migration] Contrainte UNIQUE sur formations.slug supprimée.");
+  } catch (err) {
+    console.error("[Migration] Erreur lors de la suppression de formations_slug_key:", err.message);
   }
 })();
 
@@ -294,7 +308,9 @@ app.get('/api/articles/:id', (req, res) => {
 
 // 6. Récupérer une formation spécifique par son slug (Public)
 app.get('/api/formations/:slug', (req, res) => {
-  db.get(`SELECT * FROM formations WHERE slug = ?`, [req.params.slug], (err, row) => {
+  const requestedSlug = req.params.slug;
+  
+  db.get(`SELECT * FROM formations WHERE slug = ?`, [requestedSlug], (err, row) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!row) return res.status(404).json({ error: "Formation introuvable." });
     res.json(row);
@@ -928,7 +944,8 @@ app.post('/api/payment/create', (req, res) => {
       processPayment(program.name, program.price);
     } else {
       // Si non trouvé dans prices, chercher dans les formations dynamiques (slug = programId)
-      db.get("SELECT * FROM formations WHERE slug = ?", [programId], (err2, dynamicProgram) => {
+      const targetSlug = programId === 'woman-king' ? 'woman-king-trade' : (programId === 'woman-king-trade' ? 'woman-king' : programId);
+      db.get("SELECT * FROM formations WHERE slug = ? OR slug = ?", [programId, targetSlug], (err2, dynamicProgram) => {
         if (err2 || !dynamicProgram) {
           return res.status(400).json({ error: "Programme invalide ou introuvable." });
         }
@@ -938,10 +955,11 @@ app.post('/api/payment/create', (req, res) => {
   });
 
   async function processPayment(programName, price) {
-    // Gérer le cas de la première séance de coaching offerte
-    if (programId === 'coaching-free' || (programId === 'coaching' && sessionType === 'free')) {
+    // Gérer le cas des séances ou formations gratuites (prix = 0)
+    if (price === 0 || programId === 'coaching-free' || (programId === 'coaching' && sessionType === 'free')) {
       const freeId = `FREE-${Date.now()}`;
-      const freeUrl = `http://localhost:5173/payment-callback?id=${freeId}&status=approved&programId=${programId}&firstname=${encodeURIComponent(customer.firstname)}&lastname=${encodeURIComponent(customer.lastname)}&email=${encodeURIComponent(customer.email)}&whatsapp=${encodeURIComponent(customer.whatsapp)}`;
+      const origin = req.get('origin') || 'http://localhost:5173';
+      const freeUrl = `${origin}/payment-callback?id=${freeId}&status=approved&programId=${programId}&firstname=${encodeURIComponent(customer.firstname)}&lastname=${encodeURIComponent(customer.lastname)}&email=${encodeURIComponent(customer.email)}&whatsapp=${encodeURIComponent(customer.whatsapp)}`;
       return res.json({ success: true, url: freeUrl, transactionId: freeId });
     }
 
@@ -1087,7 +1105,9 @@ app.get('/api/payment/track/:trackingId', (req, res) => {
     if (!row) return res.status(404).json({ error: "Lien de suivi invalide ou introuvable." });
 
     if (row.status === 'approved') {
-      db.get(`SELECT content_json FROM formations WHERE slug = ?`, [row.program_id], (err2, formRow) => {
+      const pId = row.program_id;
+      const targetSlug = pId === 'woman-king' ? 'woman-king-trade' : (pId === 'woman-king-trade' ? 'woman-king' : pId);
+      db.get(`SELECT content_json FROM formations WHERE slug = ? OR slug = ?`, [pId, targetSlug], (err2, formRow) => {
         let accessLink = null;
         if (formRow && formRow.content_json) {
           try {
@@ -1198,6 +1218,21 @@ app.delete('/api/admin/manual-payments/:id', (req, res) => {
   });
 });
 
+// === KEEPALIVE ===
+// Endpoint de ping pour tester si le serveur est vivant
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.listen(PORT, () => {
   console.log(`Serveur Backend démarré sur http://localhost:${PORT}`);
+  // Keepalive : pinguer la DB toutes les 4 minutes pour éviter les cold starts
+  setInterval(async () => {
+    try {
+      await pool.query('SELECT 1');
+      console.log('[Keepalive] DB ping OK');
+    } catch (e) {
+      console.warn('[Keepalive] DB ping failed:', e.message);
+    }
+  }, 4 * 60 * 1000);
 });

@@ -22,10 +22,9 @@ const pool = new Pool({
 
 async function run() {
   try {
-    const res = await pool.query("SELECT * FROM formations LIMIT 1");
+    const res = await pool.query("SELECT id, title, slug, price FROM formations");
     if (res.rows.length > 0) {
-      console.log("Columns of formations:", Object.keys(res.rows[0]));
-      console.log("Full first row:", res.rows[0]);
+      console.log("All formations summary:", JSON.stringify(res.rows, null, 2));
     } else {
       console.log("No formations found.");
     }

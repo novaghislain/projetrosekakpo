@@ -1487,12 +1487,19 @@ const Admin = () => {
                         <input type="text" className="cms-input" placeholder="Ex: Woman King Trade" value={newFormation.title} onChange={e => {
                           const title = e.target.value;
                           const slug = title.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-                          setNewFormation({ ...newFormation, title, slug });
+                          setNewFormation(prev => ({
+                            ...prev,
+                            title,
+                            slug: prev.slug && editingFormationId ? prev.slug : slug
+                          }));
                         }} />
                       </div>
                       <div className="form-group">
-                        <label>Lien unique généré</label>
-                        <input type="text" className="cms-input" readOnly value={newFormation.slug} placeholder="Généré automatiquement" style={{ backgroundColor: 'var(--color-gray-100)', cursor: 'not-allowed', color: 'var(--color-gray-500)' }} />
+                        <label>Lien unique (Slug)</label>
+                        <input type="text" className="cms-input" value={newFormation.slug} onChange={e => {
+                          const slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                          setNewFormation(prev => ({ ...prev, slug }));
+                        }} placeholder="Ex: woman-king" />
                       </div>
                     </div>
                   </div>

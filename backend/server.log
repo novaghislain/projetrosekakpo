@@ -1,3 +1,8 @@
+
+> backend@1.0.0 start
+> node server.js
+
 Fichier .env chargé.
 Connecté à la base de données PostgreSQL (Supabase).
 Serveur Backend démarré sur http://localhost:3001
+[Migration] Contrainte UNIQUE sur formations.slug supprimée.
