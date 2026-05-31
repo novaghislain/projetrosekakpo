@@ -51,6 +51,29 @@ pool.on('error', (err) => {
 
 console.log('Connecté à la base de données PostgreSQL (Supabase).');
 
+// Migration automatique pour s'assurer que toutes les colonnes requises existent
+(async () => {
+  const migrations = [
+    { table: 'formations', column: 'content_json', query: "ALTER TABLE formations ADD COLUMN content_json TEXT DEFAULT '{}'" },
+    { table: 'manual_payments', column: 'tracking_id', query: "ALTER TABLE manual_payments ADD COLUMN tracking_id TEXT" },
+    { table: 'articles', column: 'image', query: "ALTER TABLE articles ADD COLUMN image TEXT" },
+    { table: 'ebooks', column: 'testimonials_json', query: "ALTER TABLE ebooks ADD COLUMN testimonials_json TEXT" }
+  ];
+
+  for (const m of migrations) {
+    try {
+      await pool.query(m.query);
+      console.log(`[Migration] Colonne '${m.column}' ajoutée à la table '${m.table}'.`);
+    } catch (err) {
+      if (err.code === '42701') {
+        // La colonne existe déjà
+      } else {
+        console.error(`[Migration] Erreur lors de l'ajout de '${m.column}' à '${m.table}':`, err.message);
+      }
+    }
+  }
+})();
+
 // Convertit les ? en $1, $2, etc. pour PostgreSQL
 function convertToPg(sql) {
   let i = 1;
@@ -87,6 +110,24 @@ const db = {
     });
   }
 };
+
+app.get('/api/debug-db', async (req, res) => {
+  try {
+    const tableInfo = await pool.query(`
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'formations'
+    `);
+    const sample = await pool.query("SELECT * FROM formations LIMIT 1");
+    res.json({
+      db_url: process.env.DATABASE_URL ? "URL is set" : "URL is missing",
+      columns: tableInfo.rows,
+      sample_row_keys: sample.rows.length > 0 ? Object.keys(sample.rows[0]) : "no rows"
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // === ROUTES PUBLIQUES ===
 
@@ -566,6 +607,9 @@ app.post('/api/admin/formations', (req, res) => {
   if (!slug || !title || price === undefined || !capacity || !program) {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
+  const parsedPrice = price === '' ? 0 : parseFloat(price);
+  const parsedCapacity = capacity === '' ? 0 : parseInt(capacity, 10);
+
   const query = `INSERT INTO formations (slug, title, price, capacity, program, image, content_json) VALUES (?, ?, ?, ?, ?, ?, ?)`;
   const defaultContent = JSON.stringify({
     subtitle: "",
@@ -576,12 +620,13 @@ app.post('/api/admin/formations', (req, res) => {
   });
   const finalContentJson = content_json ? (typeof content_json === 'object' ? JSON.stringify(content_json) : content_json) : defaultContent;
 
-  db.run(query, [slug, title, price, capacity, program, image, finalContentJson], function (err) {
+  db.run(query, [slug, title, parsedPrice, parsedCapacity, program, image, finalContentJson], function (err) {
     if (err) {
-      if (err.message.includes('UNIQUE constraint failed')) {
+      console.error("❌ Error creating formation in DB:", err);
+      if (err.message && (err.message.includes('UNIQUE constraint failed') || err.message.includes('duplicate key value violates unique constraint'))) {
         return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par une autre formation." });
       }
-      return res.status(500).json({ error: "Erreur de création de la formation." });
+      return res.status(500).json({ error: `Erreur de création de la formation : ${err.message || err}` });
     }
     res.status(201).json({ success: true, id: this.lastID });
   });
@@ -593,6 +638,8 @@ app.put('/api/admin/formations/:id', (req, res) => {
   if (!slug || !title || price === undefined || !capacity || !program) {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
+  const parsedPrice = price === '' ? 0 : parseFloat(price);
+  const parsedCapacity = capacity === '' ? 0 : parseInt(capacity, 10);
 
   const query = `UPDATE formations SET slug = ?, title = ?, price = ?, capacity = ?, program = ?, image = ?, content_json = ? WHERE id = ?`;
   const defaultContent = JSON.stringify({
@@ -604,12 +651,13 @@ app.put('/api/admin/formations/:id', (req, res) => {
   });
   const finalContentJson = content_json ? (typeof content_json === 'object' ? JSON.stringify(content_json) : content_json) : defaultContent;
 
-  db.run(query, [slug, title, price, capacity, program, image, finalContentJson, req.params.id], function (err) {
+  db.run(query, [slug, title, parsedPrice, parsedCapacity, program, image, finalContentJson, req.params.id], function (err) {
     if (err) {
-      if (err.message.includes('UNIQUE constraint failed')) {
+      console.error("❌ Error updating formation in DB:", err);
+      if (err.message && (err.message.includes('UNIQUE constraint failed') || err.message.includes('duplicate key value violates unique constraint'))) {
         return res.status(400).json({ error: "Ce lien (slug) est déjà utilisé par une autre formation." });
       }
-      return res.status(500).json({ error: "Erreur de mise à jour de la formation." });
+      return res.status(500).json({ error: `Erreur de mise à jour de la formation : ${err.message || err}` });
     }
     if (this.changes === 0) return res.status(404).json({ error: "Formation introuvable." });
     res.json({ success: true, message: "Formation mise à jour avec succès." });
