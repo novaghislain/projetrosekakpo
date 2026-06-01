@@ -159,6 +159,8 @@ const FormationDetails = () => {
     );
   }
 
+  const isFree = formation.price === 0 || formation.price === '0' || Number(formation.price) === 0;
+  const accessLink = formation.content_json?.accessLink || '';
   const programList = formation.program ? formation.program.split('\n').filter(line => line.trim() !== '') : [];
   const content = formation.content_json || {};
   const objectives = Array.isArray(content.objectives) ? content.objectives : [];
@@ -176,11 +178,23 @@ const FormationDetails = () => {
         <div className="sticky-content">
           <div className="sticky-info">
             <span className="sticky-title">{formation.title}</span>
-            <span className="sticky-price">{formation.price.toLocaleString('fr-FR')} FCFA</span>
+            {!isFree && (
+              <span className="sticky-price">{formation.price.toLocaleString('fr-FR')} FCFA</span>
+            )}
           </div>
-          <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn">
-            S'inscrire
-          </button>
+          {isFree ? (
+            accessLink ? (
+              <a href={accessLink} target="_blank" rel="noopener noreferrer" className="pro-btn">
+                Rejoindre
+              </a>
+            ) : (
+              <span className="pro-btn" style={{ opacity: 0.6, cursor: 'default' }}>Gratuit</span>
+            )
+          ) : (
+            <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn">
+              S'inscrire
+            </button>
+          )}
         </div>
       </div>
 
@@ -228,11 +242,15 @@ const FormationDetails = () => {
             </div>
 
             <div className="pro-hero-actions">
-              <div className="pro-price-box">
-                <span className="price-amount">{formation.price.toLocaleString('fr-FR')}</span>
-                <span className="price-currency">FCFA</span>
-              </div>
-              
+              {/* Prix : affiché seulement si payant */}
+              {!isFree && (
+                <div className="pro-price-box">
+                  <span className="price-amount">{formation.price.toLocaleString('fr-FR')}</span>
+                  <span className="price-currency">FCFA</span>
+                </div>
+              )}
+
+              {/* Countdown */}
               <div className="pro-urgency-box">
                 <div className="urgency-title">
                   <span className="live-dot"></span> 
@@ -241,14 +259,36 @@ const FormationDetails = () => {
                 <CountdownTimer targetDate={formation.content_json?.expirationDate} />
               </div>
               
-              <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn pro-btn-lg pulse-glow w-100 mb-4">
-                <CreditCard size={20} /> Rejoindre la formation maintenant
-              </button>
+              {/* Bouton principal */}
+              {isFree ? (
+                accessLink ? (
+                  <a
+                    href={accessLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pro-btn pro-btn-lg pulse-glow w-100 mb-4"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
+                  >
+                    Rejoindre le groupe maintenant
+                  </a>
+                ) : (
+                  <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--pro-gold)', fontWeight: 700, fontSize: '1.1rem', background: 'rgba(212,160,23,0.08)', borderRadius: '12px' }}>
+                    Formation gratuite — Lien d'accès bientôt disponible
+                  </div>
+                )
+              ) : (
+                <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn pro-btn-lg pulse-glow w-100 mb-4">
+                  <CreditCard size={20} /> Rejoindre la formation maintenant
+                </button>
+              )}
               
-              <div className="pro-trust-badges">
-                <div className="trust-item"><ShieldCheck size={16} /> Paiement 100% Sécurisé</div>
-                <div className="trust-item"><Users size={16} /> Accès immédiat</div>
-              </div>
+              {/* Badges de confiance : uniquement si payant */}
+              {!isFree && (
+                <div className="pro-trust-badges">
+                  <div className="trust-item"><ShieldCheck size={16} /> Paiement 100% Sécurisé</div>
+                  <div className="trust-item"><Users size={16} /> Accès immédiat</div>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -353,10 +393,31 @@ const FormationDetails = () => {
 
         {/* FINAL CTA */}
         <section className="pro-final-cta">
-          <h2>Prête à passer au niveau supérieur ?</h2>
-          <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn pro-btn-lg pulse-glow mt-4">
-            Rejoindre pour {formation.price.toLocaleString('fr-FR')} FCFA
-          </button>
+          {isFree ? (
+            <>
+              <h2>Prête à nous rejoindre ?</h2>
+              {accessLink ? (
+                <a
+                  href={accessLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pro-btn pro-btn-lg pulse-glow mt-4"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
+                >
+                  Rejoindre le groupe maintenant
+                </a>
+              ) : (
+                <p style={{ color: 'var(--pro-gold)', marginTop: '1rem' }}>Lien d'accès bientôt disponible.</p>
+              )}
+            </>
+          ) : (
+            <>
+              <h2>Prête à passer au niveau supérieur ?</h2>
+              <button onClick={() => navigate(`/checkout?program=${formation.slug}`)} className="pro-btn pro-btn-lg pulse-glow mt-4">
+                Rejoindre pour {formation.price.toLocaleString('fr-FR')} FCFA
+              </button>
+            </>
+          )}
         </section>
 
       </div>

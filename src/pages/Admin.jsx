@@ -220,6 +220,7 @@ const Admin = () => {
     slug: '',
     title: '',
     price: '',
+    isFree: false,
     capacity: '',
     program: '',
     image: '',
@@ -756,7 +757,7 @@ const Admin = () => {
 
       if (response.ok) {
         toast(editingFormationId ? "Formation modifiée avec succès !" : "Formation créée avec succès !");
-        setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] });
+        setNewFormation({ slug: '', title: '', price: '', isFree: false, capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] });
         setEditingFormationId(null);
         setShowFormationForm(false);
         fetchData();
@@ -788,6 +789,7 @@ const Admin = () => {
       slug: f.slug,
       title: f.title,
       price: f.price,
+      isFree: f.price === 0 || f.price === '0' || f.price === null,
       capacity: f.capacity,
       program: f.program,
       image: f.image || '',
@@ -803,6 +805,7 @@ const Admin = () => {
     setEditingFormationId(f.id);
     setShowFormationForm(true);
   };
+
 
   const handleEbookImageUpload = (e) => {
     const file = e.target.files[0];
@@ -1507,8 +1510,31 @@ const Admin = () => {
                     <h4 style={{ marginBottom: '1rem', color: 'var(--color-brand-green)' }}>2. Tarification & Inscriptions</h4>
                     <div className="admin-form-grid-2">
                       <div className="form-group">
-                        <label>Prix (en FCFA)</label>
-                        <input type="number" className="cms-input" placeholder="Ex: 35000" value={newFormation.price} onChange={e => setNewFormation({ ...newFormation, price: e.target.value })} />
+                        <label>Prix</label>
+                        {/* Case "Gratuit" */}
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem', cursor: 'pointer', fontWeight: 600 }}>
+                          <input
+                            type="checkbox"
+                            checked={!!newFormation.isFree}
+                            onChange={e => setNewFormation({ ...newFormation, isFree: e.target.checked, price: e.target.checked ? 0 : '' })}
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--color-brand-pink)', cursor: 'pointer' }}
+                          />
+                          <span style={{ color: 'var(--color-brand-pink)' }}>Formation gratuite</span>
+                        </label>
+                        {!newFormation.isFree && (
+                          <input
+                            type="number"
+                            className="cms-input"
+                            placeholder="Ex: 35000"
+                            value={newFormation.price}
+                            onChange={e => setNewFormation({ ...newFormation, price: e.target.value })}
+                          />
+                        )}
+                        {newFormation.isFree && (
+                          <div style={{ padding: '0.6rem 1rem', borderRadius: '8px', background: 'rgba(236,72,153,0.08)', color: 'var(--color-brand-pink)', fontWeight: 700, fontSize: '1rem', display: 'inline-block' }}>
+                            Gratuit
+                          </div>
+                        )}
                       </div>
                       <div className="form-group">
                         <label>Nombre de places disponibles</label>
@@ -1611,7 +1637,7 @@ const Admin = () => {
                   </div>
 
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
-                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] }); }} className="btn btn-secondary">Annuler</button>
+                    <button type="button" onClick={() => { setShowFormationForm(false); setEditingFormationId(null); setNewFormation({ slug: '', title: '', price: '', isFree: false, capacity: '', program: '', image: '', subtitle: '', objectives: '', targetAudience: '', included: '', authorBio: '', expirationDate: '', accessLink: '', testimonials: [] }); }} className="btn btn-secondary">Annuler</button>
                     <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem' }}>{editingFormationId ? 'Mettre à jour la page' : 'Enregistrer et Publier la page'}</button>
                   </div>
                 </form>
@@ -1623,7 +1649,9 @@ const Admin = () => {
                     {f.image && <img src={f.image} alt={f.title} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1rem' }} />}
                     <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{f.title}</h3>
                     <div style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem', flex: 1 }}>
-                      <div>💰 Prix : {f.price} FCFA</div>
+                      {f.price !== 0 && f.price !== '0' && f.price !== null && (
+                        <div>💰 Prix : {f.price} FCFA</div>
+                      )}
                       <div>👥 Places : {f.capacity}</div>
                       <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-brand-green)' }}>
                         Lien : /formation/{f.slug}
