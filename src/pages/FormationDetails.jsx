@@ -269,7 +269,7 @@ const FormationDetails = () => {
                     className="pro-btn pro-btn-lg pulse-glow w-100 mb-4"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                   >
-                    Rejoindre le groupe maintenant
+                    Rejoindre la communauté woman king trade
                   </a>
                 ) : (
                   <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--pro-gold)', fontWeight: 700, fontSize: '1.1rem', background: 'rgba(212,160,23,0.08)', borderRadius: '12px' }}>
@@ -404,7 +404,7 @@ const FormationDetails = () => {
                   className="pro-btn pro-btn-lg pulse-glow mt-4"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                 >
-                  Rejoindre le groupe maintenant
+                  Rejoindre la communauté woman king trade
                 </a>
               ) : (
                 <p style={{ color: 'var(--pro-gold)', marginTop: '1rem' }}>Lien d'accès bientôt disponible.</p>
