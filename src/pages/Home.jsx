@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, TrendingUp, Users, Award, BookOpen, Star, Lightbulb, Target, CheckCircle2 } from 'lucide-react'
+import { useContent } from '../hooks/useContent'
 import './Home.css'
 
 const Home = () => {
-  
+  const { content } = useContent();
 
   const getHeroTitle = () => {
     let title = 'Le trading simplifié pour les femmes ambitieuses';
