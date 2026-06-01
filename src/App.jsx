@@ -23,18 +23,16 @@ import FormationDetails from './pages/FormationDetails'
 import Track from './pages/Track'
 import SuiviMessages from './pages/SuiviMessages'
 import TestimonialsPage from './pages/TestimonialsPage'
-import { useContent } from './hooks/useContent'
 
 function App() {
   const location = useLocation()
-  const { c } = useContent()
   const isAdmin = location.pathname.startsWith('/admin')
   const isCheckout = location.pathname.startsWith('/checkout') || location.pathname.startsWith('/mock-checkout') || location.pathname.startsWith('/payment-callback') || location.pathname.startsWith('/track')
 
   useEffect(() => {
     // Mise à jour dynamique du SEO
-    const title = c('seo_title', 'Rose Kakpo - Trading');
-    const desc = c('seo_description', 'Découvrez mon parcours et mes formations pour maîtriser le trading.');
+    const title = 'Rose Kakpo - Trading';
+    const desc = 'Découvrez mon parcours et mes formations pour maîtriser le trading.';
     
     document.title = title;
     
@@ -45,7 +43,7 @@ function App() {
       document.head.appendChild(metaDescription);
     }
     metaDescription.content = desc;
-  }, [c]);
+  }, []);
 
   return (
     <div className="app-container">

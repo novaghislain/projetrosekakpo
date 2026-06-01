@@ -1,10 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
-import { useContent } from '../hooks/useContent'
 import './About.css'
 
 const About = () => {
-  const { c } = useContent();
-
   return (
     <div className="about-page">
       {/* Page Header */}
@@ -24,8 +21,8 @@ const About = () => {
             </div>
           </div>
           <div className="story-content">
-            <p className="mb-4 text-large" dangerouslySetInnerHTML={{ __html: c('about_story_1', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la <strong>RMICLASS</strong>. Passionnée par le digital et les marchés financiers, j'accompagne les personnes qui souhaitent découvrir le trading avec plus de simplicité et de proximité.") }} />
-            <p>{c('about_story_2', "Mon objectif ne se limite pas au partage de connaissances. À travers cette plateforme, j'ai voulu créer un espace où les débutants peuvent apprendre à leur rythme, sans se sentir dépassés par la complexité de cet univers.")}</p>
+            <p className="mb-4 text-large" dangerouslySetInnerHTML={{ __html: "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la <strong>RMICLASS</strong>. Passionnée par le digital et les marchés financiers, j'accompagne les personnes qui souhaitent découvrir le trading avec plus de simplicité et de proximité." }} />
+            <p>Mon objectif ne se limite pas au partage de connaissances. À travers cette plateforme, j'ai voulu créer un espace où les débutants peuvent apprendre à leur rythme, sans se sentir dépassés par la complexité de cet univers.</p>
           </div>
         </div>
       </section>
@@ -39,7 +36,7 @@ const About = () => {
             </div>
           </div>
           <div className="story-content">
-            <p dangerouslySetInnerHTML={{ __html: c('about_story_3', "Lorsque j'ai découvert le trading, je me suis rapidement heurtée à la complexité de cet univers : termes techniques, trop d'informations et très peu de clarté. Comme beaucoup, je m'y suis perdue mais avec le temps, de part ma détermination, l'apprentissage et les <strong>3 années d'expérience</strong> acquises au sein de la <strong>RMICLASS</strong>, j'ai pu développer une compréhension solide des marchés.") }} />
+            <p dangerouslySetInnerHTML={{ __html: "Lorsque j'ai découvert le trading, je me suis rapidement heurtée à la complexité de cet univers : termes techniques, trop d'informations et très peu de clarté. Comme beaucoup, je m'y suis perdue mais avec le temps, de part ma détermination, l'apprentissage et les <strong>3 années d'expérience</strong> acquises au sein de la <strong>RMICLASS</strong>, j'ai pu développer une compréhension solide des marchés." }} />
           </div>
         </div>
       </section>
@@ -49,11 +46,11 @@ const About = () => {
         <div className="container mission-vision-grid animate-fade-up delay-200">
           <div className="card glass-panel pink-border-top">
             <h3 className="text-gradient-pink">Ma Mission</h3>
-            <p>{c('about_mission', "Accompagner les personnes qui souhaitent découvrir le trading autrement : avec plus de simplicité, de compréhension et de structure. Mon but est de vous faire gagner du temps et de vous éviter les erreurs classiques que rencontrent énormément de débutants.")}</p>
+            <p>Accompagner les personnes qui souhaitent découvrir le trading autrement : avec plus de simplicité, de compréhension et de structure. Mon but est de vous faire gagner du temps et de vous éviter les erreurs classiques que rencontrent énormément de débutants.</p>
           </div>
           <div className="card glass-panel green-border-top">
             <h3 className="text-gradient-green">Ma Vision</h3>
-            <p>{c('about_vision', "À travers cette plateforme, je souhaite rendre l'apprentissage du trading plus humain, plus clair et plus accessible à une nouvelle génération tournée vers le digital, l'indépendance financière et l'évolution personnelle.")}</p>
+            <p>À travers cette plateforme, je souhaite rendre l'apprentissage du trading plus humain, plus clair et plus accessible à une nouvelle génération tournée vers le digital, l'indépendance financière et l'évolution personnelle.</p>
           </div>
         </div>
       </section>

@@ -1,12 +1,13 @@
-import { Mail } from 'lucide-react'
-import { useContent } from '../hooks/useContent'
+import { Mail, Phone, Send, Loader, ArrowRight } from 'lucide-react'
+import { useState } from 'react'
 import './Contact.css'
 import { API_URL } from '../config';
 
 const Contact = () => {
-  const { c } = useContent();
+  const [status, setStatus] = useState('idle') // idle, loading, success, error
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus('loading');
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     
@@ -64,7 +65,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4>Email</h4>
-                  <p>{c('contact_email', 'contact@rosekakpo.com')}</p>
+                  <p>contact@rosekakpo.com</p>
                 </div>
               </div>
               
@@ -74,7 +75,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4>Téléphone</h4>
-                  <p>{c('contact_phone', '+229 01 02 03 04')}</p>
+                  <p>+229 01 02 03 04</p>
                 </div>
               </div>
             </div>

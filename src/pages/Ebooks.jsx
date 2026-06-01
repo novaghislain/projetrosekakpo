@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BookOpen } from 'lucide-react'
-import { useContent } from '../hooks/useContent'
 import './Programs.css' // We can reuse the same CSS
 import { API_URL } from '../config';
 
 const Ebooks = () => {
-  const { c } = useContent()
   const [ebooks, setEbooks] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -49,8 +47,8 @@ const Ebooks = () => {
     <div className="programs-page">
       <section className="page-header pink-bg-light text-center animate-fade-up">
         <div className="container">
-          <h1 className="text-gradient">{c('ebooks_title', 'E-Books & Ressources Exclusives')}</h1>
-          <p className="page-subtitle">{c('ebooks_subtitle', 'Accélérez votre apprentissage avec mes guides pratiques et ressources téléchargeables.')}</p>
+          <h1 className="text-gradient">E-Books & Ressources Exclusives</h1>
+          <p className="page-subtitle">Accélérez votre apprentissage avec mes guides pratiques et ressources téléchargeables.</p>
         </div>
       </section>
 

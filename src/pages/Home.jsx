@@ -1,13 +1,12 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, TrendingUp, Users, Award, BookOpen, Star, Lightbulb, Target, CheckCircle2 } from 'lucide-react'
-import { useContent } from '../hooks/useContent'
 import './Home.css'
 
 const Home = () => {
-  const { c, content } = useContent();
+  
 
   const getHeroTitle = () => {
-    let title = c('hero_title', 'Le trading simplifié pour les femmes ambitieuses');
+    let title = 'Le trading simplifié pour les femmes ambitieuses';
     // On enlève d'éventuels vieux tags span pour être sûr
     title = title.replace(/<span[^>]*>(.*?)<\/span>/gi, '$1');
     // On force le dégradé en CSS en ligne pour contourner tout conflit de style
@@ -23,12 +22,12 @@ const Home = () => {
           <div className="hero-content">
             <h1 dangerouslySetInnerHTML={{ __html: getHeroTitle() }} />
             <p className="hero-subtitle">
-              {c('hero_subtitle', "Maîtrisez le trading et prenez le contrôle de vos finances. Je vous accompagne pas-à-pas vers la rentabilité grâce à des stratégies simples et une discipline de fer.")}
+              {"Maîtrisez le trading et prenez le contrôle de vos finances. Je vous accompagne pas-à-pas vers la rentabilité grâce à des stratégies simples et une discipline de fer."}
             </p>
 
             <ul className="hero-benefits">
-              <li><CheckCircle2 size={20} className="text-pink" /> <span>{c('hero_benefit_1', 'Approche 100% adaptée aux débutants')}</span></li>
-              <li><CheckCircle2 size={20} className="text-pink" /> <span>{c('hero_benefit_3', 'Communauté active et bienveillante')}</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" /> <span>Approche 100% adaptée aux débutants</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" /> <span>Communauté active et bienveillante</span></li>
             </ul>
 
             <div className="hero-buttons">
@@ -52,8 +51,8 @@ const Home = () => {
             <div className="stats-badge glass-panel float-1">
               <Users size={24} className="text-pink" />
               <div>
-                <strong>{c('hero_stat_1', '+500')}</strong>
-                <span>{c('hero_stat_1_label', 'Femmes formées')}</span>
+                <strong>{'+500'}</strong>
+                <span>{'Femmes formées'}</span>
               </div>
             </div>
 
@@ -68,8 +67,8 @@ const Home = () => {
             <div className="stats-badge small glass-panel float-3">
               <Award size={20} className="text-pink" />
               <div>
-                <strong>{c('hero_stat_2', '3 ans')}</strong>
-                <span>{c('hero_stat_2_label', "D'expérience")}</span>
+                <strong>{'3 ans'}</strong>
+                <span>{"D'expérience"}</span>
               </div>
             </div>
           </div>
@@ -84,7 +83,7 @@ const Home = () => {
               <Star size={32} className="text-pink" />
             </div>
             <blockquote>
-              "{c('about_quote', "Le trading n'est pas un jeu de hasard, c'est une compétence qui s'acquiert avec la bonne méthode et la bonne psychologie.")}"
+              "{"Le trading n'est pas un jeu de hasard, c'est une compétence qui s'acquiert avec la bonne méthode et la bonne psychologie."}"
             </blockquote>
             <div className="quote-author">
               <strong>Rose Kakpo</strong>
@@ -93,7 +92,7 @@ const Home = () => {
           </div>
           <div className="about-content">
             <h2 className="text-gradient">Qui je suis</h2>
-            <p dangerouslySetInnerHTML={{ __html: c('about_intro', "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la RMICLASS, un écosystème spécialisé dans l'éducation et l’accompagnement dans l’univers du trading. Passionnée par le digital et les marchés financiers, j'accompagne les débutants qui souhaitent apprendre le trading avec plus de simplicité, de compréhension et de proximité.") }} />
+            <p dangerouslySetInnerHTML={{ __html: "Je suis <strong>Rose Kakpo</strong>, tradeuse indépendante et membre de la RMICLASS, un écosystème spécialisé dans l'éducation et l’accompagnement dans l’univers du trading. Passionnée par le digital et les marchés financiers, j'accompagne les débutants qui souhaitent apprendre le trading avec plus de simplicité, de compréhension et de proximité." }} />
             <Link to="/about" className="btn btn-primary mt-4">
               En savoir plus sur moi <ArrowRight size={18} />
             </Link>
@@ -231,8 +230,8 @@ const Home = () => {
                       <Star fill="#F472B6" color="#F472B6" size={20} />
                       <Star fill="#F472B6" color="#F472B6" size={20} />
                     </div>
-                    <p className="testimonial-text">"{c('testimonial_1_text', "Formation très claire. J'avais peur de me lancer mais Rose a su rendre les choses tellement simples à comprendre !")}"</p>
-                    <p className="testimonial-author">- {c('testimonial_1_author', 'Sarah L.')}</p>
+                    <p className="testimonial-text">"Formation très claire. J'avais peur de me lancer mais Rose a su rendre les choses tellement simples à comprendre !"</p>
+                    <p className="testimonial-author">- Sarah L.</p>
                   </div>
                   <div className="testimonial-card glass-panel animate-fade-up delay-200">
                     <div className="stars">
@@ -242,8 +241,8 @@ const Home = () => {
                       <Star fill="#2E6F40" color="#2E6F40" size={20} />
                       <Star fill="#2E6F40" color="#2E6F40" size={20} />
                     </div>
-                    <p className="testimonial-text">"{c('testimonial_2_text', "J'ai enfin compris le trading grâce au programme 3S. Ma psychologie a complètement changé devant les graphiques.")}"</p>
-                    <p className="testimonial-author">- {c('testimonial_2_author', 'Marc E.')}</p>
+                    <p className="testimonial-text">"J'ai enfin compris le trading grâce au programme 3S. Ma psychologie a complètement changé devant les graphiques."</p>
+                    <p className="testimonial-author">- Marc E.</p>
                   </div>
                 </>
               );
@@ -256,8 +255,8 @@ const Home = () => {
       <section className="cta-section section text-center">
         <div className="container cta-container glass-panel animate-fade-up">
           <div className="cta-content-inner">
-            <h2 className="text-gradient-pink">{c('cta_title', 'Prête à commencer ton parcours financier ?')}</h2>
-            <p>{c('cta_subtitle', 'Rejoignez une communauté bienveillante et passez à l\'action dès aujourd\'hui pour transformer votre avenir.')}</p>
+            <h2 className="text-gradient-pink">Prête à commencer ton parcours financier ?</h2>
+            <p>Rejoignez une communauté bienveillante et passez à l'action dès aujourd'hui pour transformer votre avenir.</p>
             <div className="cta-buttons">
               <Link to="/programs#woman-king" className="btn btn-primary">Rejoindre maintenant</Link>
               <Link to="/programs#coaching" className="btn btn-accent">Réserver un coaching one-to-one</Link>
