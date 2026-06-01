@@ -47,8 +47,8 @@ const Programs = () => {
               leur indépendance financière, le tout dans un environnement motivant et accessible.
             </p>
             <ul className="detail-features">
-              <li><CheckCircle size={20} className="text-pink" /> Initiation</li>
-              <li><CheckCircle size={20} className="text-pink" /> Base</li>
+              <li><CheckCircle size={20} className="text-pink" /> Initiation au trading</li>
+              <li><CheckCircle size={20} className="text-pink" /> Base essentiel</li>
               <li><CheckCircle size={20} className="text-pink" /> Méthode d’analyse et stratégie</li>
               <li><CheckCircle size={20} className="text-pink" /> Communauté féminine</li>
               <li><CheckCircle size={20} className="text-pink" /> Suivi et motivation</li>

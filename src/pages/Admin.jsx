@@ -1082,9 +1082,7 @@ const Admin = () => {
         <button className={`admin-tab ${activeTab === 'tarifs' ? 'active' : ''}`} onClick={() => setActiveTab('tarifs')}>
           <Tag size={18} /> Gérer les Tarifs ({prices.length})
         </button>
-        <button className={`admin-tab ${activeTab === 'contenu' ? 'active' : ''}`} onClick={() => setActiveTab('contenu')}>
-          <Edit3 size={18} /> Contenu du site
-        </button>
+
         <button className={`admin-tab ${activeTab === 'securite' ? 'active' : ''}`} onClick={() => setActiveTab('securite')}>
           <Shield size={18} /> Sécurité & Collab.
         </button>
@@ -1842,7 +1840,6 @@ const Admin = () => {
                       <td><div style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{eb.description}</div></td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleEditEbook(eb)}>Modifier</button>
                           <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', color: 'var(--color-brand-pink)', borderColor: 'var(--color-brand-pink)' }} onClick={() => handleDeleteEbook(eb.id)}>Supprimer</button>
                         </div>
                       </td>
@@ -1977,35 +1974,7 @@ const Admin = () => {
           </div>
         )}
 
-        {activeTab === 'contenu' && (
-          <div className="admin-panel animate-fade-up">
-            <h2 className="text-gradient mb-2">Contenu du Site</h2>
-            <p className="text-gray mb-4">Modifiez ici tous les textes affichés sur le site public. Les changements sont instantanés.</p>
 
-            <div className="cms-intro-banner">
-              <Info size={20} style={{ color: 'var(--color-brand-pink)', flexShrink: 0, marginTop: '2px' }} />
-              <p>
-                <strong>Comment ça marche ?</strong> Éditez le texte dans le champ souhaité, puis cliquez sur <strong>Sauvegarder</strong>. Le site public se met à jour automatiquement, sans aucune connaissance technique.
-              </p>
-            </div>
-
-            <div className="cms-sections-grid">
-              {cmsSections.map(section => (
-                <div key={section.id} className="cms-section-block">
-                  <div className="cms-section-header" onClick={() => toggleSection(section.id)}>
-                    <h3>{section.label}</h3>
-                    <ChevronDown size={20} className={`cms-chevron ${openSections[section.id] ? 'open' : ''}`} />
-                  </div>
-                  {openSections[section.id] && (
-                    <div className="cms-section-body">
-                      {section.keys.map(key => renderCmsField(key))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {activeTab === 'securite' && (
           <div className="admin-panel animate-fade-up">
@@ -2255,15 +2224,6 @@ const Admin = () => {
                         </td>
                         <td>{'⭐'.repeat(t.rating)}</td>
                         <td>
-                          <button className="btn-icon" onClick={() => {
-                            setEditingTestimonialId(t.id);
-                            const existingImages = t.images || [];
-                            if (t.image && existingImages.length === 0) existingImages.push(t.image);
-                            setNewTestimonial({ nom: t.nom, message: t.message, rating: t.rating, images: existingImages });
-                            setShowTestimonialForm(true);
-                          }} title="Modifier" style={{ marginRight: '10px' }}>
-                            <Edit3 size={16} className="text-blue" />
-                          </button>
                           <button className="btn-icon" onClick={() => handleDeleteTestimonial(t.id)} title="Supprimer">
                             <Trash2 size={16} className="text-pink" />
                           </button>
