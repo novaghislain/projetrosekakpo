@@ -205,20 +205,23 @@ const FormationDetails = () => {
 
         {/* HERO SECTION */}
         <section className="pro-hero">
-          <div className="pro-meta-tags animate-fade-down">
-            <div className="meta-tag">
-              <Target size={16} />
-              <span>Niveau : {formation.slug === 'strategie-3s' ? 'Intermédiaire' : 'Débutant / Tous niveaux'}</span>
+          {/* Meta tags : affichés seulement si payant */}
+          {!isFree && (
+            <div className="pro-meta-tags animate-fade-down">
+              <div className="meta-tag">
+                <Target size={16} />
+                <span>Niveau : {formation.slug === 'strategie-3s' ? 'Intermédiaire' : 'Débutant / Tous niveaux'}</span>
+              </div>
+              <div className="meta-tag">
+                <Users size={16} />
+                <span>{formation.capacity} places restantes</span>
+              </div>
+              <div className="meta-tag">
+                <span className="live-dot" style={{ width: 6, height: 6 }}></span>
+                <span style={{ color: 'var(--pro-gold)' }}>Inscriptions ouvertes</span>
+              </div>
             </div>
-            <div className="meta-tag">
-              <Users size={16} />
-              <span>{formation.capacity} places restantes</span>
-            </div>
-            <div className="meta-tag">
-              <span className="live-dot" style={{ width: 6, height: 6 }}></span>
-              <span style={{ color: 'var(--pro-gold)' }}>Inscriptions ouvertes</span>
-            </div>
-          </div>
+          )}
           
           <h1 className="pro-title animate-fade-up">
             {formation.title}
@@ -250,7 +253,7 @@ const FormationDetails = () => {
                 </div>
               )}
 
-              {/* Countdown */}
+              {/* Countdown : affiché pour toutes les offres (payantes et gratuites) */}
               <div className="pro-urgency-box">
                 <div className="urgency-title">
                   <span className="live-dot"></span> 
@@ -269,7 +272,7 @@ const FormationDetails = () => {
                     className="pro-btn pro-btn-lg pulse-glow w-100 mb-4"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                   >
-                    Rejoindre la communauté woman king trade
+                    Rejoindre le groupe WhatsApp
                   </a>
                 ) : (
                   <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--pro-gold)', fontWeight: 700, fontSize: '1.1rem', background: 'rgba(212,160,23,0.08)', borderRadius: '12px' }}>
@@ -404,7 +407,7 @@ const FormationDetails = () => {
                   className="pro-btn pro-btn-lg pulse-glow mt-4"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                 >
-                  Rejoindre la communauté woman king trade
+                  Rejoindre le groupe WhatsApp
                 </a>
               ) : (
                 <p style={{ color: 'var(--pro-gold)', marginTop: '1rem' }}>Lien d'accès bientôt disponible.</p>

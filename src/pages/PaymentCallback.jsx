@@ -67,8 +67,8 @@ const PaymentCallback = () => {
             data.status === 'declined'
               ? "Le paiement a été refusé par l'opérateur."
               : data.status === 'canceled'
-              ? "Le paiement a été annulé."
-              : "Le paiement n'a pas pu être validé."
+                ? "Le paiement a été annulé."
+                : "Le paiement n'a pas pu être validé."
           )
         }
       } catch (err) {
@@ -157,7 +157,7 @@ const PaymentCallback = () => {
               {transactionId && transactionId.startsWith('FREE-') ? "Réservation Validée !" : "Paiement Confirmé !"}
             </h2>
             <p className="mt-2 text-muted">
-              {transactionId && transactionId.startsWith('FREE-') 
+              {transactionId && transactionId.startsWith('FREE-')
                 ? `Complétez vos détails pour valider votre séance gratuite de ${formData.programme}.`
                 : `Complétez vos détails pour configurer votre accès au programme ${formData.programme}.`
               }
@@ -240,8 +240,8 @@ const PaymentCallback = () => {
   }
 
   const isEbook = programId === 'ebook-vision' || programId === 'ebook-positionner';
-  const ebookFile = programId === 'ebook-vision' 
-    ? '/EBOOK_FIGURE_BOUGIE_ROSE.pdf' 
+  const ebookFile = programId === 'ebook-vision'
+    ? '/EBOOK_FIGURE_BOUGIE_ROSE.pdf'
     : '/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
 
   // 4. Registration Completed (Show community redirect links or download button)
@@ -251,15 +251,15 @@ const PaymentCallback = () => {
         <CheckCircle2 className="text-green scale-up" size={80} />
         <h2 className="text-gradient-pink mt-4">Bienvenue dans l'aventure !</h2>
         <p className="mt-2 text-large">Votre inscription au programme <strong>{formData.programme}</strong> est validée avec succès.</p>
-        
+
         {isEbook ? (
           <div className="action-box-community mt-6">
             <h3 className="text-green-brand">Télécharger votre E-Book</h3>
             <p>Félicitations pour votre achat ! Votre guide est disponible immédiatement :</p>
-            
+
             <div className="community-links mt-4">
-              <a 
-                href={ebookFile} 
+              <a
+                href={ebookFile}
                 download
                 className="community-btn ebook-download-btn"
               >
@@ -267,16 +267,16 @@ const PaymentCallback = () => {
                 Télécharger l'E-Book (PDF)
               </a>
             </div>
-            
+
             <p className="mt-6 text-sm text-muted">
               Rejoignez également notre communauté WhatsApp pour échanger :
             </p>
-            
+
             <div className="community-links mt-3">
-              <a 
-                href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA" 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA"
+                target="_blank"
+                rel="noreferrer"
                 className="community-btn whatsapp-color"
               >
                 <Send size={18} />
@@ -288,22 +288,22 @@ const PaymentCallback = () => {
           <div className="action-box-community mt-6">
             <h3>Étape essentielle : Rejoindre vos canaux</h3>
             <p>Cliquez ci-dessous pour intégrer immédiatement nos canaux de communication officiels :</p>
-            
+
             <div className="community-links mt-4">
-              <a 
-                href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA" 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA"
+                target="_blank"
+                rel="noreferrer"
                 className="community-btn whatsapp-color"
               >
                 <Send size={20} />
                 Rejoindre le Groupe WhatsApp
               </a>
-              
-              <a 
-                href="https://t.me/+hXBcjA-rPjpmZGRk" 
-                target="_blank" 
-                rel="noreferrer" 
+
+              <a
+                href="https://t.me/+hXBcjA-rPjpmZGRk"
+                target="_blank"
+                rel="noreferrer"
                 className="community-btn telegram-color"
               >
                 <Send size={20} />

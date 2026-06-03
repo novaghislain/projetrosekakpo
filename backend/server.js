@@ -309,7 +309,7 @@ app.get('/api/articles/:id', (req, res) => {
 // 6. Récupérer une formation spécifique par son slug (Public)
 app.get('/api/formations/:slug', (req, res) => {
   const requestedSlug = req.params.slug;
-  
+
   db.get(`SELECT * FROM formations WHERE slug = ?`, [requestedSlug], (err, row) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!row) return res.status(404).json({ error: "Formation introuvable." });
@@ -974,13 +974,14 @@ app.post('/api/payment/create', (req, res) => {
           'Content-Type': 'application/json'
         };
 
+        const origin = req.get('origin') || 'http://localhost:5173';
         const txData = {
           description: `Achat du programme: ${programName}`,
           amount: price,
           currency: {
             iso: "XOF"
           },
-          callback_url: `http://localhost:5173/payment-callback?programId=${programId}`,
+          callback_url: `${origin}/payment-callback?programId=${programId}&firstname=${encodeURIComponent(customer.firstname)}&lastname=${encodeURIComponent(customer.lastname)}&email=${encodeURIComponent(customer.email)}&whatsapp=${encodeURIComponent(customer.whatsapp)}`,
           customer: {
             firstname: customer.firstname,
             lastname: customer.lastname,

@@ -53,7 +53,7 @@ const Checkout = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const programId = searchParams.get('program')
-  
+
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
@@ -196,8 +196,8 @@ const Checkout = () => {
     loadProgram();
   }, [programId, navigate])
 
-  if (loading && !program) return <div className="checkout-page" style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><div className="loader"></div></div>
-  if (!program) return <div className="checkout-page" style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><div className="loader"></div></div>
+  if (loading && !program) return <div className="checkout-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader"></div></div>
+  if (!program) return <div className="checkout-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader"></div></div>
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -226,7 +226,7 @@ const Checkout = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })
-        
+
         const data = await response.json()
         if (response.ok) {
           setIsSuccess(true)
@@ -236,21 +236,33 @@ const Checkout = () => {
           setLoading(false)
         }
       } else {
-        // Redirection to manual payment page for paid programs
-        navigate('/manual-payment', { 
-          state: { 
-            programId, 
-            programName: program.name,
-            dynamicPrice, 
-            dynamicUsdPrice,
-            customer: {
-              firstname: formData.firstname,
-              lastname: formData.lastname,
-              email: formData.email,
-              whatsapp: formData.whatsapp
-            } 
-          } 
+        // Tentative de création d'une session FedaPay
+        const payload = {
+          programId: programId,
+          customer: {
+            firstname: formData.firstname,
+            lastname: formData.lastname,
+            email: formData.email,
+            whatsapp: formData.whatsapp
+          }
+        };
+
+        const fedapayResponse = await fetch(`${API_URL}/api/payment/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
+
+        const data = await fedapayResponse.json();
+
+        if (fedapayResponse.ok && data.url) {
+          // Redirection vers le lien de paiement FedaPay
+          window.location.href = data.url;
+        } else {
+          // Si FedaPay refuse la transaction, on affiche l'erreur
+          setError(data.error || "Le paiement FedaPay n'a pas pu être initialisé.");
+          setLoading(false);
+        }
       }
     } catch (err) {
       console.error(err)
@@ -262,10 +274,10 @@ const Checkout = () => {
   if (isSuccess) {
     const isEbook = programId.startsWith('ebook-') || program.isEbook;
     const isCoaching = programId === 'coaching-free' || programId === 'coaching';
-    const ebookFile = programId === 'ebook-vision' 
-      ? '/EBOOK_FIGURE_BOUGIE_ROSE.pdf' 
+    const ebookFile = programId === 'ebook-vision'
+      ? '/EBOOK_FIGURE_BOUGIE_ROSE.pdf'
       : '/GUIDE_PRATIQUE_POUR_DEBUTER_LE_TRADING_ROSE_KAKPO.pdf';
-    
+
     const whatsappGroupLink = program.accessLink || "https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA";
     const telegramLink = "https://t.me/+hXBcjA-rPjpmZGRk";
     const directWhatsappRose = "https://wa.me/2290191348557?text=" + encodeURIComponent(`Bonjour Rose, je viens de m'inscrire au Coaching One-to-One gratuit (${formData.firstname} ${formData.lastname}).`);
@@ -277,7 +289,7 @@ const Checkout = () => {
             <div className="success-icon-wrapper" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', marginBottom: '1.5rem', color: '#10b981' }}>
               <CheckCircle2 size={48} />
             </div>
-            
+
             <h2 className="form-title" style={{ fontSize: '2rem', marginBottom: '0.5rem', color: '#fff' }}>Bienvenue dans l'aventure !</h2>
             <p className="form-subtitle" style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>
               Votre inscription au programme <strong>{program.name}</strong> a été validée avec succès.
@@ -343,13 +355,13 @@ const Checkout = () => {
 
       <div className="checkout-container checkout-main">
         <div className="checkout-layout">
-          
+
           {/* LEFT: FORM */}
           <div className="checkout-left">
             <div className="checkout-form-box">
               <h2 className="form-title">{dynamicPrice === 0 ? "Informations d'inscription" : "Informations de facturation"}</h2>
               <p className="form-subtitle">Renseignez vos coordonnées pour recevoir votre accès.</p>
-              
+
               {error && <div className="checkout-error">{error}</div>}
 
               <form onSubmit={handleSubmit}>
@@ -396,7 +408,7 @@ const Checkout = () => {
                 <button type="submit" disabled={loading} className="checkout-submit-btn pulse-glow mt-4">
                   {loading ? 'Traitement en cours...' : dynamicPrice === 0 ? "S'inscrire (Gratuit)" : `Payer ${dynamicPrice.toLocaleString()} FCFA`}
                 </button>
-                
+
                 {dynamicPrice > 0 && (
                   <div className="checkout-trust">
                     <ShieldCheck size={18} className="text-primary" />
@@ -411,7 +423,7 @@ const Checkout = () => {
           <div className="checkout-right">
             <div className="checkout-summary-box">
               <h3 className="summary-title">Récapitulatif de la commande</h3>
-              
+
               <div className="summary-item-card">
                 {image && <img src={image} alt="Formation" className="summary-item-img" />}
                 <div className="summary-item-info">
@@ -430,7 +442,7 @@ const Checkout = () => {
                   <span>Incluses</span>
                 </div>
               )}
-              
+
               <div className="summary-total-row">
                 <span>Total à payer</span>
                 <div className="total-price-box">
