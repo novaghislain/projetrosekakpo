@@ -280,7 +280,7 @@ const Checkout = () => {
 
     const whatsappGroupLink = program.accessLink || "https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA";
     const telegramLink = "https://t.me/+hXBcjA-rPjpmZGRk";
-    const directWhatsappRose = "https://wa.me/2290191348557?text=" + encodeURIComponent(`Bonjour Rose, je viens de m'inscrire au Coaching One-to-One gratuit (${formData.firstname} ${formData.lastname}).`);
+    const directWhatsappRose = "https://wa.me/2290169690456?text=" + encodeURIComponent(`Bonjour Rose, je viens de m'inscrire au Coaching One-to-One gratuit (${formData.firstname} ${formData.lastname}).`);
 
     return (
       <div className="checkout-page animate-fade-up">
