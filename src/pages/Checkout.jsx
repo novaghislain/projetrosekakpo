@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react'
 import './Checkout.css'
 import { API_URL } from '../config';
+import { trackFbEvent } from '../components/FacebookPixel';
 
 const programsData = {
   'woman-king': {
@@ -208,6 +209,7 @@ const Checkout = () => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    trackFbEvent('AddToCart', { content_name: program?.name || programId, value: dynamicPrice, currency: 'XOF' });
 
     try {
       if (dynamicPrice === 0 || programId === 'coaching-free') {
@@ -230,6 +232,7 @@ const Checkout = () => {
         const data = await response.json()
         if (response.ok) {
           setIsSuccess(true)
+          trackFbEvent('CompleteRegistration', { content_name: program?.name || programId });
           setLoading(false)
         } else {
           setError(data.error || "Une erreur est survenue lors de l'inscription.")

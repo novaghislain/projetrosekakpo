@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
+import FacebookPixel from './components/FacebookPixel'
 
 
 import ScrollToTop from './components/ScrollToTop'
@@ -75,6 +76,7 @@ function App() {
           },
         }}
       />
+      <FacebookPixel />
       <ScrollToTop />
       {!isAdmin && !isCheckout && <AnnouncementBanner />}
       {!isAdmin && !isCheckout && <Navbar />}

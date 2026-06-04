@@ -2,6 +2,7 @@ import { Mail, Phone, Send, Loader, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import './Contact.css'
 import { API_URL } from '../config';
+import { trackFbEvent } from '../components/FacebookPixel';
 
 const Contact = () => {
   const [status, setStatus] = useState('idle') // idle, loading, success, error
@@ -29,6 +30,7 @@ const Contact = () => {
       const result = await response.json();
       
       if (response.ok) {
+        trackFbEvent('Lead', { content_name: 'Contact Form' });
         alert("Message envoyé avec succès et enregistré dans la base de données !");
         e.target.reset();
       } else {

@@ -272,21 +272,42 @@ app.post('/api/enroll', (req, res) => {
     return res.status(400).json({ error: "Tous les champs sont requis pour l'inscription." });
   }
 
-  const query = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
-  db.run(query, [nom, email, whatsapp, niveau, programme], function (err) {
-    if (err) {
-      return res.status(500).json({ error: "Erreur lors de l'inscription au programme." });
-    }
+  const insertEnrollment = () => {
+    const query = `INSERT INTO enrollments (nom, email, whatsapp, niveau, programme) VALUES (?, ?, ?, ?, ?)`;
+    db.run(query, [nom, email, whatsapp, niveau, programme], function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Erreur lors de l'inscription au programme." });
+      }
 
-    if (programSlug) {
-      db.run(`UPDATE formations SET capacity = capacity - 1 WHERE slug = ? AND capacity > 0`, [programSlug], (err2) => {
-        if (err2) console.error("Erreur décrémentation capacité:", err2);
+      if (programSlug) {
+        db.run(`UPDATE formations SET capacity = capacity - 1 WHERE slug = ? AND capacity > 0`, [programSlug], (err2) => {
+          if (err2) console.error("Erreur décrémentation capacité:", err2);
+          res.status(201).json({ success: true, message: "Inscription enregistrée avec succès.", id: this.lastID });
+        });
+      } else {
         res.status(201).json({ success: true, message: "Inscription enregistrée avec succès.", id: this.lastID });
-      });
-    } else {
-      res.status(201).json({ success: true, message: "Inscription enregistrée avec succès.", id: this.lastID });
-    }
-  });
+      }
+    });
+  };
+
+  // Empêcher l'inscription multiple à la séance gratuite
+  if (programSlug === 'coaching-free' || programme.toLowerCase().includes('gratuite') || programme.toLowerCase().includes('1ère séance')) {
+    db.get(
+      `SELECT id FROM enrollments WHERE (email = ? OR whatsapp = ?) AND programme = ?`,
+      [email, whatsapp, programme],
+      (err, row) => {
+        if (err) {
+          return res.status(500).json({ error: "Erreur lors de la vérification de l'inscription." });
+        }
+        if (row) {
+          return res.status(400).json({ error: "Vous êtes déjà inscrit(e) à cette séance de coaching gratuite." });
+        }
+        insertEnrollment();
+      }
+    );
+  } else {
+    insertEnrollment();
+  }
 });
 
 // 4. Récupérer les articles (Public)
@@ -1216,6 +1237,42 @@ app.delete('/api/admin/manual-payments/:id', (req, res) => {
   db.run(`DELETE FROM manual_payments WHERE id = ?`, [id], function (err) {
     if (err) return res.status(500).json({ error: "Erreur serveur" });
     res.json({ success: true });
+  });
+});
+
+// === FACEBOOK PIXEL ===
+
+// Récupérer la configuration du Pixel Facebook (public)
+app.get('/api/pixel', (req, res) => {
+  db.all(`SELECT key, value FROM content WHERE key IN ('fb_pixel_id', 'fb_pixel_enabled')`, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Erreur serveur.' });
+    const config = { fb_pixel_id: '', fb_pixel_enabled: 'false' };
+    (rows || []).forEach(r => { config[r.key] = r.value; });
+    res.json(config);
+  });
+});
+
+// Sauvegarder la configuration du Pixel Facebook (Admin)
+app.post('/api/admin/pixel', (req, res) => {
+  const { fb_pixel_id, fb_pixel_enabled } = req.body;
+
+  const upsert = (key, value, cb) => {
+    db.get(`SELECT id FROM content WHERE key = ?`, [key], (err, row) => {
+      if (err) return cb(err);
+      if (row) {
+        db.run(`UPDATE content SET value = ? WHERE key = ?`, [value, key], cb);
+      } else {
+        db.run(`INSERT INTO content (section, key, value, label) VALUES ('pixel', ?, ?, 'Pixel Facebook')`, [key, value], cb);
+      }
+    });
+  };
+
+  upsert('fb_pixel_id', fb_pixel_id || '', (err1) => {
+    if (err1) return res.status(500).json({ error: 'Erreur lors de la sauvegarde de l\'ID.' });
+    upsert('fb_pixel_enabled', fb_pixel_enabled ? 'true' : 'false', (err2) => {
+      if (err2) return res.status(500).json({ error: 'Erreur lors de la sauvegarde du statut.' });
+      res.json({ success: true, message: 'Configuration du Pixel Facebook sauvegardée.' });
+    });
   });
 });
 

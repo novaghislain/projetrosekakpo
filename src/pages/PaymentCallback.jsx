@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle2, XCircle, Loader2, ArrowRight, Send, HelpCircle, Download } from 'lucide-react'
 import './PaymentCallback.css'
 import { API_URL } from '../config';
+import { trackFbEvent } from '../components/FacebookPixel';
 
 const programNames = {
   'woman-king': 'Woman King Trade',
@@ -62,6 +63,7 @@ const PaymentCallback = () => {
 
         if (response.ok && data.status === 'approved') {
           setVerified(true)
+          trackFbEvent('Purchase', { content_name: programNames[programId] || programId, value: 0, currency: 'XOF' });
         } else {
           setVerificationError(
             data.status === 'declined'
@@ -101,6 +103,7 @@ const PaymentCallback = () => {
 
       if (response.ok) {
         setRegistered(true)
+        trackFbEvent('CompleteRegistration', { content_name: formData.programme });
       } else {
         alert("Erreur lors de l'enregistrement de vos données.")
       }

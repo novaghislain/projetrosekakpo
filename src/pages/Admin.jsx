@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { Mail, Users, BookOpen, MessageSquare, Trash2, CreditCard, CheckCircle2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload, Star } from 'lucide-react';
+import { Mail, Users, BookOpen, MessageSquare, Trash2, CreditCard, CheckCircle2, Plus, LayoutDashboard, Search, Bell, LogOut, Tag, Shield, Key, Edit3, ChevronDown, Info, Settings, Upload, Star, BarChart2, Eye, EyeOff, Activity, ShoppingCart, UserCheck, Zap } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Admin.css';
 import { API_URL } from '../config';
@@ -66,6 +66,15 @@ const Admin = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [readNotifications, setReadNotifications] = useState(() => JSON.parse(localStorage.getItem('rose_read_notifs') || '[]'));
   const [repliedContacts, setRepliedContacts] = useState(() => JSON.parse(localStorage.getItem('rose_replied_contacts') || '[]'));
+
+  // Pixel Facebook state
+  const [pixelConfig, setPixelConfig] = useState({ fb_pixel_id: '', fb_pixel_enabled: false });
+  const [pixelInputId, setPixelInputId] = useState('');
+  const [pixelEnabled, setPixelEnabled] = useState(false);
+  const [pixelSaving, setPixelSaving] = useState(false);
+  const [pixelSaved, setPixelSaved] = useState(false);
+  const [pixelIdError, setPixelIdError] = useState('');
+  const [showPixelId, setShowPixelId] = useState(false);
 
   // Derive notifications
   const notifications = [
@@ -294,6 +303,7 @@ const Admin = () => {
         setIsAuthenticated(true);
         setCurrentUser(userData);
         fetchData();
+        fetchPixelConfig();
         if (userData.role === 'admin') {
           fetchCollaborators();
         }
@@ -327,6 +337,7 @@ const Admin = () => {
         setCurrentUser({ username: data.username, role: data.role });
         localStorage.setItem('rose_admin_session', JSON.stringify({ username: data.username, role: data.role }));
         fetchData();
+        fetchPixelConfig();
         if (data.role === 'admin') {
           fetchCollaborators();
         }
@@ -348,6 +359,20 @@ const Admin = () => {
       }
     } catch (error) {
       console.error("Error loading collaborators:", error);
+    }
+  };
+
+  const fetchPixelConfig = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/pixel`);
+      if (res.ok) {
+        const data = await res.json();
+        setPixelConfig(data);
+        setPixelInputId(data.fb_pixel_id || '');
+        setPixelEnabled(data.fb_pixel_enabled === 'true');
+      }
+    } catch (e) {
+      console.error('Erreur chargement pixel config:', e);
     }
   };
 
@@ -391,6 +416,37 @@ const Admin = () => {
     } catch (error) {
       console.error("Erreur de récupération des données:", error);
       toast("Impossible de charger les données du serveur.");
+    }
+  };
+
+  const handleSavePixel = async () => {
+    // Validation de l'ID Pixel (15 chiffres numériques)
+    const trimmedId = pixelInputId.trim();
+    if (pixelEnabled && trimmedId && !/^\d{15,16}$/.test(trimmedId)) {
+      setPixelIdError("L'ID Pixel Facebook doit contenir 15 ou 16 chiffres (ex: 123456789012345).");
+      return;
+    }
+    setPixelIdError('');
+    setPixelSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/pixel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fb_pixel_id: trimmedId, fb_pixel_enabled: pixelEnabled })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPixelSaved(true);
+        setPixelConfig({ fb_pixel_id: trimmedId, fb_pixel_enabled: pixelEnabled ? 'true' : 'false' });
+        toast.success('Configuration Pixel Facebook sauvegardée !');
+        setTimeout(() => setPixelSaved(false), 3000);
+      } else {
+        toast.error(data.error || 'Erreur lors de la sauvegarde.');
+      }
+    } catch (e) {
+      toast.error('Erreur de connexion au serveur.');
+    } finally {
+      setPixelSaving(false);
     }
   };
 
@@ -1088,6 +1144,12 @@ const Admin = () => {
 
         <button className={`admin-tab ${activeTab === 'securite' ? 'active' : ''}`} onClick={() => setActiveTab('securite')}>
           <Shield size={18} /> Sécurité & Collab.
+        </button>
+        <button className={`admin-tab ${activeTab === 'pixel' ? 'active' : ''}`} onClick={() => setActiveTab('pixel')}>
+          <BarChart2 size={18} /> Pixel Facebook
+          {pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id && (
+            <span style={{ marginLeft: 'auto', width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', flexShrink: 0 }} title="Pixel actif" />
+          )}
         </button>
         <button className={`admin-tab ${activeTab === 'ceo' ? 'active' : ''}`} onClick={() => setActiveTab('ceo')} style={{ marginTop: 'auto', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
           <Settings size={18} /> Paramètres CEO
@@ -2173,6 +2235,208 @@ const Admin = () => {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'pixel' && (
+          <div className="admin-panel animate-fade-up">
+            <div className="admin-header-welcome mb-5">
+              <h2 className="text-gradient">📊 Pixel Facebook (Meta Pixel)</h2>
+              <p className="text-gray">
+                Configurez votre Pixel Meta pour tracker les visiteurs, optimiser vos publicités et analyser les conversions sur votre site.
+              </p>
+            </div>
+
+            {/* Status Banner */}
+            <div className={`pixel-status-banner ${pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id ? 'pixel-active' : 'pixel-inactive'}`}>
+              <div className="pixel-status-icon">
+                {pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id
+                  ? <Activity size={22} />
+                  : <BarChart2 size={22} />
+                }
+              </div>
+              <div className="pixel-status-text">
+                <strong>
+                  {pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id
+                    ? '✅ Pixel Actif — Le suivi est en cours'
+                    : '⏸ Pixel Inactif — Aucun suivi en cours'
+                  }
+                </strong>
+                <span>
+                  {pixelConfig.fb_pixel_id
+                    ? `ID : ${pixelConfig.fb_pixel_id}`
+                    : 'Aucun ID Pixel configuré'
+                  }
+                </span>
+              </div>
+            </div>
+
+            <div className="pixel-config-grid">
+              {/* Configuration Card */}
+              <div className="pixel-card glass-panel">
+                <div className="pixel-card-header">
+                  <div className="pixel-card-icon">
+                    <BarChart2 size={20} />
+                  </div>
+                  <div>
+                    <h3>Configuration du Pixel</h3>
+                    <p>Renseignez votre ID Pixel depuis le Gestionnaire de Publicités Meta.</p>
+                  </div>
+                </div>
+
+                {/* Toggle Activation */}
+                <div className="pixel-toggle-row">
+                  <div className="pixel-toggle-info">
+                    <strong>Activation du Pixel</strong>
+                    <span className="text-gray" style={{ fontSize: '0.85rem' }}>
+                      {pixelEnabled ? 'Le Pixel est activé et trace les visiteurs' : 'Le Pixel est désactivé'}
+                    </span>
+                  </div>
+                  <label className="pixel-toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={pixelEnabled}
+                      onChange={e => setPixelEnabled(e.target.checked)}
+                    />
+                    <span className="pixel-toggle-slider"></span>
+                  </label>
+                </div>
+
+                {/* ID Pixel Input */}
+                <div className="form-group mb-4" style={{ marginTop: '1.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Key size={15} /> ID du Pixel Facebook
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type={showPixelId ? 'text' : 'password'}
+                      className="glass-input"
+                      placeholder="ex: 123456789012345"
+                      value={pixelInputId}
+                      onChange={e => {
+                        setPixelInputId(e.target.value);
+                        setPixelIdError('');
+                      }}
+                      style={{ paddingRight: '3rem', fontFamily: showPixelId ? 'inherit' : 'monospace', letterSpacing: showPixelId ? 'normal' : '0.2em' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPixelId(!showPixelId)}
+                      style={{ position: 'absolute', right: '14px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-gray-500)', display: 'flex', alignItems: 'center' }}
+                      title={showPixelId ? "Masquer l'ID" : "Afficher l'ID"}
+                    >
+                      {showPixelId ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {pixelIdError && (
+                    <p style={{ color: '#ef4444', fontSize: '0.82rem', marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      ⚠️ {pixelIdError}
+                    </p>
+                  )}
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.4rem' }}>
+                    Trouvez votre ID Pixel sur <strong>business.facebook.com</strong> → Gestionnaire d'Événements → Pixel.
+                  </p>
+                </div>
+
+                <button
+                  className={`btn btn-primary full-width`}
+                  onClick={handleSavePixel}
+                  disabled={pixelSaving}
+                  style={{ background: pixelSaved ? 'var(--color-brand-green)' : '', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  {pixelSaving ? (
+                    <span>Sauvegarde en cours...</span>
+                  ) : pixelSaved ? (
+                    <><CheckCircle2 size={18} />Configuration sauvegardée !</>
+                  ) : (
+                    <><Zap size={18} />Sauvegarder la configuration</>
+                  )}
+                </button>
+              </div>
+
+              {/* Events Info Card */}
+              <div className="pixel-card glass-panel">
+                <div className="pixel-card-header">
+                  <div className="pixel-card-icon" style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--color-brand-green)' }}>
+                    <Activity size={20} />
+                  </div>
+                  <div>
+                    <h3>Événements Trackés</h3>
+                    <p>Les événements suivants sont automatiquement envoyés à Facebook.</p>
+                  </div>
+                </div>
+
+                <div className="pixel-events-list">
+                  {[
+                    { icon: <Activity size={16} />, name: 'PageView', desc: 'Déclenché à chaque changement de page', color: '#6366f1' },
+                    { icon: <UserCheck size={16} />, name: 'Lead', desc: 'Formulaire de contact envoyé', color: '#f59e0b' },
+                    { icon: <ShoppingCart size={16} />, name: 'AddToCart', desc: "Clic sur S'inscrire à une formation", color: '#ec4899' },
+                    { icon: <CheckCircle2 size={16} />, name: 'Purchase', desc: 'Paiement validé avec succès', color: '#10b981' },
+                    { icon: <Users size={16} />, name: 'CompleteRegistration', desc: 'Inscription newsletter ou programme', color: '#8b5cf6' },
+                  ].map(ev => (
+                    <div key={ev.name} className="pixel-event-item">
+                      <div className="pixel-event-icon" style={{ color: ev.color, background: ev.color + '1a' }}>
+                        {ev.icon}
+                      </div>
+                      <div className="pixel-event-info">
+                        <strong>{ev.name}</strong>
+                        <span>{ev.desc}</span>
+                      </div>
+                      <span className="pixel-event-badge">Auto</span>
+                    </div>
+                  ))}
+                </div>
+
+                {pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id && (
+                  <div className="pixel-test-zone">
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+                      <strong>🧪 Test rapide</strong> — Déclenche manuellement un événement
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {['PageView', 'Lead', 'AddToCart', 'Purchase', 'CompleteRegistration'].map(ev => (
+                        <button
+                          key={ev}
+                          className="pixel-test-btn"
+                          onClick={() => {
+                            if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+                              window.fbq('track', ev);
+                              toast.success(`Événement ${ev} envoyé !`);
+                            } else {
+                              toast('Le Pixel n\'est pas chargé sur cette page admin. Testez sur le site public.');
+                            }
+                          }}
+                        >
+                          {ev}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Setup Guide */}
+            <div className="pixel-guide-card glass-panel">
+              <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Info size={18} style={{ color: 'var(--color-brand-pink)' }} /> Guide de configuration
+              </h3>
+              <div className="pixel-guide-steps">
+                {[
+                  { step: '1', title: "Accéder au Gestionnaire d'Événements", desc: 'Connectez-vous à business.facebook.com → Gestionnaire d\'Événements → Sources de données → Pixel' },
+                  { step: '2', title: 'Copier votre ID Pixel', desc: 'Dans la page du Pixel, copiez l\'ID numérique (15-16 chiffres) affiché en haut de la page.' },
+                  { step: '3', title: 'Coller l\'ID ici', desc: 'Collez votre ID dans le champ ci-dessus, activez le Pixel et cliquez sur Sauvegarder.' },
+                  { step: '4', title: 'Vérifier dans l\'outil de test', desc: 'Allez dans "Tester les événements" sur Meta → ouvrez votre site → vérifiez que les événements arrivent en temps réel.' },
+                ].map((s) => (
+                  <div key={s.step} className="pixel-guide-step">
+                    <div className="pixel-step-num">{s.step}</div>
+                    <div>
+                      <strong>{s.title}</strong>
+                      <p>{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
