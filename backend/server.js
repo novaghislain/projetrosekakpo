@@ -1282,15 +1282,19 @@ app.get('/api/ping', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`Serveur Backend démarré sur http://localhost:${PORT}`);
-  // Keepalive : pinguer la DB toutes les 4 minutes pour éviter les cold starts
-  setInterval(async () => {
-    try {
-      await pool.query('SELECT 1');
-      console.log('[Keepalive] DB ping OK');
-    } catch (e) {
-      console.warn('[Keepalive] DB ping failed:', e.message);
-    }
-  }, 4 * 60 * 1000);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Serveur Backend démarré sur http://localhost:${PORT}`);
+    // Keepalive : pinguer la DB toutes les 4 minutes pour éviter les cold starts
+    setInterval(async () => {
+      try {
+        await pool.query('SELECT 1');
+        console.log('[Keepalive] DB ping OK');
+      } catch (e) {
+        console.warn('[Keepalive] DB ping failed:', e.message);
+      }
+    }, 4 * 60 * 1000);
+  });
+}
+
+module.exports = app;
