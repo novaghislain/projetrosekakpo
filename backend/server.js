@@ -1257,7 +1257,7 @@ app.post('/api/admin/pixel', (req, res) => {
   const { fb_pixel_id, fb_pixel_enabled } = req.body;
 
   const upsert = (key, value, cb) => {
-    db.get(`SELECT id FROM content WHERE key = ?`, [key], (err, row) => {
+    db.get(`SELECT key FROM content WHERE key = ?`, [key], (err, row) => {
       if (err) return cb(err);
       if (row) {
         db.run(`UPDATE content SET value = ? WHERE key = ?`, [value, key], cb);
