@@ -33,20 +33,20 @@ const ManualPayment = () => {
   const networks = {
     'MTN': {
       name: 'MTN Mobile Money',
-      number: '229 0190080508',
-      recipientName: 'Rosemonde Kakpo',
+      number: '+229 0169690456',
+      recipientName: 'AMEDEOGNONNAN ROSEMONDE GNIDETE KAKPO',
       color: '#ffcc00'
     },
     'MOOV': {
       name: 'MOOV Money',
       number: '(Numéro à venir)',
-      recipientName: 'Rosemonde Kakpo',
+      recipientName: 'AMEDEOGNONNAN ROSEMONDE GNIDETE KAKPO',
       color: '#ff6600'
     },
     'CELTIIS': {
       name: 'CELTIIS Cash',
       number: '(Numéro à venir)',
-      recipientName: 'Rosemonde Kakpo',
+      recipientName: 'AMEDEOGNONNAN ROSEMONDE GNIDETE KAKPO',
       color: '#005b82'
     }
   };

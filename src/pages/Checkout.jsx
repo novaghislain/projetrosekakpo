@@ -239,33 +239,20 @@ const Checkout = () => {
           setLoading(false)
         }
       } else {
-        // Tentative de création d'une session FedaPay
-        const payload = {
-          programId: programId,
-          customer: {
-            firstname: formData.firstname,
-            lastname: formData.lastname,
-            email: formData.email,
-            whatsapp: formData.whatsapp
+        // Redirection directe vers la page de paiement manuel (MoMo)
+        navigate('/manual-payment', {
+          state: {
+            programId: programId,
+            programName: program.name,
+            dynamicPrice: dynamicPrice,
+            customer: {
+              firstname: formData.firstname,
+              lastname: formData.lastname,
+              email: formData.email,
+              whatsapp: formData.whatsapp
+            }
           }
-        };
-
-        const fedapayResponse = await fetch(`${API_URL}/api/payment/create`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
         });
-
-        const data = await fedapayResponse.json();
-
-        if (fedapayResponse.ok && data.url) {
-          // Redirection vers le lien de paiement FedaPay
-          window.location.href = data.url;
-        } else {
-          // Si FedaPay refuse la transaction, on affiche l'erreur
-          setError(data.error || "Le paiement FedaPay n'a pas pu être initialisé.");
-          setLoading(false);
-        }
       }
     } catch (err) {
       console.error(err)
