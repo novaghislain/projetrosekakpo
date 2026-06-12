@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { API_URL } from '../config';
 
-/**
- * FacebookPixel — Charge dynamiquement le Meta (Facebook) Pixel sur toutes les pages.
- * Il récupère l'ID et le statut d'activation depuis l'API backend.
- * Envoie automatiquement PageView à chaque changement de route.
- */
 
-// Expose une fonction fbq() globale sécurisée pour les événements
 export const trackFbEvent = (eventName, params = {}) => {
   if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
     window.fbq('track', eventName, params);
