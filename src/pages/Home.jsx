@@ -42,9 +42,9 @@ const Home = () => {
                 Réserver un Coaching
               </Link>
             </div>
-            <Link to="/contact" className="btn-text">
+            <a href="https://wa.me/22967348956" target="_blank" rel="noopener noreferrer" className="btn-text">
               Me contacter
-            </Link>
+            </a>
           </div>
           <div className="hero-image-placeholder delay-100">
             <div className="image-shape glow-pink" style={{ backgroundImage: "url('/photo1.jpeg')", backgroundSize: "cover", backgroundPosition: "center" }}></div>
@@ -112,34 +112,43 @@ const Home = () => {
           <div className="services-grid">
             <div className="service-card glass-panel animate-fade-up delay-100">
               <div className="service-icon pink-bg">
-                <TrendingUp size={32} />
+                <Star size={32} />
               </div>
-              <h3>Formations Trading</h3>
-              <p>Apprendre les bases du trading, comprendre les marchés et développer une stratégie rentable.</p>
+              <h3>Mes Domaines d'Expertise</h3>
+              <ul style={{ textAlign: 'left', paddingLeft: '20px', margin: '15px 0' }}>
+                <li style={{ marginBottom: '8px' }}><strong>Formation :</strong> Apprendre et comprendre les bases du trading</li>
+                <li style={{ marginBottom: '8px' }}><strong>Accompagnement :</strong> Coaching et suivi continu</li>
+                <li style={{ marginBottom: '8px' }}><strong>Éducation Financière :</strong> Conseil pratique pour mieux gérer son argent</li>
+                <li style={{ marginBottom: '8px' }}><strong>Motivation et Discipline :</strong> Développement personnel et productivité</li>
+              </ul>
             </div>
 
             <div className="service-card glass-panel animate-fade-up delay-200">
               <div className="service-icon green-bg">
-                <Users size={32} />
+                <TrendingUp size={32} />
               </div>
-              <h3>Accompagnement</h3>
-              <p>Coaching personnalisé et suivi continu pour corriger vos erreurs et évoluer plus rapidement.</p>
+              <h3>Qu'est ce que le trading ?</h3>
+              <p>Une activité qui nous permet d'intervenir sur les marchés financiers dans le but de générer des gains.</p>
             </div>
 
             <div className="service-card glass-panel animate-fade-up delay-300">
               <div className="service-icon pink-bg">
-                <Lightbulb size={32} />
+                <Users size={32} />
               </div>
-              <h3>Éducation financière</h3>
-              <p>Conseils pratiques pour mieux gérer son argent, investir intelligemment et sécuriser son avenir.</p>
+              <h3>Qui peut exercer le trading ?</h3>
+              <p>Le trading est accessible à toute personne motivée à apprendre. Aucune expérience préalable n'est nécessaire lorsqu'on bénéficie d'un accompagnement et d'une méthode claire.</p>
             </div>
 
             <div className="service-card glass-panel animate-fade-up delay-400">
               <div className="service-icon green-bg">
                 <Target size={32} />
               </div>
-              <h3>Motivation & discipline</h3>
-              <p>Développement personnel et productivité pour forger un mental d'acier indispensable au trading.</p>
+              <h3>Les outils indispensables pour débuter</h3>
+              <ul style={{ textAlign: 'left', paddingLeft: '20px', margin: '15px 0', listStyleType: 'disc' }}>
+                <li style={{ marginBottom: '8px' }}>Smartphone ou ordinateur</li>
+                <li style={{ marginBottom: '8px' }}>Connexion Internet</li>
+                <li style={{ marginBottom: '8px' }}>Formation et accompagnement</li>
+              </ul>
             </div>
           </div>
         </div>

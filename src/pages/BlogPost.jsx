@@ -10,11 +10,17 @@ const BlogPost = () => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [hasLiked, setHasLiked] = useState(false);
+  const [hasDisliked, setHasDisliked] = useState(false);
+
   useEffect(() => {
     fetch(`${API_URL}/api/articles/${id}`)
       .then(res => res.json())
       .then(data => {
-        if (!data.error) setArticle(data);
+        if (!data.error) {
+          setArticle(data);
+          fetch(`${API_URL}/api/articles/${id}/view`, { method: 'POST' }).catch(e => console.error(e));
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -22,6 +28,83 @@ const BlogPost = () => {
         setLoading(false);
       });
   }, [id]);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: article?.title,
+      text: article?.excerpt,
+      url: window.location.href
+    };
+    if (navigator.share && window.isSecureContext) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing', err);
+      }
+    } else {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(window.location.href);
+          alert("Lien copié dans le presse-papier !");
+        } else {
+          // Fallback pour les environnements non sécurisés (HTTP sur IP locale)
+          const textArea = document.createElement("textarea");
+          textArea.value = window.location.href;
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert("Lien copié dans le presse-papier !");
+        }
+      } catch (e) {
+        console.error("Erreur copie", e);
+        alert("Copiez ce lien manuellement : " + window.location.href);
+      }
+    }
+  };
+
+  const handleLike = async () => {
+    if (hasLiked) {
+      try {
+        await fetch(`${API_URL}/api/articles/${id}/unlike`, { method: 'POST' });
+        setArticle(prev => ({ ...prev, likes: Math.max((prev.likes || 0) - 1, 0) }));
+        setHasLiked(false);
+      } catch (e) { console.error(e); }
+    } else {
+      try {
+        await fetch(`${API_URL}/api/articles/${id}/like`, { method: 'POST' });
+        setArticle(prev => ({ ...prev, likes: (prev.likes || 0) + 1 }));
+        setHasLiked(true);
+        if (hasDisliked) {
+          await fetch(`${API_URL}/api/articles/${id}/undislike`, { method: 'POST' });
+          setArticle(prev => ({ ...prev, dislikes: Math.max((prev.dislikes || 0) - 1, 0) }));
+          setHasDisliked(false);
+        }
+      } catch (e) { console.error(e); }
+    }
+  };
+
+  const handleDislike = async () => {
+    if (hasDisliked) {
+      try {
+        await fetch(`${API_URL}/api/articles/${id}/undislike`, { method: 'POST' });
+        setArticle(prev => ({ ...prev, dislikes: Math.max((prev.dislikes || 0) - 1, 0) }));
+        setHasDisliked(false);
+      } catch (e) { console.error(e); }
+    } else {
+      try {
+        await fetch(`${API_URL}/api/articles/${id}/dislike`, { method: 'POST' });
+        setArticle(prev => ({ ...prev, dislikes: (prev.dislikes || 0) + 1 }));
+        setHasDisliked(true);
+        if (hasLiked) {
+          await fetch(`${API_URL}/api/articles/${id}/unlike`, { method: 'POST' });
+          setArticle(prev => ({ ...prev, likes: Math.max((prev.likes || 0) - 1, 0) }));
+          setHasLiked(false);
+        }
+      } catch (e) { console.error(e); }
+    }
+  };
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
@@ -72,6 +155,7 @@ const BlogPost = () => {
           <div className="post-meta">
             <span><Calendar size={16} /> {article.date}</span>
             <span><Clock size={16} /> Lecture : {article.readTime}</span>
+            <span>👁️ {article.views ? (article.views + 1) : 1} vues</span>
           </div>
         </header>
 
@@ -97,8 +181,10 @@ const BlogPost = () => {
               <p>{article.authorRole}</p>
             </div>
           </div>
-          <div className="share-actions">
-            <button className="btn btn-outline"><Share2 size={18} /> Partager cet article</button>
+          <div className="share-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button onClick={handleLike} className={`btn ${hasLiked ? 'btn-primary' : 'btn-outline'}`}>👍 {article.likes || 0}</button>
+            <button onClick={handleDislike} className={`btn ${hasDisliked ? 'btn-primary' : 'btn-outline'}`}>👎 {article.dislikes || 0}</button>
+            <button onClick={handleShare} className="btn btn-outline"><Share2 size={18} /> Partager cet article</button>
           </div>
         </footer>
       </article>

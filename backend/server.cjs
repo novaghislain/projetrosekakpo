@@ -63,7 +63,10 @@ console.log('Connecté à la base de données PostgreSQL (Supabase).');
     { table: 'formations', column: 'content_json', query: "ALTER TABLE formations ADD COLUMN content_json TEXT DEFAULT '{}'" },
     { table: 'manual_payments', column: 'tracking_id', query: "ALTER TABLE manual_payments ADD COLUMN tracking_id TEXT" },
     { table: 'articles', column: 'image', query: "ALTER TABLE articles ADD COLUMN image TEXT" },
-    { table: 'ebooks', column: 'testimonials_json', query: "ALTER TABLE ebooks ADD COLUMN testimonials_json TEXT" }
+    { table: 'ebooks', column: 'testimonials_json', query: "ALTER TABLE ebooks ADD COLUMN testimonials_json TEXT" },
+    { table: 'articles', column: 'views', query: "ALTER TABLE articles ADD COLUMN views INTEGER DEFAULT 0" },
+    { table: 'articles', column: 'likes', query: "ALTER TABLE articles ADD COLUMN likes INTEGER DEFAULT 0" },
+    { table: 'articles', column: 'dislikes', query: "ALTER TABLE articles ADD COLUMN dislikes INTEGER DEFAULT 0" }
   ];
 
   for (const m of migrations) {
@@ -324,6 +327,46 @@ app.get('/api/articles/:id', (req, res) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!row) return res.status(404).json({ error: "Article non trouvé." });
     res.json(row);
+  });
+});
+
+// 5b. Incrémenter les vues d'un article
+app.post('/api/articles/:id/view', (req, res) => {
+  db.run(`UPDATE articles SET views = COALESCE(views, 0) + 1 WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur lors de la mise à jour des vues." });
+    res.json({ success: true });
+  });
+});
+
+// 5c. Ajouter un "J'aime" à un article
+app.post('/api/articles/:id/like', (req, res) => {
+  db.run(`UPDATE articles SET likes = COALESCE(likes, 0) + 1 WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur." });
+    res.json({ success: true });
+  });
+});
+
+// 5d. Ajouter un "Je n'aime pas" à un article
+app.post('/api/articles/:id/dislike', (req, res) => {
+  db.run(`UPDATE articles SET dislikes = COALESCE(dislikes, 0) + 1 WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur." });
+    res.json({ success: true });
+  });
+});
+
+// 5e. Retirer un "J'aime"
+app.post('/api/articles/:id/unlike', (req, res) => {
+  db.run(`UPDATE articles SET likes = GREATEST(COALESCE(likes, 0) - 1, 0) WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur." });
+    res.json({ success: true });
+  });
+});
+
+// 5f. Retirer un "Je n'aime pas"
+app.post('/api/articles/:id/undislike', (req, res) => {
+  db.run(`UPDATE articles SET dislikes = GREATEST(COALESCE(dislikes, 0) - 1, 0) WHERE id = ?`, [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: "Erreur." });
+    res.json({ success: true });
   });
 });
 
@@ -596,8 +639,11 @@ app.post('/api/admin/articles', (req, res) => {
   const readTimeVal = readTime || req.body.readtime || '5 min';
   const dateVal = date || new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
   const query = `INSERT INTO articles (title, category, date, readTime, excerpt, content, image) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  db.run(query, [title, category, dateVal, readTimeVal, excerpt, content, image], function (err) {
-    if (err) return res.status(500).json({ error: "Erreur de création." });
+  db.run(query, [title, category, dateVal, readTimeVal, excerpt || '', content, image], function (err) {
+    if (err) {
+      console.error("[Create Article Error]", err);
+      return res.status(500).json({ error: "Erreur de création." });
+    }
     res.status(201).json({ success: true, id: this.lastID });
   });
 });
@@ -618,8 +664,8 @@ app.put('/api/admin/articles/:id', (req, res) => {
   }
 
   const readTimeVal = readTime || req.body.readtime || '5 min';
-  const query = `UPDATE articles SET title = ?, category = ?, date = ?, readTime = ?, excerpt = ?, content = ?, image = ? WHERE id = ?`;
-  db.run(query, [title, category, date, readTimeVal, excerpt, content, image, req.params.id], function (err) {
+  const query = `UPDATE articles SET title = ?, category = ?, date = COALESCE(?, date), readTime = COALESCE(?, readTime), excerpt = ?, content = ?, image = COALESCE(?, image) WHERE id = ?`;
+  db.run(query, [title, category, date || null, readTimeVal, excerpt || '', content, image || null, req.params.id], function (err) {
     if (err) {
       console.error("ERREUR LORS DE LA MISE A JOUR:", err);
       return res.status(500).json({ error: "Erreur lors de la mise à jour." });

@@ -98,6 +98,7 @@ const Blog = () => {
                       <div className="blog-meta-right">
                         <span><Calendar size={14} /> {article.date}</span>
                         <span><Clock size={14} /> {article.readTime}</span>
+                        <span>👁️ {article.views || 0} vues</span>
                       </div>
                     </div>
                     <h3>{article.title}</h3>

@@ -458,20 +458,22 @@ const Admin = () => {
     }
     setIsPublishing(true);
     try {
-      const response = await fetch(`${API_URL}/api/admin/articles`, {
-        method: 'POST',
+      const method = editingArticleId ? 'PUT' : 'POST';
+      const url = editingArticleId ? `${API_URL}/api/admin/articles/${editingArticleId}` : `${API_URL}/api/admin/articles`;
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newArticle)
       });
 
       if (response.ok) {
-        toast(`Article publié avec succès !`);
-        setNewArticle({ title: '', category: '', excerpt: '', content: '', author: 'Rose Kakpo', authorRole: 'Experte en Trading', image: '' });
-        setShowArticleForm(false);
+        toast(`Article ${editingArticleId ? 'modifié' : 'publié'} avec succès !`);
+        setNewArticle({ title: '', category: '', excerpt: '', content: '', image: '' });
+        setEditingArticleId(null);
         fetchData();
       } else {
         const data = await response.json().catch(() => ({}));
-        toast(data.error || "Erreur de création.");
+        toast(data.error || "Erreur lors de l'opération.");
       }
     } catch (error) {
       console.error(error);
@@ -479,6 +481,17 @@ const Admin = () => {
     } finally {
       setIsPublishing(false);
     }
+  };
+
+  const handleEditArticle = (a) => {
+    setNewArticle({
+      title: a.title,
+      category: a.category,
+      excerpt: a.excerpt || '',
+      content: a.content || '',
+      image: a.image || ''
+    });
+    setEditingArticleId(a.id);
   };
 
   const handleDeleteAnnouncement = (id) => {
@@ -1957,6 +1970,9 @@ const Admin = () => {
                       <span className="text-small text-gray d-block">{a.category} - {a.date}</span>
                     </div>
                     <div>
+                      <button onClick={() => handleEditArticle(a)} className="btn-icon text-green" title="Modifier" style={{ marginRight: '8px' }}>
+                        <BookOpen size={18} />
+                      </button>
                       <button onClick={() => handleDeleteArticle(a.id)} className="btn-icon text-pink" title="Supprimer">
                         <Trash2 size={18} />
                       </button>
@@ -1966,7 +1982,7 @@ const Admin = () => {
               </div>
 
               <div className="blog-create glass-panel">
-                <h3><Plus size={18} /> Nouvel Article</h3>
+                <h3><Plus size={18} /> {editingArticleId ? 'Modifier l\'article' : 'Nouvel Article'}</h3>
                 <form onSubmit={handleCreateArticle}>
                   <div className="form-group">
                     <label>Titre de l'article</label>
@@ -2014,8 +2030,13 @@ const Admin = () => {
                     {newArticle.image && <img src={newArticle.image} alt="Preview" style={{ height: '80px', marginTop: '10px', borderRadius: '8px', objectFit: 'cover' }} />}
                   </div>
                   <button type="submit" className="btn btn-primary full-width" disabled={isPublishing}>
-                    {isPublishing ? 'Publication en cours...' : 'Publier l\'article'}
+                    {isPublishing ? 'Enregistrement en cours...' : (editingArticleId ? 'Enregistrer les modifications' : 'Publier l\'article')}
                   </button>
+                  {editingArticleId && (
+                    <button type="button" className="btn btn-outline full-width mt-2" onClick={() => { setEditingArticleId(null); setNewArticle({ title: '', category: '', excerpt: '', content: '', image: '' }); }}>
+                      Annuler la modification
+                    </button>
+                  )}
                 </form>
               </div>
             </div>
