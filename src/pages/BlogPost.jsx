@@ -47,19 +47,27 @@ const BlogPost = () => {
           await navigator.clipboard.writeText(window.location.href);
           alert("Lien copié dans le presse-papier !");
         } else {
-          // Fallback pour les environnements non sécurisés (HTTP sur IP locale)
+          // Fallback pour les environnements non sécurisés
           const textArea = document.createElement("textarea");
           textArea.value = window.location.href;
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
-          document.execCommand('copy');
+          let success = false;
+          try {
+            success = document.execCommand('copy');
+          } catch(err) {}
           document.body.removeChild(textArea);
-          alert("Lien copié dans le presse-papier !");
+          
+          if (success) {
+            alert("Lien copié dans le presse-papier !");
+          } else {
+            prompt("Impossible de copier automatiquement. Veuillez copier ce lien :", window.location.href);
+          }
         }
       } catch (e) {
         console.error("Erreur copie", e);
-        alert("Copiez ce lien manuellement : " + window.location.href);
+        prompt("Impossible de copier automatiquement. Veuillez copier ce lien :", window.location.href);
       }
     }
   };
