@@ -23,7 +23,11 @@ const Blog = () => {
     fetch(`${API_URL}/api/articles`)
       .then(res => res.json())
       .then(data => {
-        setArticles(data);
+        if (Array.isArray(data)) {
+          setArticles(data);
+        } else {
+          console.error("Format de réponse inattendu :", data);
+        }
         setLoading(false);
       })
       .catch(err => {
