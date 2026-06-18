@@ -71,8 +71,8 @@
 .blog-card-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
+  object-position: top center;
   transition: transform 0.5s ease;
   background-color: var(--color-gray-50);
 }

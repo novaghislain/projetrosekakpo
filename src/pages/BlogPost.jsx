@@ -168,8 +168,8 @@ const BlogPost = () => {
         </header>
 
         {article.image && (
-          <div className="post-cover-image-container animate-fade-up delay-100" style={{ width: '100%', marginBottom: '2rem', borderRadius: '16px', overflow: 'hidden', textAlign: 'center', background: 'var(--color-gray-100)' }}>
-            <img src={article.image} alt={article.title} style={{ maxWidth: '100%', maxHeight: '700px', width: 'auto', objectFit: 'contain' }} />
+          <div className="post-cover-image-container animate-fade-up delay-100" style={{ width: '100%', marginBottom: '2rem', borderRadius: '16px', overflow: 'hidden' }}>
+            <img src={article.image} alt={article.title} style={{ width: '100%', maxHeight: '700px', objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
           </div>
         )}
         <div className="post-content-layout">
