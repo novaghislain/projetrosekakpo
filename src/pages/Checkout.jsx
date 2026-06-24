@@ -261,6 +261,16 @@ const Checkout = () => {
     }
   }
 
+  const handleWhatsappClick = (e, link) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Lead');
+    }
+    setTimeout(() => {
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }, 300);
+  };
+
   if (isSuccess) {
     const isEbook = programId.startsWith('ebook-') || program.isEbook;
     const isCoaching = programId === 'coaching-free' || programId === 'coaching';
@@ -290,7 +300,7 @@ const Checkout = () => {
                 <a href={ebookFile} download className="checkout-submit-btn pulse-glow" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                   Télécharger mon E-Book (PDF)
                 </a>
-                <a href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA" target="_blank" rel="noreferrer" className="btn-secondary-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', background: 'rgba(255,255,255,0.05)' }}>
+                <a href="https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA" onClick={(e) => handleWhatsappClick(e, "https://chat.whatsapp.com/JwQ5Bk2S8AmAmdhZHq6AlA")} target="_blank" rel="noreferrer" className="btn-secondary-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', background: 'rgba(255,255,255,0.05)' }}>
                   Rejoindre la communauté WhatsApp
                 </a>
               </div>
@@ -299,7 +309,7 @@ const Checkout = () => {
                 <p style={{ color: 'var(--color-gray-600)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: '1.6' }}>
                   Je vais vous contacter très rapidement sur votre numéro WhatsApp (<strong>{formData.whatsapp}</strong>) afin de planifier le jour et l'heure de notre entretien privé. Vous pouvez également m'envoyer un message direct pour accélérer le processus :
                 </p>
-                <a href={directWhatsappRose} target="_blank" rel="noreferrer" className="checkout-submit-btn pulse-glow" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                <a href={directWhatsappRose} onClick={(e) => handleWhatsappClick(e, directWhatsappRose)} target="_blank" rel="noreferrer" className="checkout-submit-btn pulse-glow" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                   M'envoyer un message sur WhatsApp
                 </a>
               </div>
@@ -309,7 +319,7 @@ const Checkout = () => {
                   Intégrez dès maintenant nos canaux officiels pour recevoir vos accès et les instructions :
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <a href={whatsappGroupLink} target="_blank" rel="noreferrer" className="checkout-submit-btn pulse-glow" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.8rem', fontSize: '0.9rem' }}>
+                  <a href={whatsappGroupLink} onClick={(e) => handleWhatsappClick(e, whatsappGroupLink)} target="_blank" rel="noreferrer" className="checkout-submit-btn pulse-glow" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.8rem', fontSize: '0.9rem' }}>
                     Groupe WhatsApp
                   </a>
                   <a href={telegramLink} target="_blank" rel="noreferrer" className="btn-secondary-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.8rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', background: 'rgba(255,255,255,0.05)', fontSize: '0.9rem' }}>

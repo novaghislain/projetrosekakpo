@@ -15,6 +15,16 @@ const Home = () => {
     return title;
   };
 
+  const handleWhatsappClick = (e, url) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Lead');
+    }
+    setTimeout(() => {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }, 300);
+  };
+
   return (
     <div className="home">
       {/* 1. Hero Section */}
@@ -42,7 +52,7 @@ const Home = () => {
                 Réserver un Coaching
               </Link>
             </div>
-            <a href="https://wa.me/22967348956" target="_blank" rel="noopener noreferrer" className="btn-text">
+            <a href="https://wa.me/22967348956" onClick={(e) => handleWhatsappClick(e, "https://wa.me/22967348956")} className="btn-text">
               Me contacter
             </a>
           </div>
