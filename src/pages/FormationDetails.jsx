@@ -184,7 +184,17 @@ const FormationDetails = () => {
           </div>
           {isFree ? (
             accessLink ? (
-              <a href={accessLink} target="_blank" rel="noopener noreferrer" className="pro-btn">
+              <a 
+                href={accessLink} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="pro-btn"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.fbq) {
+                    window.fbq('track', 'Lead');
+                  }
+                }}
+              >
                 Rejoindre
               </a>
             ) : (
@@ -271,6 +281,11 @@ const FormationDetails = () => {
                     rel="noopener noreferrer"
                     className="pro-btn pro-btn-lg pulse-glow w-100 mb-4"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && window.fbq) {
+                        window.fbq('track', 'Lead');
+                      }
+                    }}
                   >
                     Rejoindre le groupe WhatsApp
                   </a>
@@ -406,6 +421,11 @@ const FormationDetails = () => {
                   rel="noopener noreferrer"
                   className="pro-btn pro-btn-lg pulse-glow mt-4"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.fbq) {
+                      window.fbq('track', 'Lead');
+                    }
+                  }}
                 >
                   Rejoindre le groupe WhatsApp
                 </a>

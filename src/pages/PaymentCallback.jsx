@@ -281,6 +281,11 @@ const PaymentCallback = () => {
                 target="_blank"
                 rel="noreferrer"
                 className="community-btn whatsapp-color"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.fbq) {
+                    window.fbq('track', 'Lead');
+                  }
+                }}
               >
                 <Send size={18} />
                 Rejoindre le Groupe WhatsApp
@@ -298,6 +303,11 @@ const PaymentCallback = () => {
                 target="_blank"
                 rel="noreferrer"
                 className="community-btn whatsapp-color"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.fbq) {
+                    window.fbq('track', 'Lead');
+                  }
+                }}
               >
                 <Send size={20} />
                 Rejoindre le Groupe WhatsApp

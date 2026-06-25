@@ -261,14 +261,10 @@ const Checkout = () => {
     }
   }
 
-  const handleWhatsappClick = (e, link) => {
-    e.preventDefault();
+  const handleWhatsappClick = () => {
     if (typeof window !== 'undefined' && window.fbq) {
       window.fbq('track', 'Lead');
     }
-    setTimeout(() => {
-      window.open(link, '_blank', 'noopener,noreferrer');
-    }, 300);
   };
 
   if (isSuccess) {

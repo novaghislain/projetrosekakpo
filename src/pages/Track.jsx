@@ -32,13 +32,9 @@ const Track = () => {
 
   const handleAccessClick = (e, url, isWhatsapp) => {
     if (isWhatsapp) {
-      e.preventDefault();
       if (typeof window !== 'undefined' && window.fbq) {
         window.fbq('track', 'Lead');
       }
-      setTimeout(() => {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }, 300);
     }
   };
 
