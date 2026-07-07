@@ -2,7 +2,7 @@ import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 
 const contentCache = { data: null, timestamp: 0 };
-const CACHE_TTL = 30000; // 30 secondes
+const CACHE_TTL = 300000; // 5 minutes (en mémoire)
 
 export function useContent() {
   const [content, setContent] = useState(contentCache.data || {});

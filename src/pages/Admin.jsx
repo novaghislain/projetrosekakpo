@@ -308,10 +308,12 @@ const Admin = () => {
           fetchCollaborators();
         }
 
-        // Auto-refresh data every 15 seconds
+        // Auto-refresh data every 3 minutes (only when window is active/visible)
         const intervalId = setInterval(() => {
-          fetchData();
-        }, 15000);
+          if (!document.hidden) {
+            fetchData();
+          }
+        }, 180000);
 
         return () => clearInterval(intervalId);
       } catch (e) {

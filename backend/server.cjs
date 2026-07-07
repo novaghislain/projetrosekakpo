@@ -33,9 +33,14 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  if (req.method === 'GET' && !req.path.startsWith('/api/admin') && !req.path.startsWith('/api/contacts/track') && !req.path.startsWith('/api/payment') && !req.path.startsWith('/api/ping')) {
+    // Permettre au CDN de Vercel de mettre en cache les données publiques pendant 2 minutes (s-maxage=120)
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=600');
+  } else {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
   next();
 });
 

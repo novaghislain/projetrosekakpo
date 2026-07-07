@@ -15,14 +15,10 @@ const Home = () => {
     return title;
   };
 
-  const handleWhatsappClick = (e, url) => {
-    e.preventDefault();
+  const handleWhatsappClick = () => {
     if (typeof window !== 'undefined' && window.fbq) {
       window.fbq('track', 'Lead');
     }
-    setTimeout(() => {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }, 300);
   };
 
   return (
