@@ -107,7 +107,7 @@ const Checkout = () => {
           // Fallback to static programsData if available
           if (programsData[programId]) {
             try {
-              const pricesRes = await fetchWithRetry(`${API_URL}/api/prices`);
+              const pricesRes = await fetchWithRetry(`${API_URL}/api/prices?t=${Date.now()}`, { cache: 'no-store' });
               if (pricesRes && pricesRes.ok) {
                 const pricesData = await pricesRes.json();
                 const foundPrice = pricesData.find(item => item.id === programId);

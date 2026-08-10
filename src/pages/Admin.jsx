@@ -462,7 +462,7 @@ const Admin = () => {
       const resNewsletters = await safeFetch(`${API_URL}/api/admin/newsletters`);
       const resEnrollments = await safeFetch(`${API_URL}/api/admin/enrollments`);
       const resArticles = await safeFetch(`${API_URL}/api/articles`);
-      const resPrices = await safeFetch(`${API_URL}/api/prices`);
+      const resPrices = await safeFetch(`${API_URL}/api/prices?t=${Date.now()}`);
       const resContent = await safeFetch(`${API_URL}/api/content`);
       const resFormations = await safeFetch(`${API_URL}/api/admin/formations`);
       const resEbooks = await safeFetch(`${API_URL}/api/ebooks`);
@@ -668,6 +668,8 @@ const Admin = () => {
 
       if (response.ok) {
         toast("Tarif mis à jour avec succès !");
+        setPrices(prev => prev.map(p => p.id === id ? { ...p, price: priceValue } : p));
+        setEditingPrices(prev => ({ ...prev, [id]: priceValue }));
         fetchData();
       } else {
         const errData = await response.json();

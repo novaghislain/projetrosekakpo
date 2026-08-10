@@ -12,7 +12,7 @@ const Programs = () => {
   });
 
   useEffect(() => {
-    fetch(`${API_URL}/api/prices`)
+    fetch(`${API_URL}/api/prices?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         const priceMap = {};
