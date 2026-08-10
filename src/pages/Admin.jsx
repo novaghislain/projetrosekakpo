@@ -381,7 +381,11 @@ const Admin = () => {
         setResetStatus({ type: 'success', message: data.message });
         setLoginStep('reset_password');
       } else {
-        setResetStatus({ type: 'error', message: data.error || "Une erreur est survenue." });
+        setResetStatus({ 
+          type: 'error', 
+          message: data.error || "Une erreur est survenue.",
+          smtpNotConfigured: !!data.smtp_not_configured
+        });
       }
     } catch (error) {
       console.error(error);
@@ -1204,9 +1208,20 @@ const Admin = () => {
                     </div>
                   )}
 
-                  <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
-                    {isResetLoading ? "Envoi en cours..." : "Recevoir le code"}
-                  </button>
+                  {resetStatus.smtpNotConfigured ? (
+                    <button 
+                      type="button" 
+                      onClick={() => { setLoginStep('reset_password'); setResetStatus({ type: '', message: '' }); }}
+                      className="btn btn-primary full-width mb-3"
+                      style={{ background: '#e5007d', color: 'white' }}
+                    >
+                      Utiliser ma clé de secours
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
+                      {isResetLoading ? "Envoi en cours..." : "Recevoir le code"}
+                    </button>
+                  )}
 
                   <div className="text-center">
                     <button 

@@ -928,7 +928,10 @@ app.post('/api/admin/forgot-password', (req, res) => {
       }
 
       if (!mailConfig.smtp_user || !mailConfig.smtp_pass) {
-        return res.status(400).json({ error: "L'envoi de mail n'est pas configuré. Veuillez renseigner smtp_user et smtp_pass dans les réglages du site." });
+        return res.status(400).json({ 
+          error: "L'envoi de mail n'est pas configuré. Veuillez renseigner smtp_user et smtp_pass dans les réglages du site.",
+          smtp_not_configured: true
+        });
       }
 
       // Générer un code à 6 chiffres
@@ -973,7 +976,7 @@ app.post('/api/admin/forgot-password', (req, res) => {
   });
 });
 
-// Réinitialiser le mot de passe à l'aide du code
+// Réinitialiser le mot de passe à l'aide du code ou de la clé de secours
 app.post('/api/admin/reset-password', (req, res) => {
   const { username, token, newPassword } = req.body;
 
@@ -987,13 +990,18 @@ app.post('/api/admin/reset-password', (req, res) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!user) return res.status(400).json({ error: "Utilisateur introuvable." });
 
-    if (!user.reset_token || user.reset_token !== token) {
-      return res.status(400).json({ error: "Code de vérification incorrect." });
-    }
+    const masterKey = process.env.ADMIN_RECOVERY_KEY || 'RoseSecours2027!';
+    const isMasterKey = token.trim() === masterKey;
 
-    const expiresTime = parseInt(user.reset_expires) || 0;
-    if (Date.now() > expiresTime) {
-      return res.status(400).json({ error: "Le code de vérification a expiré (valable 15 min)." });
+    if (!isMasterKey) {
+      if (!user.reset_token || user.reset_token !== token) {
+        return res.status(400).json({ error: "Code de vérification ou clé de secours incorrect." });
+      }
+
+      const expiresTime = parseInt(user.reset_expires) || 0;
+      if (Date.now() > expiresTime) {
+        return res.status(400).json({ error: "Le code de vérification a expiré (valable 15 min)." });
+      }
     }
 
     // Mettre à jour le mot de passe et effacer le code de réinitialisation
