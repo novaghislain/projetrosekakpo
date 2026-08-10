@@ -991,7 +991,7 @@ app.post('/api/admin/reset-password', (req, res) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!user) return res.status(400).json({ error: "Utilisateur introuvable." });
 
-    const masterKey = (process.env.ADMIN_RECOVERY_KEY || 'RoseSecours2027!').trim();
+    const masterKey = (process.env.ADMIN_RECOVERY_KEY || 'RoseSecours2027').trim();
     const isMasterKey = (token.trim() === masterKey);
     const isEmailTokenValid = user.reset_token && (user.reset_token === token.trim()) && (Date.now() <= (parseInt(user.reset_expires) || 0));
 

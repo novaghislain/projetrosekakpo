@@ -1175,11 +1175,11 @@ const Admin = () => {
               <>
                 <h2 className="text-gradient text-center mb-4">Mot de passe oublié</h2>
                 <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
-                  Entrez votre identifiant pour recevoir un code par e-mail, ou réinitialisez directement à l'aide de votre clé de secours.
+                  Saisissez votre identifiant, votre clé de secours ainsi que votre nouveau mot de passe.
                 </p>
-                <form onSubmit={handleForgotPassword}>
-                  <div className="form-group mb-4">
-                    <label className="text-small text-gray mb-1 d-block">Identifiant de l'administrateur</label>
+                <form onSubmit={handleResetPassword}>
+                  <div className="form-group mb-3">
+                    <label className="text-small text-gray mb-1 d-block">Identifiant administrateur</label>
                     <input
                       type="text"
                       placeholder="Ex: rose"
@@ -1190,58 +1190,11 @@ const Admin = () => {
                     />
                   </div>
 
-                  {resetStatus.message && (
-                    <div style={{ 
-                      padding: '10px', 
-                      borderRadius: '5px', 
-                      marginBottom: '15px', 
-                      fontSize: '0.85rem',
-                      backgroundColor: resetStatus.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                      color: resetStatus.type === 'error' ? '#ef4444' : '#10b981',
-                      border: resetStatus.type === 'error' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)'
-                    }}>
-                      {resetStatus.message}
-                    </div>
-                  )}
-
-                  <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
-                    {isResetLoading ? "Envoi en cours..." : "Recevoir le code par e-mail"}
-                  </button>
-
-                  <button 
-                    type="button" 
-                    className="btn btn-outline full-width mb-3"
-                    onClick={() => { setLoginStep('reset_password'); setResetStatus({ type: '', message: '' }); }}
-                    style={{ fontSize: '0.85rem' }}
-                  >
-                    Utiliser ma clé de secours (sans e-mail)
-                  </button>
-
-                  <div className="text-center">
-                    <button 
-                      type="button" 
-                      onClick={() => { setLoginStep('login'); setResetStatus({ type: '', message: '' }); }}
-                      style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', fontSize: '0.9rem' }}
-                    >
-                      Retour à la connexion
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-
-            {loginStep === 'reset_password' && (
-              <>
-                <h2 className="text-gradient text-center mb-4">Réinitialisation</h2>
-                <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
-                  Saisissez le code reçu par e-mail <strong>OU</strong> votre clé de secours, puis entrez votre nouveau mot de passe.
-                </p>
-                <form onSubmit={handleResetPassword}>
                   <div className="form-group mb-3">
-                    <label className="text-small text-gray mb-1 d-block">Code e-mail OU Clé de secours</label>
+                    <label className="text-small text-gray mb-1 d-block">Clé de secours</label>
                     <input
                       type="text"
-                      placeholder="Ex: 123456 ou votre clé de secours"
+                      placeholder="Entrez votre clé de secours"
                       className="glass-input"
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
@@ -1276,23 +1229,16 @@ const Admin = () => {
                   )}
 
                   <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
-                    {isResetLoading ? "Réinitialisation..." : "Enregistrer le nouveau mot de passe"}
+                    {isResetLoading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
                   </button>
 
-                  <div className="text-center" style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                    <button 
-                      type="button" 
-                      onClick={() => { setLoginStep('forgot_password'); setResetStatus({ type: '', message: '' }); }}
-                      style={{ background: 'none', border: 'none', color: '#e5007d', cursor: 'pointer', fontSize: '0.85rem' }}
-                    >
-                      Renvoyer le code
-                    </button>
+                  <div className="text-center">
                     <button 
                       type="button" 
                       onClick={() => { setLoginStep('login'); setResetStatus({ type: '', message: '' }); }}
-                      style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', fontSize: '0.85rem' }}
+                      style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', fontSize: '0.9rem' }}
                     >
-                      Retour
+                      Retour à la connexion
                     </button>
                   </div>
                 </form>
