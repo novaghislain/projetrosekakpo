@@ -928,9 +928,10 @@ app.post('/api/admin/forgot-password', (req, res) => {
       }
 
       if (!mailConfig.smtp_user || !mailConfig.smtp_pass) {
-        return res.status(400).json({ 
-          error: "L'envoi de mail n'est pas configuré. Veuillez renseigner smtp_user et smtp_pass dans les réglages du site.",
-          smtp_not_configured: true
+        return res.json({
+          success: true,
+          smtpConfigured: false,
+          message: "L'envoi par e-mail n'est pas configuré. Vous pouvez passer à l'étape suivante pour utiliser votre clé de secours."
         });
       }
 
@@ -968,7 +969,7 @@ app.post('/api/admin/forgot-password', (req, res) => {
               console.error("Erreur d'envoi SMTP pour mot de passe oublié :", error);
               return res.status(500).json({ error: "Erreur lors de l'envoi de l'email via SMTP. Détails: " + error.message });
             }
-            res.json({ success: true, message: `Un code de récupération a été envoyé à l'adresse e-mail de contact du site.` });
+            res.json({ success: true, smtpConfigured: true, message: `Un code de récupération a été envoyé à l'adresse e-mail de contact du site.` });
           });
         }
       );
@@ -990,18 +991,12 @@ app.post('/api/admin/reset-password', (req, res) => {
     if (err) return res.status(500).json({ error: "Erreur serveur." });
     if (!user) return res.status(400).json({ error: "Utilisateur introuvable." });
 
-    const masterKey = process.env.ADMIN_RECOVERY_KEY || 'RoseSecours2027!';
-    const isMasterKey = token.trim() === masterKey;
+    const masterKey = (process.env.ADMIN_RECOVERY_KEY || 'RoseSecours2027!').trim();
+    const isMasterKey = (token.trim() === masterKey);
+    const isEmailTokenValid = user.reset_token && (user.reset_token === token.trim()) && (Date.now() <= (parseInt(user.reset_expires) || 0));
 
-    if (!isMasterKey) {
-      if (!user.reset_token || user.reset_token !== token) {
-        return res.status(400).json({ error: "Code de vérification ou clé de secours incorrect." });
-      }
-
-      const expiresTime = parseInt(user.reset_expires) || 0;
-      if (Date.now() > expiresTime) {
-        return res.status(400).json({ error: "Le code de vérification a expiré (valable 15 min)." });
-      }
+    if (!isMasterKey && !isEmailTokenValid) {
+      return res.status(400).json({ error: "Code de vérification ou clé de secours incorrect(e) ou expiré(e)." });
     }
 
     // Mettre à jour le mot de passe et effacer le code de réinitialisation

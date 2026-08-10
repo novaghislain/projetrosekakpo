@@ -381,11 +381,7 @@ const Admin = () => {
         setResetStatus({ type: 'success', message: data.message });
         setLoginStep('reset_password');
       } else {
-        setResetStatus({ 
-          type: 'error', 
-          message: data.error || "Une erreur est survenue.",
-          smtpNotConfigured: !!data.smtp_not_configured
-        });
+        setResetStatus({ type: 'error', message: data.error || "Une erreur est survenue." });
       }
     } catch (error) {
       console.error(error);
@@ -1179,7 +1175,7 @@ const Admin = () => {
               <>
                 <h2 className="text-gradient text-center mb-4">Mot de passe oublié</h2>
                 <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
-                  Entrez votre identifiant. Un code de réinitialisation temporaire sera envoyé à l'adresse e-mail de contact configurée sur le site.
+                  Entrez votre identifiant pour recevoir un code par e-mail, ou réinitialisez directement à l'aide de votre clé de secours.
                 </p>
                 <form onSubmit={handleForgotPassword}>
                   <div className="form-group mb-4">
@@ -1208,20 +1204,18 @@ const Admin = () => {
                     </div>
                   )}
 
-                  {resetStatus.smtpNotConfigured ? (
-                    <button 
-                      type="button" 
-                      onClick={() => { setLoginStep('reset_password'); setResetStatus({ type: '', message: '' }); }}
-                      className="btn btn-primary full-width mb-3"
-                      style={{ background: '#e5007d', color: 'white' }}
-                    >
-                      Utiliser ma clé de secours
-                    </button>
-                  ) : (
-                    <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
-                      {isResetLoading ? "Envoi en cours..." : "Recevoir le code"}
-                    </button>
-                  )}
+                  <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
+                    {isResetLoading ? "Envoi en cours..." : "Recevoir le code par e-mail"}
+                  </button>
+
+                  <button 
+                    type="button" 
+                    className="btn btn-outline full-width mb-3"
+                    onClick={() => { setLoginStep('reset_password'); setResetStatus({ type: '', message: '' }); }}
+                    style={{ fontSize: '0.85rem' }}
+                  >
+                    Utiliser ma clé de secours (sans e-mail)
+                  </button>
 
                   <div className="text-center">
                     <button 
@@ -1240,18 +1234,17 @@ const Admin = () => {
               <>
                 <h2 className="text-gradient text-center mb-4">Réinitialisation</h2>
                 <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
-                  Veuillez saisir le code reçu par email ainsi que votre nouveau mot de passe.
+                  Saisissez le code reçu par e-mail <strong>OU</strong> votre clé de secours, puis entrez votre nouveau mot de passe.
                 </p>
                 <form onSubmit={handleResetPassword}>
                   <div className="form-group mb-3">
-                    <label className="text-small text-gray mb-1 d-block">Code de vérification (6 chiffres)</label>
+                    <label className="text-small text-gray mb-1 d-block">Code e-mail OU Clé de secours</label>
                     <input
                       type="text"
-                      placeholder="Ex: 123456"
+                      placeholder="Ex: 123456 ou votre clé de secours"
                       className="glass-input"
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
-                      maxLength={6}
                       required
                     />
                   </div>
@@ -1283,7 +1276,7 @@ const Admin = () => {
                   )}
 
                   <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
-                    {isResetLoading ? "Réinitialisation..." : "Enregistrer le mot de passe"}
+                    {isResetLoading ? "Réinitialisation..." : "Enregistrer le nouveau mot de passe"}
                   </button>
 
                   <div className="text-center" style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
