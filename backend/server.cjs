@@ -71,7 +71,9 @@ console.log('Connecté à la base de données PostgreSQL (Supabase).');
     { table: 'ebooks', column: 'testimonials_json', query: "ALTER TABLE ebooks ADD COLUMN testimonials_json TEXT" },
     { table: 'articles', column: 'views', query: "ALTER TABLE articles ADD COLUMN views INTEGER DEFAULT 0" },
     { table: 'articles', column: 'likes', query: "ALTER TABLE articles ADD COLUMN likes INTEGER DEFAULT 0" },
-    { table: 'articles', column: 'dislikes', query: "ALTER TABLE articles ADD COLUMN dislikes INTEGER DEFAULT 0" }
+    { table: 'articles', column: 'dislikes', query: "ALTER TABLE articles ADD COLUMN dislikes INTEGER DEFAULT 0" },
+    { table: 'users', column: 'reset_token', query: "ALTER TABLE users ADD COLUMN reset_token TEXT" },
+    { table: 'users', column: 'reset_expires', query: "ALTER TABLE users ADD COLUMN reset_expires TEXT" }
   ];
 
   for (const m of migrations) {
@@ -894,6 +896,115 @@ app.post('/api/admin/login', (req, res) => {
       return res.status(400).json({ error: "Identifiant ou mot de passe incorrect." });
     }
     res.json({ success: true, username: user.username, role: user.role });
+  });
+});
+
+// Demander la réinitialisation du mot de passe (Envoi de code par email)
+app.post('/api/admin/forgot-password', (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: "L'identifiant est requis." });
+  }
+
+  const normalizedUser = username.toLowerCase().trim();
+
+  db.get("SELECT * FROM users WHERE username = ?", [normalizedUser], (err, user) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur." });
+    if (!user) {
+      return res.status(400).json({ error: "Utilisateur introuvable." });
+    }
+
+    // Récupérer la configuration email de la table content
+    db.all("SELECT key, value FROM content WHERE section = 'mail'", (errMail, rows) => {
+      if (errMail || !rows || rows.length === 0) {
+        return res.status(500).json({ error: "Impossible de charger la configuration email." });
+      }
+
+      const mailConfig = {};
+      rows.forEach(r => { mailConfig[r.key] = r.value; });
+
+      if (!mailConfig.ceo_forward_email) {
+        return res.status(400).json({ error: "Adresse email de destination (ceo_forward_email) non configurée dans la base de données." });
+      }
+
+      if (!mailConfig.smtp_user || !mailConfig.smtp_pass) {
+        return res.status(400).json({ error: "L'envoi de mail n'est pas configuré. Veuillez renseigner smtp_user et smtp_pass dans les réglages du site." });
+      }
+
+      // Générer un code à 6 chiffres
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = (Date.now() + 15 * 60 * 1000).toString(); // 15 minutes d'expiration
+
+      // Enregistrer le code et l'expiration dans la base de données pour cet utilisateur
+      db.run(
+        "UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?",
+        [code, expires, user.id],
+        (errUpdate) => {
+          if (errUpdate) return res.status(500).json({ error: "Erreur lors de la génération du jeton de sécurité." });
+
+          // Envoyer l'email
+          const transporter = nodemailer.createTransport({
+            host: mailConfig.smtp_host || 'smtp.gmail.com',
+            port: parseInt(mailConfig.smtp_port) || 465,
+            secure: parseInt(mailConfig.smtp_port) === 465,
+            auth: {
+              user: mailConfig.smtp_user,
+              pass: mailConfig.smtp_pass
+            }
+          });
+
+          const mailOptions = {
+            from: `"Sécurité Rose Kakpo" <${mailConfig.smtp_user}>`,
+            to: mailConfig.ceo_forward_email,
+            subject: "Code de récupération de mot de passe",
+            text: `Bonjour,\n\nVous avez demandé la réinitialisation du mot de passe pour l'administrateur "${normalizedUser}".\n\nVoici votre code de vérification : ${code}\n\nCe code est valable pendant 15 minutes.\n\nSi vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet e-mail.`
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Erreur d'envoi SMTP pour mot de passe oublié :", error);
+              return res.status(500).json({ error: "Erreur lors de l'envoi de l'email via SMTP. Détails: " + error.message });
+            }
+            res.json({ success: true, message: `Un code de récupération a été envoyé à l'adresse e-mail de contact du site.` });
+          });
+        }
+      );
+    });
+  });
+});
+
+// Réinitialiser le mot de passe à l'aide du code
+app.post('/api/admin/reset-password', (req, res) => {
+  const { username, token, newPassword } = req.body;
+
+  if (!username || !token || !newPassword) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+
+  const normalizedUser = username.toLowerCase().trim();
+
+  db.get("SELECT * FROM users WHERE username = ?", [normalizedUser], (err, user) => {
+    if (err) return res.status(500).json({ error: "Erreur serveur." });
+    if (!user) return res.status(400).json({ error: "Utilisateur introuvable." });
+
+    if (!user.reset_token || user.reset_token !== token) {
+      return res.status(400).json({ error: "Code de vérification incorrect." });
+    }
+
+    const expiresTime = parseInt(user.reset_expires) || 0;
+    if (Date.now() > expiresTime) {
+      return res.status(400).json({ error: "Le code de vérification a expiré (valable 15 min)." });
+    }
+
+    // Mettre à jour le mot de passe et effacer le code de réinitialisation
+    db.run(
+      "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?",
+      [newPassword, user.id],
+      (errUpdate) => {
+        if (errUpdate) return res.status(500).json({ error: "Erreur lors de la mise à jour du mot de passe." });
+        res.json({ success: true, message: "Votre mot de passe a été réinitialisé avec succès !" });
+      }
+    );
   });
 });
 

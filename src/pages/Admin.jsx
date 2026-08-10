@@ -39,6 +39,12 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
 
+  const [loginStep, setLoginStep] = useState('login'); // 'login', 'forgot_password', 'reset_password'
+  const [resetCode, setResetCode] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetStatus, setResetStatus] = useState({ type: '', message: '' });
+  const [isResetLoading, setIsResetLoading] = useState(false);
+
   const customConfirm = (message, onConfirm) => {
     toast((t) => (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -349,6 +355,76 @@ const Admin = () => {
     } catch (error) {
       console.error(error);
       toast("Erreur de connexion avec le serveur.");
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    const loginUser = username.trim() || 'rose';
+    if (!loginUser) {
+      setResetStatus({ type: 'error', message: "Veuillez renseigner votre identifiant." });
+      return;
+    }
+
+    setIsResetLoading(true);
+    setResetStatus({ type: '', message: '' });
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUser })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setResetStatus({ type: 'success', message: data.message });
+        setLoginStep('reset_password');
+      } else {
+        setResetStatus({ type: 'error', message: data.error || "Une erreur est survenue." });
+      }
+    } catch (error) {
+      console.error(error);
+      setResetStatus({ type: 'error', message: "Erreur de connexion avec le serveur." });
+    } finally {
+      setIsResetLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    const loginUser = username.trim() || 'rose';
+    if (!loginUser || !resetCode || !resetNewPassword) {
+      setResetStatus({ type: 'error', message: "Tous les champs sont requis." });
+      return;
+    }
+
+    setIsResetLoading(true);
+    setResetStatus({ type: '', message: '' });
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUser, token: resetCode.trim(), newPassword: resetNewPassword })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast(data.message || "Mot de passe réinitialisé ! Vous pouvez maintenant vous connecter.");
+        setPassword('');
+        setResetCode('');
+        setResetNewPassword('');
+        setResetStatus({ type: '', message: '' });
+        setLoginStep('login');
+      } else {
+        setResetStatus({ type: 'error', message: data.error || "Une erreur est survenue." });
+      }
+    } catch (error) {
+      console.error(error);
+      setResetStatus({ type: 'error', message: "Erreur de connexion avec le serveur." });
+    } finally {
+      setIsResetLoading(false);
     }
   };
 
@@ -1056,31 +1132,164 @@ const Admin = () => {
       <div className="admin-login-page section">
         <div className="container">
           <div className="admin-login-box glass-panel">
-            <h2 className="text-gradient text-center mb-4">Accès Administrateur</h2>
-            <form onSubmit={handleLogin}>
-              <div className="form-group mb-3">
-                <label className="text-small text-gray mb-1 d-block">Identifiant</label>
-                <input
-                  type="text"
-                  placeholder="Ex: rose"
-                  className="glass-input"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="form-group mb-4">
-                <label className="text-small text-gray mb-1 d-block">Mot de passe</label>
-                <input
-                  type="password"
-                  placeholder="Mot de passe"
-                  className="glass-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <button type="submit" className="btn btn-primary full-width">Se connecter</button>
-            </form>
+            {loginStep === 'login' && (
+              <>
+                <h2 className="text-gradient text-center mb-4">Accès Administrateur</h2>
+                <form onSubmit={handleLogin}>
+                  <div className="form-group mb-3">
+                    <label className="text-small text-gray mb-1 d-block">Identifiant</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: rose"
+                      className="glass-input"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group mb-4">
+                    <label className="text-small text-gray mb-1 d-block">Mot de passe</label>
+                    <input
+                      type="password"
+                      placeholder="Mot de passe"
+                      className="glass-input"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary full-width mb-3">Se connecter</button>
+                  <div className="text-center">
+                    <button 
+                      type="button" 
+                      onClick={() => { setLoginStep('forgot_password'); setResetStatus({ type: '', message: '' }); }}
+                      style={{ background: 'none', border: 'none', color: '#e5007d', cursor: 'pointer', fontSize: '0.9rem' }}
+                    >
+                      Mot de passe oublié ?
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {loginStep === 'forgot_password' && (
+              <>
+                <h2 className="text-gradient text-center mb-4">Mot de passe oublié</h2>
+                <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
+                  Entrez votre identifiant. Un code de réinitialisation temporaire sera envoyé à l'adresse e-mail de contact configurée sur le site.
+                </p>
+                <form onSubmit={handleForgotPassword}>
+                  <div className="form-group mb-4">
+                    <label className="text-small text-gray mb-1 d-block">Identifiant de l'administrateur</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: rose"
+                      className="glass-input"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {resetStatus.message && (
+                    <div style={{ 
+                      padding: '10px', 
+                      borderRadius: '5px', 
+                      marginBottom: '15px', 
+                      fontSize: '0.85rem',
+                      backgroundColor: resetStatus.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                      color: resetStatus.type === 'error' ? '#ef4444' : '#10b981',
+                      border: resetStatus.type === 'error' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                      {resetStatus.message}
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
+                    {isResetLoading ? "Envoi en cours..." : "Recevoir le code"}
+                  </button>
+
+                  <div className="text-center">
+                    <button 
+                      type="button" 
+                      onClick={() => { setLoginStep('login'); setResetStatus({ type: '', message: '' }); }}
+                      style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', fontSize: '0.9rem' }}
+                    >
+                      Retour à la connexion
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {loginStep === 'reset_password' && (
+              <>
+                <h2 className="text-gradient text-center mb-4">Réinitialisation</h2>
+                <p className="text-center text-gray text-small mb-4" style={{ lineHeight: '1.4' }}>
+                  Veuillez saisir le code reçu par email ainsi que votre nouveau mot de passe.
+                </p>
+                <form onSubmit={handleResetPassword}>
+                  <div className="form-group mb-3">
+                    <label className="text-small text-gray mb-1 d-block">Code de vérification (6 chiffres)</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: 123456"
+                      className="glass-input"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value)}
+                      maxLength={6}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group mb-4">
+                    <label className="text-small text-gray mb-1 d-block">Nouveau mot de passe</label>
+                    <input
+                      type="password"
+                      placeholder="Nouveau mot de passe"
+                      className="glass-input"
+                      value={resetNewPassword}
+                      onChange={(e) => setResetNewPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {resetStatus.message && (
+                    <div style={{ 
+                      padding: '10px', 
+                      borderRadius: '5px', 
+                      marginBottom: '15px', 
+                      fontSize: '0.85rem',
+                      backgroundColor: resetStatus.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                      color: resetStatus.type === 'error' ? '#ef4444' : '#10b981',
+                      border: resetStatus.type === 'error' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                      {resetStatus.message}
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary full-width mb-3" disabled={isResetLoading}>
+                    {isResetLoading ? "Réinitialisation..." : "Enregistrer le mot de passe"}
+                  </button>
+
+                  <div className="text-center" style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setLoginStep('forgot_password'); setResetStatus({ type: '', message: '' }); }}
+                      style={{ background: 'none', border: 'none', color: '#e5007d', cursor: 'pointer', fontSize: '0.85rem' }}
+                    >
+                      Renvoyer le code
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setLoginStep('login'); setResetStatus({ type: '', message: '' }); }}
+                      style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', fontSize: '0.85rem' }}
+                    >
+                      Retour
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>
