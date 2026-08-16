@@ -39,16 +39,16 @@ const Home = () => {
 
             <div className="hero-buttons">
               <Link to="/programs#woman-king" className="btn btn-primary">
-                Rejoindre Woman King Trade <ArrowRight size={18} />
+                Découvrir Woman King Trade <ArrowRight size={18} />
               </Link>
-              <Link to="/programs#strategie-3s" className="btn btn-secondary">
+              <Link to="/programs#strategie-3s" className="btn btn-secondary" style={{ backgroundColor: '#2E6F40', color: '#fff', borderColor: '#2E6F40' }}>
+                Découvrir mon regard sur le marché pour gagner en temps et générer du revenu
+              </Link>
+              <Link to="/programs#strategie-3s" className="btn btn-secondary mt-2">
                 Découvrir la Stratégie 3S
               </Link>
-              <Link to="/programs#coaching" className="btn btn-secondary mt-2">
-                Réserver un Coaching
-              </Link>
             </div>
-            <a href="https://wa.me/22967348956" onClick={(e) => handleWhatsappClick(e, "https://wa.me/22967348956")} className="btn-text">
+            <a href="https://wa.me/2290167348956" onClick={(e) => handleWhatsappClick(e, "https://wa.me/2290167348956")} className="btn-text">
               Me contacter
             </a>
           </div>
