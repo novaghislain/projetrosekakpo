@@ -6,9 +6,9 @@ import { API_URL } from '../config';
 
 const Programs = () => {
   const [prices, setPrices] = useState({
-    'woman-king': 25000,
-    'strategie-3s': 50000,
-    'coaching': 15000
+    'woman-king': null,
+    'strategie-3s': null,
+    'coaching': null
   });
 
   useEffect(() => {
@@ -39,7 +39,11 @@ const Programs = () => {
             <div className="badge"><Target size={14} /> Niveau : Débutant</div>
             <h2 className="text-gradient-pink">Woman King Trade</h2>
             <div className="price-tag mb-4">
-              Tarif : {prices['woman-king']?.toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round((prices['woman-king'] || 25000) / 625)} USD)</span>
+              {prices['woman-king'] ? (
+                <>Tarif : {prices['woman-king'].toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round(prices['woman-king'] / 625)} USD)</span></>
+              ) : (
+                <span className="text-sm text-gray-400">Chargement du tarif...</span>
+              )}
             </div>
             <p className="program-desc">
               Un programme spécialement conçu pour les femmes qui souhaitent découvrir le trading, 
@@ -71,7 +75,11 @@ const Programs = () => {
             <div className="badge"><Target size={14} /> Niveau : Intermédiaire</div>
             <h2 className="text-gradient-pink">Stratégie 3S</h2>
             <div className="price-tag mb-4">
-              Tarif : {prices['strategie-3s']?.toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round((prices['strategie-3s'] || 50000) / 625)} USD)</span>
+              {prices['strategie-3s'] ? (
+                <>Tarif : {prices['strategie-3s'].toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round(prices['strategie-3s'] / 625)} USD)</span></>
+              ) : (
+                <span className="text-sm text-gray-400">Chargement du tarif...</span>
+              )}
             </div>
             <p className="program-desc">
               Tu trades déjà mais tu n'arrives pas à évoluer ? Le programme 3S aide les traders 
@@ -125,7 +133,7 @@ const Programs = () => {
               <div className="coaching-option-card highlighted">
                 <div className="option-header">
                   <h4>Séance Suivi</h4>
-                  <span className="price text-pink">{prices['coaching']?.toLocaleString()} FCFA</span>
+                  <span className="price text-pink">{prices['coaching'] ? `${prices['coaching'].toLocaleString()} FCFA` : 'Chargement...'}</span>
                 </div>
                 <p className="option-desc">Session approfondie d'une heure pour auditer vos graphiques et vos trades.</p>
                 <Link to="/checkout?program=coaching" className="btn btn-primary small-btn mt-2" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

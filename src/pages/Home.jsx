@@ -41,8 +41,8 @@ const Home = () => {
               <Link to="/programs#woman-king" className="btn btn-primary">
                 Découvrir Woman King Trade <ArrowRight size={18} />
               </Link>
-              <Link to="/programs#strategie-3s" className="btn btn-secondary" style={{ backgroundColor: '#2E6F40', color: '#fff', borderColor: '#2E6F40' }}>
-                Découvrir mon regard sur le marché pour gagner en temps et générer du revenu
+              <Link to="/programs#strategie-3s" className="btn btn-secondary" style={{ backgroundColor: '#2E6F40', color: '#fff', borderColor: '#2E6F40', fontSize: '0.82rem', lineHeight: '1.3', padding: '10px 18px' }}>
+                Mon regard sur le marché pour gagner en temps et générer du revenu
               </Link>
               <Link to="/programs#strategie-3s" className="btn btn-secondary mt-2">
                 Découvrir la Stratégie 3S

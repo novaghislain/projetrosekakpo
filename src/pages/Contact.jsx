@@ -3,9 +3,11 @@ import { useState } from 'react'
 import './Contact.css'
 import { API_URL } from '../config';
 import { trackFbEvent } from '../components/FacebookPixel';
+import { useContent } from '../hooks/useContent';
 
 const Contact = () => {
   const [status, setStatus] = useState('idle') // idle, loading, success, error
+  const { c } = useContent();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
@@ -67,7 +69,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4>Email</h4>
-                  <p>Contactwomanking@gmail.com</p>
+                  <p>{c('contact_email', 'Contactwomanking@gmail.com')}</p>
                 </div>
               </div>
               
@@ -77,7 +79,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4>Téléphone</h4>
-                  <p>229 0167348956</p>
+                  <p>{c('contact_phone', '229 0167348956')}</p>
                 </div>
               </div>
             </div>
