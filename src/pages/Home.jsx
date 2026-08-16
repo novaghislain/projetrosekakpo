@@ -37,15 +37,17 @@ const Home = () => {
               <li><CheckCircle2 size={20} className="text-pink" /> <span>Communauté active et bienveillante</span></li>
             </ul>
 
-            <div className="hero-buttons">
-              <Link to="/programs#woman-king" className="btn btn-primary">
-                Découvrir Woman King Trade <ArrowRight size={18} />
-              </Link>
+            <div className="hero-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <Link to="/programs#woman-king" className="btn btn-primary">
+                  Découvrir Woman King Trade <ArrowRight size={18} />
+                </Link>
+                <Link to="/programs#strategie-3s" className="btn btn-secondary">
+                  Découvrir la Stratégie 3S
+                </Link>
+              </div>
               <Link to="/programs#mon-regard" className="btn btn-secondary" style={{ backgroundColor: '#2E6F40', color: '#fff', borderColor: '#2E6F40' }}>
                 Découvrir mon regard sur le marché pour gagner en temps et générer du revenu
-              </Link>
-              <Link to="/programs#strategie-3s" className="btn btn-secondary mt-2">
-                Découvrir la Stratégie 3S
               </Link>
             </div>
             <a href="https://wa.me/2290167348956" onClick={(e) => handleWhatsappClick(e, "https://wa.me/2290167348956")} className="btn-text">
