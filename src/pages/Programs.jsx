@@ -8,6 +8,8 @@ const Programs = () => {
   const [prices, setPrices] = useState({
     'woman-king': 85000,
     'strategie-3s': 105000,
+    'mon-regard-1m': 35000,
+    'mon-regard-3m': 65000,
     'coaching': 15000
   });
 
@@ -28,7 +30,114 @@ const Programs = () => {
       <section className="page-header pink-bg-light text-center animate-fade-up">
         <div className="container">
           <h1 className="text-gradient">Formations & Ressources</h1>
-          <p className="page-subtitle">Des solutions, accompagnements et ebooks adaptés à chaque niveau.</p>
+          <p className="page-subtitle">Des solutions, accompagnements et opportunités adaptés à chaque niveau.</p>
+        </div>
+      </section>
+
+      {/* Section Mon Regard sur les Marchés */}
+      <section id="mon-regard" className="section" style={{ background: 'linear-gradient(180deg, rgba(46, 111, 64, 0.04) 0%, rgba(236, 72, 153, 0.03) 100%)' }}>
+        <div className="container animate-fade-up">
+          <div className="program-detail-container" style={{ alignItems: 'flex-start', gap: '3.5rem' }}>
+            <div className="program-detail-content glass-panel p-8" style={{ flex: '1.2', borderColor: 'rgba(46, 111, 64, 0.25)' }}>
+              <div className="badge" style={{ backgroundColor: '#2E6F40', color: '#fff', border: 'none' }}>
+                <TrendingUp size={16} /> Opportunités Quotidiennes
+              </div>
+              <h2 className="text-gradient" style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>
+                MON REGARD SUR LES MARCHÉS AU QUOTIDIEN
+              </h2>
+              <p style={{ fontSize: '1.15rem', fontWeight: '600', color: '#2E6F40', marginBottom: '1.5rem' }}>
+                Les opportunités que je repère sur les marchés, directement sur votre compte.
+              </p>
+
+              <div className="program-desc" style={{ color: 'var(--color-gray-700)', lineHeight: '1.8', fontSize: '1.05rem' }}>
+                <p style={{ marginBottom: '1rem' }}>
+                  Je mets mon expérience et mon temps au service de l’analyse des marchés pour identifier les opportunités que je décide de trader.
+                </p>
+                <p style={{ marginBottom: '1rem' }}>
+                  Vous recevez mes positions au moment où je les prends et pouvez les reproduire directement sur votre compte.
+                </p>
+                <p style={{ marginBottom: '1rem' }}>
+                  Vous n’avez plus besoin de passer des heures à surveiller les graphiques ou à rechercher vous-même les configurations intéressantes. Vous bénéficiez simplement du travail que je réalise chaque jour sur les marchés.
+                </p>
+                <p style={{ fontWeight: '600', color: 'var(--color-brand-pink)', marginBottom: '1.5rem' }}>
+                  Accédez à mes opportunités de trading au quotidien.
+                </p>
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.8)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(46, 111, 64, 0.15)', marginBottom: '2rem' }}>
+                <h4 style={{ color: '#2E6F40', fontSize: '1.15rem', fontWeight: '700', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  CE QUE VOUS RECEVEZ :
+                </h4>
+                <ul className="detail-features" style={{ marginBottom: 0 }}>
+                  <li><span style={{ fontSize: '1.3rem' }}>📊</span> <span>Mes opportunités de trading</span></li>
+                  <li><span style={{ fontSize: '1.3rem' }}>💸</span> <span>Mes positions et leurs évolutions</span></li>
+                  <li><span style={{ fontSize: '1.3rem' }}>🔎</span> <span>Les marchés que je surveille</span></li>
+                  <li><span style={{ fontSize: '1.3rem' }}>⏱️</span> <span>Un gain de temps considérable</span></li>
+                  <li><span style={{ fontSize: '1.3rem' }}>💡</span> <span>L’accès à mon expérience et à mon analyse quotidienne</span></li>
+                </ul>
+              </div>
+
+              {/* Grille des tarifs / offres */}
+              <div className="coaching-options" style={{ marginTop: '1.5rem' }}>
+                {/* Offre 1 Mois */}
+                <div className="coaching-option-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <div className="option-header" style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
+                      <h4 style={{ fontSize: '1.1rem' }}>🔹 Abonnement 1 mois</h4>
+                      <span className="price" style={{ color: '#2E6F40', fontWeight: '800' }}>
+                        {(prices['mon-regard-1m'] || 35000).toLocaleString()} F CFA
+                      </span>
+                    </div>
+                    <p className="option-desc" style={{ marginTop: '12px' }}>
+                      Accès à Mon regard sur les marchés pendant 1 mois.
+                    </p>
+                  </div>
+                  <Link to="/checkout?program=mon-regard-1m" className="btn btn-outline small-btn mt-3" style={{ width: '100%', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#2E6F40', color: '#2E6F40' }}>
+                    👉 Accéder (1 mois)
+                  </Link>
+                </div>
+
+                {/* Offre Spéciale 3 Mois */}
+                <div className="coaching-option-card highlighted" style={{ borderColor: 'var(--color-brand-pink)', background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.06) 0%, rgba(46, 111, 64, 0.06) 100%)', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: '10px', right: '-30px', background: 'var(--gradient-pink)', color: '#fff', fontSize: '0.75rem', fontWeight: '800', padding: '4px 35px', transform: 'rotate(45deg)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                    TOP OFFRE
+                  </div>
+                  <div>
+                    <div className="option-header" style={{ borderBottom: '1px solid rgba(236, 72, 153, 0.2)', paddingBottom: '10px' }}>
+                      <h4 style={{ color: 'var(--color-brand-pink)', fontWeight: '800', fontSize: '1.15rem' }}>🔥 Offre spéciale — 3 mois</h4>
+                      <div>
+                        <span className="price text-pink" style={{ fontSize: '1.4rem', fontWeight: '800' }}>
+                          {(prices['mon-regard-3m'] || 65000).toLocaleString()} F CFA
+                        </span>
+                        <div style={{ fontSize: '0.85rem', color: '#888', textDecoration: 'line-through' }}>
+                          Au lieu de 105 000 F CFA
+                        </div>
+                      </div>
+                    </div>
+                    <p className="option-desc" style={{ marginTop: '10px', color: '#2E6F40', fontWeight: '700' }}>
+                      ➡️ Économisez 40 000 F CFA
+                    </p>
+                    <p className="option-desc" style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+                      Bénéficiez de 3 mois complets pour le prix d’environ 1 mois + 2 semaines.
+                    </p>
+                  </div>
+                  <Link to="/checkout?program=mon-regard-3m" className="btn btn-primary small-btn mt-3" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
+                    👉 PROFITER DE L'OFFRE 3 MOIS
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Photos & Bannières du produit */}
+            <div style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '480px' }}>
+              <div style={{ borderRadius: '20px', overflow: 'hidden', border: '3px solid white', boxShadow: '0 12px 35px rgba(0, 0, 0, 0.12)' }}>
+                <img src="/mon-regard-sur-le-marche.png" alt="Mon Regard sur le Marché - Rose Kakpo" style={{ width: '100%', height: 'auto', display: 'block' }} />
+              </div>
+              <Link to="/checkout?program=mon-regard-3m" style={{ display: 'block', borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(46, 111, 64, 0.2)', boxShadow: '0 10px 30px rgba(46, 111, 64, 0.15)', transition: 'transform 0.3s ease' }}>
+                <img src="/offre-speciale-3mois.png" alt="Offre Spéciale 3 Mois - 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block' }} />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

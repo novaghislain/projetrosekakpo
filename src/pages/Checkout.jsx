@@ -20,6 +20,45 @@ const programsData = {
     desc: 'Structure, analyse et psychologie pour les traders intermédiaires.',
     features: ['Méthodologie d’analyse approfondie', 'Gestion de la psychologie de marché', 'Plan de trading rigoureux', 'Session de revue collective']
   },
+  'mon-regard-1m': {
+    name: 'Mon Regard sur les Marchés (Abonnement 1 Mois)',
+    price: 35000,
+    usdPrice: 56,
+    desc: 'Accès à Mon regard sur les marchés pendant 1 mois.',
+    features: [
+      'Mes opportunités de trading en direct',
+      'Mes positions et leurs évolutions',
+      'Les marchés que je surveille au quotidien',
+      'Un gain de temps considérable',
+      'Accès à mon expérience et analyse'
+    ]
+  },
+  'mon-regard-3m': {
+    name: 'Mon Regard sur les Marchés (Offre Spéciale 3 Mois)',
+    price: 65000,
+    usdPrice: 104,
+    desc: 'Offre Spéciale : 3 mois d’accès à Mon regard sur les marchés (Économisez 40 000 F CFA).',
+    features: [
+      '3 mois d’accès complet aux opportunités',
+      'Mes positions et leurs évolutions en direct',
+      'Les marchés que je surveille au quotidien',
+      'Économisez 40 000 F CFA (65 000 F au lieu de 105 000 F)',
+      'Accès à mon expérience et analyse quotidienne'
+    ]
+  },
+  'mon-regard': {
+    name: 'Mon Regard sur les Marchés (Offre Spéciale 3 Mois)',
+    price: 65000,
+    usdPrice: 104,
+    desc: 'Offre Spéciale : 3 mois d’accès à Mon regard sur les marchés (Économisez 40 000 F CFA).',
+    features: [
+      '3 mois d’accès complet aux opportunités',
+      'Mes positions et leurs évolutions en direct',
+      'Les marchés que je surveille au quotidien',
+      'Économisez 40 000 F CFA (65 000 F au lieu de 105 000 F)',
+      'Accès à mon expérience et analyse quotidienne'
+    ]
+  },
   'coaching-free': {
     name: 'Coaching One-to-One (1ère Séance)',
     price: 0,

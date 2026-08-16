@@ -8,6 +8,9 @@ import { trackFbEvent } from '../components/FacebookPixel';
 const programNames = {
   'woman-king': 'Woman King Trade',
   'strategie-3s': 'Stratégie 3S',
+  'mon-regard-1m': 'Mon Regard sur les Marchés (1 Mois)',
+  'mon-regard-3m': 'Mon Regard sur les Marchés (3 Mois)',
+  'mon-regard': 'Mon Regard sur les Marchés',
   'coaching-free': 'Coaching One-to-One (1ère Séance)',
   'coaching': 'Coaching One-to-One (Suivi)',
   'ebook-vision': 'E-Book : De la vision à la maîtrise',
