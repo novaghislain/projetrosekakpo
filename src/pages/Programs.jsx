@@ -6,9 +6,9 @@ import { API_URL } from '../config';
 
 const Programs = () => {
   const [prices, setPrices] = useState({
-    'woman-king': null,
-    'strategie-3s': null,
-    'coaching': null
+    'woman-king': 85000,
+    'strategie-3s': 105000,
+    'coaching': 15000
   });
 
   useEffect(() => {

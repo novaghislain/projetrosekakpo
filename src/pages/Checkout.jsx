@@ -8,15 +8,15 @@ import { trackFbEvent } from '../components/FacebookPixel';
 const programsData = {
   'woman-king': {
     name: 'Woman King Trade',
-    price: 25000,
-    usdPrice: 40,
+    price: 85000,
+    usdPrice: 136,
     desc: 'Un programme complet d’initiation pour les femmes débutantes.',
     features: ['Accompagnement de proximité', 'Bases essentielles et initiation', 'Communauté active 100% féminine', 'Suivi de progression personnel']
   },
   'strategie-3s': {
     name: 'Stratégie 3S',
-    price: 50000,
-    usdPrice: 80,
+    price: 105000,
+    usdPrice: 168,
     desc: 'Structure, analyse et psychologie pour les traders intermédiaires.',
     features: ['Méthodologie d’analyse approfondie', 'Gestion de la psychologie de marché', 'Plan de trading rigoureux', 'Session de revue collective']
   },
