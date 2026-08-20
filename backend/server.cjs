@@ -1441,7 +1441,105 @@ app.post('/api/admin/pixel', (req, res) => {
   });
 });
 
-// === KEEPALIVE ===
+// === ANALYTICS TRACKING ===
+
+// Enregistrer une visite ou un clic (Public)
+app.post('/api/track/visit', (req, res) => {
+  const { path: pagePath, visitorId, referrer, eventType } = req.body;
+  if (!pagePath || !visitorId) {
+    return res.status(400).json({ error: 'Missing path or visitorId' });
+  }
+
+  const cleanPath = (pagePath || '/').substring(0, 255);
+  const cleanVisitorId = (visitorId || 'anon').substring(0, 100);
+  const cleanReferrer = (referrer || 'direct').substring(0, 255);
+  const cleanEventType = (eventType || 'pageview').substring(0, 50);
+
+  db.run(
+    `INSERT INTO site_analytics (path, visitor_id, referrer, event_type, created_at) VALUES (?, ?, ?, ?, NOW())`,
+    [cleanPath, cleanVisitorId, cleanReferrer, cleanEventType],
+    (err) => {
+      if (err) {
+        console.error('Error logging visit:', err);
+        return res.status(500).json({ error: 'Error logging visit' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+// Récupérer les statistiques de trafic détaillées (Admin)
+app.get('/api/admin/analytics', async (req, res) => {
+  try {
+    const totalViewsRes = await pool.query(`SELECT COUNT(*) as count FROM site_analytics WHERE event_type = 'pageview'`);
+    const totalVisitorsRes = await pool.query(`SELECT COUNT(DISTINCT visitor_id) as count FROM site_analytics WHERE event_type = 'pageview'`);
+    const totalLeadsRes = await pool.query(`SELECT COUNT(*) as count FROM site_analytics WHERE event_type != 'pageview'`);
+    
+    // Visites aujourd'hui
+    const todayRes = await pool.query(`
+      SELECT 
+        COUNT(*) as total_views, 
+        COUNT(DISTINCT visitor_id) as unique_visitors 
+      FROM site_analytics 
+      WHERE event_type = 'pageview' AND created_at >= CURRENT_DATE
+    `);
+
+    // Visites des 14 derniers jours groupées par jour
+    const dailyStatsRes = await pool.query(`
+      SELECT 
+        TO_CHAR(created_at, 'YYYY-MM-DD') as date,
+        TO_CHAR(created_at, 'DD/MM') as formatted_date,
+        COUNT(*) as views,
+        COUNT(DISTINCT visitor_id) as unique_visitors,
+        SUM(CASE WHEN event_type != 'pageview' THEN 1 ELSE 0 END) as leads
+      FROM site_analytics
+      WHERE created_at >= NOW() - INTERVAL '14 days'
+      GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD'), TO_CHAR(created_at, 'DD/MM')
+      ORDER BY date ASC
+    `);
+
+    // Top pages visitées
+    const topPagesRes = await pool.query(`
+      SELECT 
+        path, 
+        COUNT(*) as views,
+        COUNT(DISTINCT visitor_id) as visitors
+      FROM site_analytics
+      WHERE event_type = 'pageview'
+      GROUP BY path
+      ORDER BY views DESC
+      LIMIT 10
+    `);
+
+    // Clics et événements par type
+    const eventsRes = await pool.query(`
+      SELECT 
+        event_type, 
+        COUNT(*) as count,
+        COUNT(DISTINCT visitor_id) as unique_users
+      FROM site_analytics
+      WHERE event_type != 'pageview'
+      GROUP BY event_type
+      ORDER BY count DESC
+    `);
+
+    res.json({
+      totalViews: parseInt(totalViewsRes.rows[0]?.count || 0, 10),
+      uniqueVisitors: parseInt(totalVisitorsRes.rows[0]?.count || 0, 10),
+      totalLeads: parseInt(totalLeadsRes.rows[0]?.count || 0, 10),
+      today: {
+        views: parseInt(todayRes.rows[0]?.total_views || 0, 10),
+        visitors: parseInt(todayRes.rows[0]?.unique_visitors || 0, 10),
+      },
+      dailyStats: dailyStatsRes.rows || [],
+      topPages: topPagesRes.rows || [],
+      events: eventsRes.rows || [],
+    });
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+    res.status(500).json({ error: 'Erreur lors de la récupération des analytics' });
+  }
+});
 // Endpoint de ping pour tester si le serveur est vivant
 app.get('/api/ping', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -49,6 +49,22 @@ export const trackLeadOnce = (identifier = 'general_lead', params = {}) => {
 
   window.fbq('track', 'Lead', params, { eventID });
   console.log(`[Pixel] Événement Lead unique envoyé avec succès (${identifier})`);
+
+  // Enregistrer également dans nos analytics internes
+  try {
+    const vId = localStorage.getItem('rk_visitor_id') || 'anon';
+    fetch(`${API_URL}/api/track/visit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: window.location.pathname,
+        visitorId: vId,
+        referrer: document.referrer || 'direct',
+        eventType: `lead_${identifier}`,
+      }),
+    }).catch(() => {});
+  } catch (e) {}
+
   return true;
 };
 

@@ -160,6 +160,33 @@ const Admin = () => {
   const [editingTestimonialId, setEditingTestimonialId] = useState(null);
   const [newTestimonial, setNewTestimonial] = useState({ nom: '', message: '', rating: 5, images: [] });
 
+  // Analytics State
+  const [analyticsData, setAnalyticsData] = useState({
+    totalViews: 0,
+    uniqueVisitors: 0,
+    totalLeads: 0,
+    today: { views: 0, visitors: 0 },
+    dailyStats: [],
+    topPages: [],
+    events: []
+  });
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+
+  const fetchAnalytics = async () => {
+    setLoadingAnalytics(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/analytics`);
+      if (res.ok) {
+        const data = await res.json();
+        setAnalyticsData(data);
+      }
+    } catch (e) {
+      console.error('Erreur chargement analytics:', e);
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
   useEffect(() => {
     if (siteContent.testimonials && siteContent.testimonials.value) {
       try {
@@ -477,6 +504,7 @@ const Admin = () => {
       setFormations(prev => Array.isArray(resFormations) ? resFormations : prev);
       setEbooks(prev => Array.isArray(resEbooks) ? resEbooks : prev);
       setManualPayments(prev => Array.isArray(resManual) ? resManual : prev);
+      fetchAnalytics();
 
       const editMap = {};
       (Array.isArray(resPrices) ? resPrices : []).forEach(p => {
@@ -1325,6 +1353,14 @@ const Admin = () => {
         <button className={`admin-tab ${activeTab === 'securite' ? 'active' : ''}`} onClick={() => setActiveTab('securite')}>
           <Shield size={18} /> Sécurité & Collab.
         </button>
+        <button className={`admin-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); fetchAnalytics(); }}>
+          <Activity size={18} /> Statistiques & Visites
+          {analyticsData.today?.views > 0 && (
+            <span style={{ marginLeft: 'auto', background: 'rgba(46, 111, 64, 0.15)', color: '#2E6F40', padding: '2px 7px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '700' }}>
+              +{analyticsData.today.views}
+            </span>
+          )}
+        </button>
         <button className={`admin-tab ${activeTab === 'pixel' ? 'active' : ''}`} onClick={() => setActiveTab('pixel')}>
           <BarChart2 size={18} /> Pixel Facebook
           {pixelConfig.fb_pixel_enabled === 'true' && pixelConfig.fb_pixel_id && (
@@ -1474,7 +1510,23 @@ const Admin = () => {
               <p className="text-gray">Voici un résumé de l'activité sur votre plateforme aujourd'hui.</p>
             </div>
 
-            <div className="stats-grid">
+            <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+              <div className="stat-card glass-panel" onClick={() => setActiveTab('analytics')} style={{ cursor: 'pointer', border: '1px solid rgba(46, 111, 64, 0.25)', background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(46,111,64,0.05))' }}>
+                <div className="stat-icon green-bg-light"><Activity className="text-green" size={24} /></div>
+                <div className="stat-info">
+                  <h3>{analyticsData.totalViews || 0}</h3>
+                  <p>Visites Totales ({analyticsData.uniqueVisitors || 0} uniques)</p>
+                </div>
+              </div>
+
+              <div className="stat-card glass-panel" onClick={() => setActiveTab('analytics')} style={{ cursor: 'pointer', border: '1px solid rgba(236, 72, 153, 0.25)', background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(236,72,153,0.05))' }}>
+                <div className="stat-icon pink-bg-light"><Zap className="text-pink" size={24} /></div>
+                <div className="stat-info">
+                  <h3>{analyticsData.today?.views || 0}</h3>
+                  <p>Visites Aujourd'hui ({analyticsData.today?.visitors || 0} uniques)</p>
+                </div>
+              </div>
+
               <div className="stat-card glass-panel" onClick={() => setActiveTab('messages')}>
                 <div className="stat-icon pink-bg-light"><MessageSquare className="text-pink" size={24} /></div>
                 <div className="stat-info">
@@ -2715,6 +2767,148 @@ const Admin = () => {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ONGLET ANALYTICS & STATISTIQUES */}
+        {activeTab === 'analytics' && (
+          <div className="admin-panel animate-fade-up">
+            <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 className="text-gradient">Statistiques de Trafic & Visites</h2>
+                <p className="text-gray" style={{ marginTop: '4px' }}>Données en temps réel de votre site web, visiteurs uniques et clics WhatsApp / Leads.</p>
+              </div>
+              <button 
+                className="btn btn-outline" 
+                onClick={fetchAnalytics}
+                disabled={loadingAnalytics}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px', padding: '8px 16px', fontWeight: '600' }}
+              >
+                <Activity size={16} className={loadingAnalytics ? 'spin' : ''} />
+                {loadingAnalytics ? 'Actualisation...' : 'Actualiser les chiffres'}
+              </button>
+            </div>
+
+            {/* 4 Grandes Cartes de Métriques */}
+            <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #2E6F40' }}>
+                <div className="stat-icon green-bg-light"><Eye className="text-green" size={28} /></div>
+                <div className="stat-info">
+                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#2E6F40' }}>{analyticsData.totalViews || 0}</h3>
+                  <p style={{ fontWeight: '600', color: '#555' }}>Pages Vues Totales</p>
+                </div>
+              </div>
+
+              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid var(--color-brand-pink)' }}>
+                <div className="stat-icon pink-bg-light"><UserCheck className="text-pink" size={28} /></div>
+                <div className="stat-info">
+                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: 'var(--color-brand-pink)' }}>{analyticsData.uniqueVisitors || 0}</h3>
+                  <p style={{ fontWeight: '600', color: '#555' }}>Visiteurs Uniques</p>
+                </div>
+              </div>
+
+              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #3b82f6' }}>
+                <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}><Zap size={28} /></div>
+                <div className="stat-info">
+                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#3b82f6' }}>{analyticsData.today?.views || 0}</h3>
+                  <p style={{ fontWeight: '600', color: '#555' }}>Visites Aujourd'hui ({analyticsData.today?.visitors || 0} uniques)</p>
+                </div>
+              </div>
+
+              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #f59e0b' }}>
+                <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' }}><MessageSquare size={28} /></div>
+                <div className="stat-info">
+                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#f59e0b' }}>{analyticsData.totalLeads || 0}</h3>
+                  <p style={{ fontWeight: '600', color: '#555' }}>Clics WhatsApp / Leads</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Deux Colonnes : Évolution par Jour & Top Pages */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+              
+              {/* Tableau / Historique journalier */}
+              <div className="glass-panel p-6" style={{ borderRadius: '16px' }}>
+                <h3 style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BarChart2 size={20} className="text-green" /> Visites par Jour (14 derniers jours)
+                </h3>
+                
+                {analyticsData.dailyStats && analyticsData.dailyStats.length > 0 ? (
+                  <div className="table-responsive">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th style={{ textAlign: 'center' }}>Vues</th>
+                          <th style={{ textAlign: 'center' }}>Visiteurs Uniques</th>
+                          <th style={{ textAlign: 'center' }}>Leads / WhatsApp</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {analyticsData.dailyStats.map((d, i) => (
+                          <tr key={i}>
+                            <td style={{ fontWeight: '600' }}>{d.formatted_date || d.date}</td>
+                            <td style={{ textAlign: 'center', color: '#2E6F40', fontWeight: '700' }}>{d.views}</td>
+                            <td style={{ textAlign: 'center', color: 'var(--color-brand-pink)', fontWeight: '700' }}>{d.unique_visitors}</td>
+                            <td style={{ textAlign: 'center', fontWeight: '700' }}>
+                              {d.leads > 0 ? (
+                                <span style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#b45309', padding: '3px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                  {d.leads}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#aaa' }}>0</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                    <Activity size={36} style={{ opacity: 0.3, margin: '0 auto 10px' }} />
+                    <p>Aucune visite enregistrée pour le moment. Les visites apparaîtront ici en direct dès que des utilisateurs naviguent sur le site.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Pages les plus visitées */}
+              <div className="glass-panel p-6" style={{ borderRadius: '16px' }}>
+                <h3 style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={20} className="text-pink" /> Pages les plus consultées
+                </h3>
+
+                {analyticsData.topPages && analyticsData.topPages.length > 0 ? (
+                  <div className="table-responsive">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Page / URL</th>
+                          <th style={{ textAlign: 'center' }}>Vues</th>
+                          <th style={{ textAlign: 'center' }}>Visiteurs</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {analyticsData.topPages.map((p, i) => (
+                          <tr key={i}>
+                            <td style={{ fontWeight: '600', wordBreak: 'break-all' }}>
+                              {p.path === '/' ? '🏠 Page d\'accueil (/)' : p.path}
+                            </td>
+                            <td style={{ textAlign: 'center', fontWeight: '700', color: '#2E6F40' }}>{p.views}</td>
+                            <td style={{ textAlign: 'center', fontWeight: '700', color: 'var(--color-brand-pink)' }}>{p.visitors}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                    <p>En attente des premières consultations de pages...</p>
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
         )}
       </div>
