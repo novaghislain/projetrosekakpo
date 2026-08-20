@@ -151,53 +151,47 @@ const Programs = () => {
             </div>
 
             {/* Grille des tarifs / offres */}
-            <div className="coaching-options" style={{ marginTop: '2rem' }}>
+            <div className="coaching-options" style={{ marginTop: '2rem', alignItems: 'stretch' }}>
               {/* Offre 1 Mois */}
-              <div className="coaching-option-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div className="coaching-option-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.75rem' }}>
                 <div>
-                  <div className="option-header" style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
-                    <h4 style={{ fontSize: '1.1rem' }}>🔹 Abonnement 1 mois</h4>
-                    <span className="price" style={{ color: '#2E6F40', fontWeight: '800' }}>
+                  <div className="option-header" style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '12px' }}>
+                    <h4 style={{ fontSize: '1.15rem', color: 'var(--color-gray-800)', fontWeight: '700' }}>🔹 Abonnement 1 mois</h4>
+                    <span className="price" style={{ color: '#2E6F40', fontWeight: '800', fontSize: '1.25rem' }}>
                       {(prices['mon-regard-1m'] || 35000).toLocaleString()} F CFA
                     </span>
                   </div>
-                  <p className="option-desc" style={{ marginTop: '12px', fontSize: '0.95rem' }}>
-                    Accès à Mon regard sur les marchés pendant 1 mois.
+                  <p className="option-desc" style={{ fontSize: '0.92rem', color: '#666', lineHeight: '1.4', marginBottom: '15px' }}>
+                    Accès complet à Mon regard sur les marchés au quotidien.
                   </p>
+                  <ul style={{ margin: '15px 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
+                      <span>Opportunités reçues en temps réel</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
+                      <span>Positions et évolutions partagées</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
+                      <span>Marchés surveillés et analyses</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
+                      <span>Accès continu pendant 30 jours</span>
+                    </li>
+                  </ul>
                 </div>
-                <Link to="/checkout?program=mon-regard-1m" className="btn btn-outline small-btn mt-4" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#2E6F40', color: '#2E6F40', fontWeight: '700' }}>
+                <Link to="/checkout?program=mon-regard-1m" className="btn btn-outline small-btn mt-4" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#2E6F40', color: '#2E6F40', fontWeight: '700', borderRadius: '12px' }}>
                   👉 Accéder (1 mois)
                 </Link>
               </div>
 
-              {/* Offre Spéciale 3 Mois avec Image Bouton Animé */}
-              <div className="coaching-option-card highlighted" style={{ borderColor: 'var(--color-brand-pink)', background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.06) 0%, rgba(46, 111, 64, 0.06) 100%)', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '10px', right: '-30px', background: 'var(--gradient-pink)', color: '#fff', fontSize: '0.75rem', fontWeight: '800', padding: '4px 35px', transform: 'rotate(45deg)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-                  TOP OFFRE
-                </div>
-                <div>
-                  <div className="option-header" style={{ borderBottom: '1px solid rgba(236, 72, 153, 0.2)', paddingBottom: '10px' }}>
-                    <h4 style={{ color: 'var(--color-brand-pink)', fontWeight: '800', fontSize: '1.15rem' }}>🔥 Offre spéciale — 3 mois</h4>
-                    <div>
-                      <span className="price text-pink" style={{ fontSize: '1.4rem', fontWeight: '800' }}>
-                        {(prices['mon-regard-3m'] || 65000).toLocaleString()} F CFA
-                      </span>
-                      <div style={{ fontSize: '0.85rem', color: '#888', textDecoration: 'line-through' }}>
-                        Au lieu de 105 000 F CFA
-                      </div>
-                    </div>
-                  </div>
-                  <p className="option-desc" style={{ marginTop: '10px', color: '#2E6F40', fontWeight: '700', fontSize: '1rem' }}>
-                    ➡️ Économisez 40 000 F CFA
-                  </p>
-                  <p className="option-desc" style={{ fontSize: '0.88rem', color: '#666', marginTop: '6px' }}>
-                    Bénéficiez de 3 mois complets pour le prix d’environ 1 mois + 2 semaines.
-                  </p>
-                </div>
-
-                {/* Bouton Animé Utilisant l'Image Spéciale 3 Mois */}
-                <Link to="/checkout?program=mon-regard-3m" className="animated-offer-btn mt-4">
-                  <img src="/offre-speciale-3mois.png" alt="Profitez maintenant - Offre Spéciale 3 Mois 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block' }} />
+              {/* Offre Spéciale 3 Mois avec Image Bouton Animé Uniquement */}
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Link to="/checkout?program=mon-regard-3m" className="animated-offer-btn" style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
+                  <img src="/offre-speciale-3mois.png" alt="Profitez maintenant - Offre Spéciale 3 Mois 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '16px' }} />
                 </Link>
               </div>
             </div>
