@@ -2770,93 +2770,194 @@ const Admin = () => {
           </div>
         )}
 
-        {/* ONGLET ANALYTICS & STATISTIQUES */}
+        {/* ONGLET ANALYTICS & STATISTIQUES (DESIGN PREMIUM) */}
         {activeTab === 'analytics' && (
           <div className="admin-panel animate-fade-up">
-            <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            
+            {/* En-tête avec bouton d'actualisation moderne */}
+            <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
               <div>
-                <h2 className="text-gradient">Statistiques de Trafic & Visites</h2>
-                <p className="text-gray" style={{ marginTop: '4px' }}>Données en temps réel de votre site web, visiteurs uniques et clics WhatsApp / Leads.</p>
+                <h2 className="text-gradient" style={{ fontSize: '1.9rem', fontWeight: '800' }}>Statistiques & Visites</h2>
+                <p className="text-gray" style={{ marginTop: '4px', fontSize: '0.98rem' }}>
+                  Suivez en temps réel l'impact de vos publicités, vos visiteurs uniques et vos clics WhatsApp.
+                </p>
               </div>
               <button 
-                className="btn btn-outline" 
+                className="btn btn-primary" 
                 onClick={fetchAnalytics}
                 disabled={loadingAnalytics}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px', padding: '8px 16px', fontWeight: '600' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', borderRadius: '14px', padding: '10px 22px', fontWeight: '700', boxShadow: '0 4px 15px rgba(236,72,153,0.25)' }}
               >
-                <Activity size={16} className={loadingAnalytics ? 'spin' : ''} />
-                {loadingAnalytics ? 'Actualisation...' : 'Actualiser les chiffres'}
+                <Activity size={18} className={loadingAnalytics ? 'spin' : ''} />
+                {loadingAnalytics ? 'Actualisation...' : 'Actualiser en direct'}
               </button>
             </div>
 
-            {/* 4 Grandes Cartes de Métriques */}
-            <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #2E6F40' }}>
-                <div className="stat-icon green-bg-light"><Eye className="text-green" size={28} /></div>
+            {/* 4 Grandes Cartes KPI Modernes */}
+            <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.25rem' }}>
+              
+              {/* Carte 1 : Vues Totales */}
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(46,111,64,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="stat-icon green-bg-light" style={{ width: '48px', height: '48px', borderRadius: '14px' }}>
+                    <Eye className="text-green" size={24} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(46,111,64,0.1)', color: '#2E6F40', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                    CUMULÉ
+                  </span>
+                </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#2E6F40' }}>{analyticsData.totalViews || 0}</h3>
-                  <p style={{ fontWeight: '600', color: '#555' }}>Pages Vues Totales</p>
+                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--color-gray-900)', margin: '0 0 4px 0', lineHeight: 1 }}>
+                    {(analyticsData.totalViews || 0).toLocaleString()}
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Pages vues totales</p>
                 </div>
               </div>
 
-              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid var(--color-brand-pink)' }}>
-                <div className="stat-icon pink-bg-light"><UserCheck className="text-pink" size={28} /></div>
+              {/* Carte 2 : Visiteurs Uniques */}
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(236,72,153,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="stat-icon pink-bg-light" style={{ width: '48px', height: '48px', borderRadius: '14px' }}>
+                    <UserCheck className="text-pink" size={24} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                    AUDIENCE
+                  </span>
+                </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: 'var(--color-brand-pink)' }}>{analyticsData.uniqueVisitors || 0}</h3>
-                  <p style={{ fontWeight: '600', color: '#555' }}>Visiteurs Uniques</p>
+                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--color-brand-pink)', margin: '0 0 4px 0', lineHeight: 1 }}>
+                    {(analyticsData.uniqueVisitors || 0).toLocaleString()}
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Visiteurs réels uniques</p>
                 </div>
               </div>
 
-              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #3b82f6' }}>
-                <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}><Zap size={28} /></div>
+              {/* Carte 3 : Visites Aujourd'hui */}
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="stat-icon" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
+                    <Zap size={24} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(59,130,246,0.1)', color: '#2563eb', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563eb', display: 'inline-block' }}></span> EN DIRECT
+                  </span>
+                </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#3b82f6' }}>{analyticsData.today?.views || 0}</h3>
-                  <p style={{ fontWeight: '600', color: '#555' }}>Visites Aujourd'hui ({analyticsData.today?.visitors || 0} uniques)</p>
+                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#1e40af', margin: '0 0 4px 0', lineHeight: 1 }}>
+                    {analyticsData.today?.views || 0}
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>
+                    Aujourd'hui ({analyticsData.today?.visitors || 0} personnes)
+                  </p>
                 </div>
               </div>
 
-              <div className="stat-card glass-panel" style={{ borderLeft: '4px solid #f59e0b' }}>
-                <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' }}><MessageSquare size={28} /></div>
+              {/* Carte 4 : Clics WhatsApp / Leads */}
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="stat-icon" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(245,158,11,0.12)', color: '#d97706' }}>
+                    <MessageSquare size={24} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(245,158,11,0.12)', color: '#b45309', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                    CONVERSIONS
+                  </span>
+                </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#f59e0b' }}>{analyticsData.totalLeads || 0}</h3>
-                  <p style={{ fontWeight: '600', color: '#555' }}>Clics WhatsApp / Leads</p>
+                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#b45309', margin: '0 0 4px 0', lineHeight: 1 }}>
+                    {analyticsData.totalLeads || 0}
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Clics WhatsApp / Inscriptions</p>
                 </div>
               </div>
+
             </div>
 
-            {/* Deux Colonnes : Évolution par Jour & Top Pages */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+            {/* Graphique de Trafic Interactif Recharts */}
+            {analyticsData.dailyStats && analyticsData.dailyStats.length > 0 && (
+              <div className="glass-panel p-6 mb-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-gray-900)' }}>Évolution du Trafic (14 derniers jours)</h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#6b7280' }}>Comparaison des pages vues et des visiteurs uniques par jour</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '0.85rem', fontWeight: '600' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#2E6F40', display: 'inline-block' }}></span> Pages Vues
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-brand-pink)', display: 'inline-block' }}></span> Visiteurs Uniques
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ width: '100%', height: 260 }}>
+                  <ResponsiveContainer>
+                    <AreaChart data={analyticsData.dailyStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2E6F40" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#2E6F40" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--color-brand-pink)" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="var(--color-brand-pink)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
+                      <XAxis dataKey="formatted_date" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 25px rgba(0,0,0,0.12)', padding: '10px 14px' }}
+                      />
+                      <Area type="monotone" dataKey="views" name="Pages Vues" stroke="#2E6F40" strokeWidth={2.5} fillOpacity={1} fill="url(#colorViews)" />
+                      <Area type="monotone" dataKey="unique_visitors" name="Visiteurs Uniques" stroke="var(--color-brand-pink)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorVisitors)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Deux Blocs : Tableau par Jour & Top Pages */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1.5rem' }}>
               
-              {/* Tableau / Historique journalier */}
-              <div className="glass-panel p-6" style={{ borderRadius: '16px' }}>
-                <h3 style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <BarChart2 size={20} className="text-green" /> Visites par Jour (14 derniers jours)
+              {/* Tableau : Historique par Jour */}
+              <div className="glass-panel p-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
+                <h3 style={{ marginBottom: '1.25rem', fontSize: '1.15rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BarChart2 size={20} className="text-green" /> Détail par Jour
                 </h3>
                 
                 {analyticsData.dailyStats && analyticsData.dailyStats.length > 0 ? (
-                  <div className="table-responsive">
-                    <table className="admin-table">
+                  <div className="data-table-wrapper">
+                    <table className="data-table">
                       <thead>
                         <tr>
                           <th>Date</th>
                           <th style={{ textAlign: 'center' }}>Vues</th>
-                          <th style={{ textAlign: 'center' }}>Visiteurs Uniques</th>
-                          <th style={{ textAlign: 'center' }}>Leads / WhatsApp</th>
+                          <th style={{ textAlign: 'center' }}>Visiteurs</th>
+                          <th style={{ textAlign: 'center' }}>WhatsApp / Leads</th>
                         </tr>
                       </thead>
                       <tbody>
                         {analyticsData.dailyStats.map((d, i) => (
                           <tr key={i}>
                             <td style={{ fontWeight: '600' }}>{d.formatted_date || d.date}</td>
-                            <td style={{ textAlign: 'center', color: '#2E6F40', fontWeight: '700' }}>{d.views}</td>
-                            <td style={{ textAlign: 'center', color: 'var(--color-brand-pink)', fontWeight: '700' }}>{d.unique_visitors}</td>
-                            <td style={{ textAlign: 'center', fontWeight: '700' }}>
+                            <td style={{ textAlign: 'center' }}>
+                              <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                {d.views}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                {d.unique_visitors}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
                               {d.leads > 0 ? (
-                                <span style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#b45309', padding: '3px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
-                                  {d.leads}
+                                <span style={{ background: 'rgba(245,158,11,0.15)', color: '#b45309', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                  {d.leads} clics
                                 </span>
                               ) : (
-                                <span style={{ color: '#aaa' }}>0</span>
+                                <span style={{ color: '#bbb' }}>-</span>
                               )}
                             </td>
                           </tr>
@@ -2865,44 +2966,65 @@ const Admin = () => {
                     </table>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#888' }}>
                     <Activity size={36} style={{ opacity: 0.3, margin: '0 auto 10px' }} />
-                    <p>Aucune visite enregistrée pour le moment. Les visites apparaîtront ici en direct dès que des utilisateurs naviguent sur le site.</p>
+                    <p>Aucune visite enregistrée pour le moment.</p>
                   </div>
                 )}
               </div>
 
-              {/* Pages les plus visitées */}
-              <div className="glass-panel p-6" style={{ borderRadius: '16px' }}>
-                <h3 style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Tableau : Pages les plus consultées */}
+              <div className="glass-panel p-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
+                <h3 style={{ marginBottom: '1.25rem', fontSize: '1.15rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <BookOpen size={20} className="text-pink" /> Pages les plus consultées
                 </h3>
 
                 {analyticsData.topPages && analyticsData.topPages.length > 0 ? (
-                  <div className="table-responsive">
-                    <table className="admin-table">
+                  <div className="data-table-wrapper">
+                    <table className="data-table">
                       <thead>
                         <tr>
-                          <th>Page / URL</th>
+                          <th>Page / Section</th>
                           <th style={{ textAlign: 'center' }}>Vues</th>
                           <th style={{ textAlign: 'center' }}>Visiteurs</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {analyticsData.topPages.map((p, i) => (
-                          <tr key={i}>
-                            <td style={{ fontWeight: '600', wordBreak: 'break-all' }}>
-                              {p.path === '/' ? '🏠 Page d\'accueil (/)' : p.path}
-                            </td>
-                            <td style={{ textAlign: 'center', fontWeight: '700', color: '#2E6F40' }}>{p.views}</td>
-                            <td style={{ textAlign: 'center', fontWeight: '700', color: 'var(--color-brand-pink)' }}>{p.visitors}</td>
-                          </tr>
-                        ))}
+                        {analyticsData.topPages.map((p, i) => {
+                          let label = p.path;
+                          if (p.path === '/') label = '🏠 Page d\'accueil (/)';
+                          else if (p.path === '/programs') label = '🎓 Nos Formations (/programs)';
+                          else if (p.path === '/about') label = '👤 À Propos (/about)';
+                          else if (p.path === '/contact') label = '📩 Contact (/contact)';
+                          else if (p.path === '/blog') label = '📝 Blog (/blog)';
+                          else if (p.path === '/ebooks') label = '📚 E-books (/ebooks)';
+                          else if (p.path.includes('whatsapp') || p.path.includes('chat.whatsapp')) label = '🟢 Clic Groupe WhatsApp';
+                          else if (p.path.startsWith('/formation/')) label = '🎯 Formation Gratuite';
+                          else if (p.path === '/checkout') label = '💳 Commande (/checkout)';
+
+                          return (
+                            <tr key={i}>
+                              <td style={{ fontWeight: '600', color: 'var(--color-gray-800)' }}>
+                                {label}
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                  {p.views}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                  {p.visitors}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#888' }}>
                     <p>En attente des premières consultations de pages...</p>
                   </div>
                 )}
