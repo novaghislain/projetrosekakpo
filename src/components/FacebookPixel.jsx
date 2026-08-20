@@ -9,6 +9,49 @@ export const trackFbEvent = (eventName, params = {}) => {
   }
 };
 
+/**
+ * Dédoublonnage strict des événements Lead (anti-double clic / anti-refresh)
+ * Enregistre l'événement dans le sessionStorage et localStorage pendant 24h.
+ * @param {string} identifier - Identifiant de l'action (ex: 'whatsapp_group', 'contact_rose', etc.)
+ * @param {object} params - Paramètres optionnels pour Meta Pixel
+ */
+export const trackLeadOnce = (identifier = 'general_lead', params = {}) => {
+  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return false;
+
+  const storageKey = `fb_lead_tracked_${identifier}`;
+  const now = Date.now();
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  try {
+    // 1. Vérifier si déjà tracké dans la session actuelle
+    const sessionTracked = sessionStorage.getItem(storageKey);
+    if (sessionTracked) {
+      console.log(`[Pixel] Lead déjà compté pour cette session (${identifier}) - ignoré.`);
+      return false;
+    }
+
+    // 2. Vérifier si déjà tracké dans les dernières 24h
+    const localTimestamp = localStorage.getItem(storageKey);
+    if (localTimestamp && (now - parseInt(localTimestamp, 10)) < TWENTY_FOUR_HOURS) {
+      console.log(`[Pixel] Lead déjà compté récemment (${identifier}) - ignoré.`);
+      return false;
+    }
+
+    // 3. Marquer immédiatement comme tracké (bloque les double-clics instantanés)
+    sessionStorage.setItem(storageKey, 'true');
+    localStorage.setItem(storageKey, now.toString());
+  } catch (e) {
+    // Fallback silencieux si localStorage restreint
+  }
+
+  // ID unique d'événement pour la déduplication automatique côté serveurs Meta
+  const eventID = `lead_${identifier}_${Math.random().toString(36).substring(2, 9)}_${now}`;
+
+  window.fbq('track', 'Lead', params, { eventID });
+  console.log(`[Pixel] Événement Lead unique envoyé avec succès (${identifier})`);
+  return true;
+};
+
 let pixelLoaded = false;
 let pixelId = null;
 

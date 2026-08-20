@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react'
 import './Checkout.css'
 import { API_URL } from '../config';
-import { trackFbEvent } from '../components/FacebookPixel';
+import { trackFbEvent, trackLeadOnce } from '../components/FacebookPixel';
 
 const programsData = {
   'woman-king': {
@@ -301,9 +301,7 @@ const Checkout = () => {
   }
 
   const handleWhatsappClick = () => {
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Lead');
-    }
+    trackLeadOnce(`checkout_whatsapp_${programId || 'program'}`);
   };
 
   if (isSuccess) {

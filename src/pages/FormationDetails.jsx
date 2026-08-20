@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Users, CreditCard, Star, Target, ShieldCheck, Gift } from 'lucide-react';
 import './FormationDetails.css';
 import { API_URL } from '../config';
+import { trackLeadOnce } from '../components/FacebookPixel';
 
 const CountdownTimer = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -190,9 +191,7 @@ const FormationDetails = () => {
                 rel="noopener noreferrer" 
                 className="pro-btn"
                 onClick={() => {
-                  if (typeof window !== 'undefined' && window.fbq) {
-                    window.fbq('track', 'Lead');
-                  }
+                  trackLeadOnce(`formation_${formation.slug || slug}`);
                 }}
               >
                 Rejoindre
@@ -282,9 +281,7 @@ const FormationDetails = () => {
                     className="pro-btn pro-btn-lg pulse-glow w-100 mb-4"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                     onClick={() => {
-                      if (typeof window !== 'undefined' && window.fbq) {
-                        window.fbq('track', 'Lead');
-                      }
+                      trackLeadOnce(`formation_${formation.slug || slug}`);
                     }}
                   >
                     Rejoindre le groupe WhatsApp
@@ -422,9 +419,7 @@ const FormationDetails = () => {
                   className="pro-btn pro-btn-lg pulse-glow mt-4"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
                   onClick={() => {
-                    if (typeof window !== 'undefined' && window.fbq) {
-                      window.fbq('track', 'Lead');
-                    }
+                    trackLeadOnce(`formation_${formation.slug || slug}`);
                   }}
                 >
                   Rejoindre le groupe WhatsApp

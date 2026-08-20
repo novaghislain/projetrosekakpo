@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, TrendingUp, Users, Award, BookOpen, Star, Lightbulb, Target, CheckCircle2 } from 'lucide-react'
 import { useContent } from '../hooks/useContent'
+import { trackLeadOnce } from '../components/FacebookPixel'
 import './Home.css'
 
 const Home = () => {
@@ -16,9 +17,7 @@ const Home = () => {
   };
 
   const handleWhatsappClick = () => {
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Lead');
-    }
+    trackLeadOnce('home_contact_rose');
   };
 
   return (

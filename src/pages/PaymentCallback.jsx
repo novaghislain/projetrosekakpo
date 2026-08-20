@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle2, XCircle, Loader2, ArrowRight, Send, HelpCircle, Download } from 'lucide-react'
 import './PaymentCallback.css'
 import { API_URL } from '../config';
-import { trackFbEvent } from '../components/FacebookPixel';
+import { trackFbEvent, trackLeadOnce } from '../components/FacebookPixel';
 
 const programNames = {
   'woman-king': 'Woman King Trade',
@@ -285,9 +285,7 @@ const PaymentCallback = () => {
                 rel="noreferrer"
                 className="community-btn whatsapp-color"
                 onClick={() => {
-                  if (typeof window !== 'undefined' && window.fbq) {
-                    window.fbq('track', 'Lead');
-                  }
+                  trackLeadOnce(`payment_whatsapp_${transactionId || 'success'}`);
                 }}
               >
                 <Send size={18} />
@@ -307,9 +305,7 @@ const PaymentCallback = () => {
                 rel="noreferrer"
                 className="community-btn whatsapp-color"
                 onClick={() => {
-                  if (typeof window !== 'undefined' && window.fbq) {
-                    window.fbq('track', 'Lead');
-                  }
+                  trackLeadOnce(`payment_whatsapp_${transactionId || 'success'}`);
                 }}
               >
                 <Send size={20} />

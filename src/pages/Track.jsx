@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Clock, XCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { API_URL } from '../config';
+import { trackLeadOnce } from '../components/FacebookPixel';
 
 const Track = () => {
   const { trackingId } = useParams();
@@ -32,9 +33,7 @@ const Track = () => {
 
   const handleAccessClick = (e, url, isWhatsapp) => {
     if (isWhatsapp) {
-      if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'Lead');
-      }
+      trackLeadOnce(`track_whatsapp_${trackingId}`);
     }
   };
 
