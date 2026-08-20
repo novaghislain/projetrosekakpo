@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Users, TrendingUp, Award, CheckCircle, BookOpen, Target, BarChart2, DollarSign, Search, Clock, Lightbulb } from 'lucide-react'
+import { Users, TrendingUp, Award, CheckCircle, CheckCircle2, BookOpen, Target, BarChart2, DollarSign, Search, Clock, Lightbulb } from 'lucide-react'
 import './Programs.css'
 import { API_URL } from '../config';
 
