@@ -156,7 +156,7 @@ const Programs = () => {
               <div className="coaching-option-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.75rem' }}>
                 <div>
                   <div className="option-header" style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '12px' }}>
-                    <h4 style={{ fontSize: '1.15rem', color: 'var(--color-gray-800)', fontWeight: '700' }}>🔹 Abonnement 1 mois</h4>
+                    <h4 style={{ fontSize: '1.15rem', color: 'var(--color-gray-800)', fontWeight: '700' }}>Abonnement 1 mois</h4>
                     <span className="price" style={{ color: '#2E6F40', fontWeight: '800', fontSize: '1.25rem' }}>
                       {(prices['mon-regard-1m'] || 35000).toLocaleString()} F CFA
                     </span>
@@ -184,7 +184,7 @@ const Programs = () => {
                   </ul>
                 </div>
                 <Link to="/checkout?program=mon-regard-1m" className="btn btn-outline small-btn mt-4" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#2E6F40', color: '#2E6F40', fontWeight: '700', borderRadius: '12px' }}>
-                  👉 Accéder (1 mois)
+                  Accéder (1 mois)
                 </Link>
               </div>
 
@@ -199,7 +199,7 @@ const Programs = () => {
                   {/* Contenu textuel avec padding propre */}
                   <div style={{ padding: '1.25rem 1.75rem 0 1.75rem' }}>
                     <div className="option-header" style={{ borderBottom: '1px solid rgba(236, 72, 153, 0.2)', paddingBottom: '12px', marginBottom: '12px' }}>
-                      <h4 style={{ fontSize: '1.15rem', color: 'var(--color-brand-pink)', fontWeight: '800' }}>🔥 Offre Spéciale — 3 mois</h4>
+                      <h4 style={{ fontSize: '1.15rem', color: 'var(--color-brand-pink)', fontWeight: '800' }}>Offre Spéciale — 3 mois</h4>
                       <span className="price text-pink" style={{ fontWeight: '800', fontSize: '1.25rem' }}>
                         {(prices['mon-regard-3m'] || 65000).toLocaleString()} F CFA
                       </span>
@@ -224,7 +224,7 @@ const Programs = () => {
                 
                 <div style={{ padding: '0 1.75rem 1.75rem 1.75rem' }}>
                   <Link to="/checkout?program=mon-regard-3m" className="btn btn-primary small-btn" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', borderRadius: '12px', background: 'var(--gradient-pink)', border: 'none' }}>
-                    🚀 Profiter de l'offre (3 mois)
+                    Profiter de l'offre (3 mois)
                   </Link>
                 </div>
               </div>
