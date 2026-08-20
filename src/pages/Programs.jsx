@@ -77,9 +77,6 @@ const Programs = () => {
             
             {/* En-tête centré */}
             <div className="mon-regard-header text-center">
-              <div className="badge" style={{ backgroundColor: '#2E6F40', color: '#fff', border: 'none', marginBottom: '1.25rem' }}>
-                <TrendingUp size={16} /> Opportunités Quotidiennes
-              </div>
               <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginBottom: '0.75rem', lineHeight: '1.25' }}>
                 MON REGARD SUR LES MARCHÉS AU QUOTIDIEN
               </h2>
