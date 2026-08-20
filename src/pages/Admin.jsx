@@ -2793,80 +2793,80 @@ const Admin = () => {
               </button>
             </div>
 
-            {/* 4 Grandes Cartes KPI Modernes */}
-            <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.25rem' }}>
+            {/* 4 Grandes Cartes KPI Modernes et Épurées */}
+            <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1rem' }}>
               
               {/* Carte 1 : Vues Totales */}
-              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(46,111,64,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="stat-icon green-bg-light" style={{ width: '48px', height: '48px', borderRadius: '14px' }}>
-                    <Eye className="text-green" size={24} />
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '1.25rem', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <div className="stat-icon green-bg-light" style={{ width: '42px', height: '42px', borderRadius: '12px' }}>
+                    <Eye className="text-green" size={20} />
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(46,111,64,0.1)', color: '#2E6F40', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
-                    CUMULÉ
+                  <span style={{ fontSize: '0.72rem', fontWeight: '800', background: 'rgba(46,111,64,0.1)', color: '#2E6F40', padding: '3px 8px', borderRadius: '12px', letterSpacing: '0.5px' }}>
+                    TOTAL
                   </span>
                 </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--color-gray-900)', margin: '0 0 4px 0', lineHeight: 1 }}>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--color-gray-900)', margin: '0 0 2px 0', lineHeight: 1.1 }}>
                     {(analyticsData.totalViews || 0).toLocaleString()}
                   </h3>
-                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Pages vues totales</p>
+                  <p style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: '600', margin: 0 }}>Pages vues</p>
                 </div>
               </div>
 
               {/* Carte 2 : Visiteurs Uniques */}
-              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(236,72,153,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="stat-icon pink-bg-light" style={{ width: '48px', height: '48px', borderRadius: '14px' }}>
-                    <UserCheck className="text-pink" size={24} />
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '1.25rem', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <div className="stat-icon pink-bg-light" style={{ width: '42px', height: '42px', borderRadius: '12px' }}>
+                    <UserCheck className="text-pink" size={20} />
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: '800', background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', padding: '3px 8px', borderRadius: '12px', letterSpacing: '0.5px' }}>
                     AUDIENCE
                   </span>
                 </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--color-brand-pink)', margin: '0 0 4px 0', lineHeight: 1 }}>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--color-brand-pink)', margin: '0 0 2px 0', lineHeight: 1.1 }}>
                     {(analyticsData.uniqueVisitors || 0).toLocaleString()}
                   </h3>
-                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Visiteurs réels uniques</p>
+                  <p style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: '600', margin: 0 }}>Visiteurs uniques</p>
                 </div>
               </div>
 
               {/* Carte 3 : Visites Aujourd'hui */}
-              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="stat-icon" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
-                    <Zap size={24} />
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '1.25rem', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <div className="stat-icon" style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
+                    <Zap size={20} />
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(59,130,246,0.1)', color: '#2563eb', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563eb', display: 'inline-block' }}></span> EN DIRECT
+                  <span style={{ fontSize: '0.72rem', fontWeight: '800', background: 'rgba(59,130,246,0.1)', color: '#2563eb', padding: '3px 8px', borderRadius: '12px', letterSpacing: '0.5px' }}>
+                    EN DIRECT
                   </span>
                 </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#1e40af', margin: '0 0 4px 0', lineHeight: 1 }}>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e40af', margin: '0 0 2px 0', lineHeight: 1.1 }}>
                     {analyticsData.today?.views || 0}
                   </h3>
-                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>
+                  <p style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: '600', margin: 0 }}>
                     Aujourd'hui ({analyticsData.today?.visitors || 0} personnes)
                   </p>
                 </div>
               </div>
 
               {/* Carte 4 : Clics WhatsApp / Leads */}
-              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="stat-icon" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(245,158,11,0.12)', color: '#d97706' }}>
-                    <MessageSquare size={24} />
+              <div className="stat-card glass-panel" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '16px', padding: '1.25rem', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <div className="stat-icon" style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(245,158,11,0.12)', color: '#d97706' }}>
+                    <MessageSquare size={20} />
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '800', background: 'rgba(245,158,11,0.12)', color: '#b45309', padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
-                    CONVERSIONS
+                  <span style={{ fontSize: '0.72rem', fontWeight: '800', background: 'rgba(245,158,11,0.12)', color: '#b45309', padding: '3px 8px', borderRadius: '12px', letterSpacing: '0.5px' }}>
+                    WHATSAPP
                   </span>
                 </div>
                 <div className="stat-info">
-                  <h3 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#b45309', margin: '0 0 4px 0', lineHeight: 1 }}>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#b45309', margin: '0 0 2px 0', lineHeight: 1.1 }}>
                     {analyticsData.totalLeads || 0}
                   </h3>
-                  <p style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: '500', margin: 0 }}>Clics WhatsApp / Inscriptions</p>
+                  <p style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: '600', margin: 0 }}>Clics WhatsApp</p>
                 </div>
               </div>
 
@@ -2874,23 +2874,23 @@ const Admin = () => {
 
             {/* Graphique de Trafic Interactif Recharts */}
             {analyticsData.dailyStats && analyticsData.dailyStats.length > 0 && (
-              <div className="glass-panel p-6 mb-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
+              <div className="glass-panel p-6 mb-6" style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-gray-900)' }}>Évolution du Trafic (14 derniers jours)</h3>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#6b7280' }}>Comparaison des pages vues et des visiteurs uniques par jour</p>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-gray-900)' }}>Évolution du Trafic (14 derniers jours)</h3>
+                    <p style={{ margin: '3px 0 0 0', fontSize: '0.82rem', color: '#6b7280' }}>Comparaison des pages vues et des visiteurs uniques par jour</p>
                   </div>
-                  <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '0.85rem', fontWeight: '600' }}>
+                  <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '0.82rem', fontWeight: '600' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#2E6F40', display: 'inline-block' }}></span> Pages Vues
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#2E6F40', display: 'inline-block' }}></span> Pages Vues
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--color-brand-pink)', display: 'inline-block' }}></span> Visiteurs Uniques
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-brand-pink)', display: 'inline-block' }}></span> Visiteurs Uniques
                     </span>
                   </div>
                 </div>
 
-                <div style={{ width: '100%', height: 260 }}>
+                <div style={{ width: '100%', height: 240 }}>
                   <ResponsiveContainer>
                     <AreaChart data={analyticsData.dailyStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
@@ -2909,8 +2909,8 @@ const Admin = () => {
                       <Tooltip
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 25px rgba(0,0,0,0.12)', padding: '10px 14px' }}
                       />
-                      <Area type="monotone" dataKey="views" name="Pages Vues" stroke="#2E6F40" strokeWidth={2.5} fillOpacity={1} fill="url(#colorViews)" />
-                      <Area type="monotone" dataKey="unique_visitors" name="Visiteurs Uniques" stroke="var(--color-brand-pink)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorVisitors)" />
+                      <Area type="monotone" dataKey="views" name="Pages Vues" stroke="#2E6F40" strokeWidth={2.5} fillOpacity={1} fill="url(#colorViews)" dot={{ r: 4, fill: '#2E6F40' }} />
+                      <Area type="monotone" dataKey="unique_visitors" name="Visiteurs Uniques" stroke="var(--color-brand-pink)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorVisitors)" dot={{ r: 4, fill: 'var(--color-brand-pink)' }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -2918,12 +2918,12 @@ const Admin = () => {
             )}
 
             {/* Deux Blocs : Tableau par Jour & Top Pages */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
               
               {/* Tableau : Historique par Jour */}
-              <div className="glass-panel p-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
-                <h3 style={{ marginBottom: '1.25rem', fontSize: '1.15rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <BarChart2 size={20} className="text-green" /> Détail par Jour
+              <div className="glass-panel p-5" style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.05rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BarChart2 size={18} className="text-green" /> Détail par Jour
                 </h3>
                 
                 {analyticsData.dailyStats && analyticsData.dailyStats.length > 0 ? (
@@ -2934,7 +2934,7 @@ const Admin = () => {
                           <th>Date</th>
                           <th style={{ textAlign: 'center' }}>Vues</th>
                           <th style={{ textAlign: 'center' }}>Visiteurs</th>
-                          <th style={{ textAlign: 'center' }}>WhatsApp / Leads</th>
+                          <th style={{ textAlign: 'center' }}>WhatsApp</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2942,18 +2942,18 @@ const Admin = () => {
                           <tr key={i}>
                             <td style={{ fontWeight: '600' }}>{d.formatted_date || d.date}</td>
                             <td style={{ textAlign: 'center' }}>
-                              <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                              <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '3px 8px', borderRadius: '10px', fontSize: '0.82rem' }}>
                                 {d.views}
                               </span>
                             </td>
                             <td style={{ textAlign: 'center' }}>
-                              <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                              <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '3px 8px', borderRadius: '10px', fontSize: '0.82rem' }}>
                                 {d.unique_visitors}
                               </span>
                             </td>
                             <td style={{ textAlign: 'center' }}>
                               {d.leads > 0 ? (
-                                <span style={{ background: 'rgba(245,158,11,0.15)', color: '#b45309', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                <span style={{ background: 'rgba(245,158,11,0.15)', color: '#b45309', fontWeight: '700', padding: '3px 8px', borderRadius: '10px', fontSize: '0.82rem' }}>
                                   {d.leads} clics
                                 </span>
                               ) : (
@@ -2966,17 +2966,17 @@ const Admin = () => {
                     </table>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#888' }}>
-                    <Activity size={36} style={{ opacity: 0.3, margin: '0 auto 10px' }} />
-                    <p>Aucune visite enregistrée pour le moment.</p>
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                    <Activity size={32} style={{ opacity: 0.3, margin: '0 auto 8px' }} />
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>Aucune visite enregistrée pour le moment.</p>
                   </div>
                 )}
               </div>
 
               {/* Tableau : Pages les plus consultées */}
-              <div className="glass-panel p-6" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 25px rgba(0,0,0,0.02)' }}>
-                <h3 style={{ marginBottom: '1.25rem', fontSize: '1.15rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <BookOpen size={20} className="text-pink" /> Pages les plus consultées
+              <div className="glass-panel p-5" style={{ background: '#ffffff', borderRadius: '18px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.05rem', fontWeight: '700', color: 'var(--color-gray-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={18} className="text-pink" /> Pages les plus consultées
                 </h3>
 
                 {analyticsData.topPages && analyticsData.topPages.length > 0 ? (
@@ -2984,7 +2984,7 @@ const Admin = () => {
                     <table className="data-table">
                       <thead>
                         <tr>
-                          <th>Page / Section</th>
+                          <th>Page</th>
                           <th style={{ textAlign: 'center' }}>Vues</th>
                           <th style={{ textAlign: 'center' }}>Visiteurs</th>
                         </tr>
@@ -2992,28 +2992,28 @@ const Admin = () => {
                       <tbody>
                         {analyticsData.topPages.map((p, i) => {
                           let label = p.path;
-                          if (p.path === '/') label = '🏠 Page d\'accueil (/)';
-                          else if (p.path === '/programs') label = '🎓 Nos Formations (/programs)';
-                          else if (p.path === '/about') label = '👤 À Propos (/about)';
-                          else if (p.path === '/contact') label = '📩 Contact (/contact)';
-                          else if (p.path === '/blog') label = '📝 Blog (/blog)';
-                          else if (p.path === '/ebooks') label = '📚 E-books (/ebooks)';
-                          else if (p.path.includes('whatsapp') || p.path.includes('chat.whatsapp')) label = '🟢 Clic Groupe WhatsApp';
+                          if (!p.path || p.path === '/') label = '🏠 Page d\'accueil';
+                          else if (p.path.startsWith('/programs')) label = '🎓 Nos Formations';
+                          else if (p.path.startsWith('/about')) label = '👤 À Propos';
+                          else if (p.path.startsWith('/contact')) label = '📩 Contact';
+                          else if (p.path.startsWith('/blog')) label = '📝 Blog';
+                          else if (p.path.startsWith('/ebooks')) label = '📚 E-books';
+                          else if (p.path.includes('whatsapp') || p.path.includes('chat.whatsapp')) label = '🟢 Inscription WhatsApp';
                           else if (p.path.startsWith('/formation/')) label = '🎯 Formation Gratuite';
-                          else if (p.path === '/checkout') label = '💳 Commande (/checkout)';
+                          else if (p.path.startsWith('/checkout')) label = '💳 Panier de Commande';
 
                           return (
                             <tr key={i}>
-                              <td style={{ fontWeight: '600', color: 'var(--color-gray-800)' }}>
+                              <td style={{ fontWeight: '600', color: 'var(--color-gray-800)', fontSize: '0.9rem' }}>
                                 {label}
                               </td>
                               <td style={{ textAlign: 'center' }}>
-                                <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                <span style={{ background: 'rgba(46,111,64,0.1)', color: '#2E6F40', fontWeight: '700', padding: '3px 8px', borderRadius: '10px', fontSize: '0.82rem' }}>
                                   {p.views}
                                 </span>
                               </td>
                               <td style={{ textAlign: 'center' }}>
-                                <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                                <span style={{ background: 'rgba(236,72,153,0.1)', color: 'var(--color-brand-pink)', fontWeight: '700', padding: '3px 8px', borderRadius: '10px', fontSize: '0.82rem' }}>
                                   {p.visitors}
                                 </span>
                               </td>
@@ -3024,8 +3024,8 @@ const Admin = () => {
                     </table>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#888' }}>
-                    <p>En attente des premières consultations de pages...</p>
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>En attente des premières consultations de pages...</p>
                   </div>
                 )}
               </div>
