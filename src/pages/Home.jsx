@@ -178,19 +178,19 @@ const Home = () => {
               <Link to="/programs#woman-king" className="btn btn-outline full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Découvrir le programme</Link>
             </div>
 
-            <div className="program-card featured glass-panel animate-fade-up delay-200">
-              <div className="featured-badge">Populaire</div>
-              <div className="program-icon pink-bg"><TrendingUp size={28} /></div>
-              <h3>La Stratégie 3S</h3>
-              <p>Pour les traders intermédiaires qui stagnent. Structure, analyse et psychologie pour devenir rentable.</p>
-              <Link to="/programs#strategie-3s" className="btn btn-primary full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Découvrir la Stratégie 3S</Link>
+            <div className="program-card featured glass-panel animate-fade-up delay-200" style={{ borderColor: 'rgba(46, 111, 64, 0.3)' }}>
+              <div className="featured-badge" style={{ background: '#2E6F40' }}>Opportunités</div>
+              <div className="program-icon green-bg"><TrendingUp size={28} style={{ color: '#2E6F40' }} /></div>
+              <h3>Mon Regard sur les Marchés</h3>
+              <p>Recevez mes positions en temps réel et bénéficiez de mon travail quotidien sur les marchés directement sur votre compte pour gagner en temps et générer du revenu.</p>
+              <Link to="/programs#mon-regard" className="btn btn-primary full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2E6F40', borderColor: '#2E6F40' }}>Découvrir les opportunités</Link>
             </div>
 
             <div className="program-card animate-fade-up delay-300">
               <div className="program-icon pink-bg"><Award size={28} /></div>
-              <h3>Coaching One-to-One</h3>
-              <p>Un accompagnement personnalisé pour débloquer vos difficultés spécifiques avec un audit complet.</p>
-              <Link to="/programs#coaching" className="btn btn-outline full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Réserver un Coaching</Link>
+              <h3>La Stratégie 3S</h3>
+              <p>Pour les traders intermédiaires qui stagnent. Structure, analyse et psychologie pour devenir rentable avec une méthode claire.</p>
+              <Link to="/programs#strategie-3s" className="btn btn-outline full-width mt-auto" style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Découvrir la Stratégie 3S</Link>
             </div>
           </div>
         </div>
@@ -276,8 +276,8 @@ const Home = () => {
             <h2 className="text-gradient-pink">Prête à commencer ton parcours financier ?</h2>
             <p>Rejoignez une communauté bienveillante et passez à l'action dès aujourd'hui pour transformer votre avenir.</p>
             <div className="cta-buttons">
-              <Link to="/programs#woman-king" className="btn btn-primary">Rejoindre maintenant</Link>
-              <Link to="/programs#coaching" className="btn btn-accent">Réserver un coaching one-to-one</Link>
+              <Link to="/programs#woman-king" className="btn btn-primary">Rejoindre Woman King Trade</Link>
+              <Link to="/programs#mon-regard" className="btn btn-secondary" style={{ backgroundColor: '#2E6F40', color: '#fff', borderColor: '#2E6F40' }}>Découvrir mon regard sur le marché</Link>
             </div>
           </div>
         </div>

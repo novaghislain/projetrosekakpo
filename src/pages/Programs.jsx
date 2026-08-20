@@ -34,8 +34,44 @@ const Programs = () => {
         </div>
       </section>
 
-      {/* Section Mon Regard sur les Marchés */}
-      <section id="mon-regard" className="section" style={{ background: 'linear-gradient(180deg, rgba(46, 111, 64, 0.04) 0%, rgba(236, 72, 153, 0.03) 100%)' }}>
+      {/* 1. Formation Woman King Trade */}
+      <section id="woman-king" className="section" style={{ scrollMarginTop: '90px' }}>
+        <div className="container program-detail-container animate-fade-up delay-100">
+          <div className="program-detail-content glass-panel p-8">
+            <div className="badge"><Target size={14} /> Niveau : Débutant</div>
+            <h2 className="text-gradient-pink">Woman King Trade</h2>
+            <div className="price-tag mb-4">
+              {prices['woman-king'] ? (
+                <>Tarif : {prices['woman-king'].toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round(prices['woman-king'] / 625)} USD)</span></>
+              ) : (
+                <span className="text-sm text-gray-400">Chargement du tarif...</span>
+              )}
+            </div>
+            <p className="program-desc">
+              Un programme spécialement conçu pour les femmes qui souhaitent découvrir le trading, 
+              développer une nouvelle compétence pour générer une seconde source de revenus et atteindre 
+              leur indépendance financière, le tout dans un environnement motivant et accessible.
+            </p>
+            <ul className="detail-features">
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Initiation au trading</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Base essentiel</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Méthode d’analyse et stratégie</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Communauté féminine</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Suivi et motivation</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Plan d’action pour générer minimum 1000usd par mois grâce au trading</span></li>
+            </ul>
+            <Link to="/checkout?program=woman-king" className="btn btn-primary">
+              Rejoindre Woman King Trade
+            </Link>
+          </div>
+          <div className="program-detail-photo">
+            <img src="/day-trader-upset-after-losing-money-cryptocurrency-investment-due-rug-pull.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Section Mon Regard sur les Marchés */}
+      <section id="mon-regard" className="section" style={{ background: 'linear-gradient(180deg, rgba(46, 111, 64, 0.04) 0%, rgba(236, 72, 153, 0.03) 100%)', scrollMarginTop: '90px' }}>
         <div className="container animate-fade-up">
           <div className="glass-panel p-8 mon-regard-box" style={{ maxWidth: '920px', margin: '0 auto', borderColor: 'rgba(46, 111, 64, 0.25)' }}>
             
@@ -134,7 +170,7 @@ const Programs = () => {
                 </Link>
               </div>
 
-              {/* Offre Spéciale 3 Mois */}
+              {/* Offre Spéciale 3 Mois avec Image Bouton Animé */}
               <div className="coaching-option-card highlighted" style={{ borderColor: 'var(--color-brand-pink)', background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.06) 0%, rgba(46, 111, 64, 0.06) 100%)', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '10px', right: '-30px', background: 'var(--gradient-pink)', color: '#fff', fontSize: '0.75rem', fontWeight: '800', padding: '4px 35px', transform: 'rotate(45deg)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
                   TOP OFFRE
@@ -158,61 +194,20 @@ const Programs = () => {
                     Bénéficiez de 3 mois complets pour le prix d’environ 1 mois + 2 semaines.
                   </p>
                 </div>
-                <Link to="/checkout?program=mon-regard-3m" className="btn btn-primary small-btn mt-4" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
-                  👉 PROFITER DE L'OFFRE 3 MOIS
+
+                {/* Bouton Animé Utilisant l'Image Spéciale 3 Mois */}
+                <Link to="/checkout?program=mon-regard-3m" className="animated-offer-btn mt-4">
+                  <img src="/offre-speciale-3mois.png" alt="Profitez maintenant - Offre Spéciale 3 Mois 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block' }} />
                 </Link>
               </div>
             </div>
 
-            {/* Bannière offre spéciale 3 mois cliquable */}
-            <div style={{ marginTop: '2rem' }}>
-              <Link to="/checkout?program=mon-regard-3m" style={{ display: 'block', borderRadius: '18px', overflow: 'hidden', border: '2px solid rgba(46, 111, 64, 0.2)', boxShadow: '0 10px 30px rgba(46, 111, 64, 0.12)', transition: 'transform 0.3s ease' }}>
-                <img src="/offre-speciale-3mois.png" alt="Offre Spéciale 3 Mois - 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block' }} />
-              </Link>
-            </div>
-
           </div>
         </div>
       </section>
 
-      {/* Program 1 */}
-      <section id="woman-king" className="section">
-        <div className="container program-detail-container animate-fade-up delay-100">
-          <div className="program-detail-content glass-panel p-8">
-            <div className="badge"><Target size={14} /> Niveau : Débutant</div>
-            <h2 className="text-gradient-pink">Woman King Trade</h2>
-            <div className="price-tag mb-4">
-              {prices['woman-king'] ? (
-                <>Tarif : {prices['woman-king'].toLocaleString()} FCFA <span className="text-sm text-gray-500">(≈ {Math.round(prices['woman-king'] / 625)} USD)</span></>
-              ) : (
-                <span className="text-sm text-gray-400">Chargement du tarif...</span>
-              )}
-            </div>
-            <p className="program-desc">
-              Un programme spécialement conçu pour les femmes qui souhaitent découvrir le trading, 
-              développer une nouvelle compétence pour générer une seconde source de revenus et atteindre 
-              leur indépendance financière, le tout dans un environnement motivant et accessible.
-            </p>
-            <ul className="detail-features">
-              <li><CheckCircle size={20} className="text-pink" /> Initiation au trading</li>
-              <li><CheckCircle size={20} className="text-pink" /> Base essentiel</li>
-              <li><CheckCircle size={20} className="text-pink" /> Méthode d’analyse et stratégie</li>
-              <li><CheckCircle size={20} className="text-pink" /> Communauté féminine</li>
-              <li><CheckCircle size={20} className="text-pink" /> Suivi et motivation</li>
-              <li><CheckCircle size={20} className="text-pink" /> Plan d’action pour générer minimum 1000usd par mois grâce au trading</li>
-            </ul>
-            <Link to="/checkout?program=woman-king" className="btn btn-primary">
-              Rejoindre Woman King Trade
-            </Link>
-          </div>
-          <div className="program-detail-photo">
-            <img src="/day-trader-upset-after-losing-money-cryptocurrency-investment-due-rug-pull.jpg" alt="Woman King Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        </div>
-      </section>
-
-      {/* Program 2 */}
-      <section id="strategie-3s" className="section">
+      {/* 3. Formation Stratégie 3S */}
+      <section id="strategie-3s" className="section" style={{ scrollMarginTop: '90px' }}>
         <div className="container program-detail-container reverse animate-fade-up delay-200">
           <div className="program-detail-content glass-panel p-8 border-pink">
             <div className="badge"><Target size={14} /> Niveau : Intermédiaire</div>
@@ -229,10 +224,10 @@ const Programs = () => {
               à améliorer leur compréhension du marché, leur discipline et leur stratégie.
             </p>
             <ul className="detail-features">
-              <li><CheckCircle size={20} className="text-pink" /> Structurer son trading</li>
-              <li><CheckCircle size={20} className="text-pink" /> Améliorer son analyse</li>
-              <li><CheckCircle size={20} className="text-pink" /> Travailler la psychologie</li>
-              <li><CheckCircle size={20} className="text-pink" /> Développer une stratégie claire</li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Structurer son trading</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Améliorer son analyse</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Travailler la psychologie</span></li>
+              <li><CheckCircle2 size={20} className="text-pink" style={{ minWidth: '20px', marginTop: '2px' }} /> <span>Développer une stratégie claire</span></li>
             </ul>
             <Link to="/checkout?program=strategie-3s" className="btn btn-primary">
               Découvrir la Stratégie 3S
@@ -240,53 +235,6 @@ const Programs = () => {
           </div>
           <div className="program-detail-photo">
             <img src="/strategie-3s.jpeg" alt="Stratégie 3S" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        </div>
-      </section>
-
-      {/* Program 3 */}
-      <section id="coaching" className="section">
-        <div className="container program-detail-container animate-fade-up delay-300">
-          <div className="program-detail-content glass-panel p-8 border-pink">
-            <div className="badge"><Target size={14} /> Niveau : Tous niveaux</div>
-            <h2 className="text-gradient-pink">Coaching One-to-One</h2>
-            <p className="program-desc">
-              Réserve un coaching individuel personnalisé pour poser tes questions, débloquer 
-              une difficulté ou bénéficier d'un accompagnement adapté à ton niveau.
-            </p>
-            <ul className="detail-features">
-              <li><CheckCircle size={20} className="text-pink" /> Coaching individuel</li>
-              <li><CheckCircle size={20} className="text-pink" /> Appel Zoom ou WhatsApp</li>
-              <li><CheckCircle size={20} className="text-pink" /> Analyse personnalisée</li>
-              <li><CheckCircle size={20} className="text-pink" /> Audit trading</li>
-              <li><CheckCircle size={20} className="text-pink" /> Accompagnement adapté</li>
-            </ul>
-            <div className="coaching-options">
-              <div className="coaching-option-card">
-                <div className="option-header">
-                  <h4>1ère Séance</h4>
-                  <span className="price text-green">Offerte</span>
-                </div>
-                <p className="option-desc">Idéal pour faire le point, analyser votre profil et définir un plan.</p>
-                <Link to="/checkout?program=coaching-free" className="btn btn-outline small-btn mt-2" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  Réserver
-                </Link>
-              </div>
-
-              <div className="coaching-option-card highlighted">
-                <div className="option-header">
-                  <h4>Séance Suivi</h4>
-                  <span className="price text-pink">{prices['coaching'] ? `${prices['coaching'].toLocaleString()} FCFA` : 'Chargement...'}</span>
-                </div>
-                <p className="option-desc">Session approfondie d'une heure pour auditer vos graphiques et vos trades.</p>
-                <Link to="/checkout?program=coaching" className="btn btn-primary small-btn mt-2" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  Réserver un suivi
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="program-detail-photo">
-            <img src="/visio.jpg" alt="Coaching One-to-One" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </section>

@@ -6,14 +6,25 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     if (hash) {
-      // Small timeout to ensure the page has rendered before scrolling
-      setTimeout(() => {
-        const id = hash.replace('#', '')
+      const id = hash.replace('#', '')
+      const scrollToElement = () => {
         const element = document.getElementById(id)
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
+          const yOffset = -90 // compensation pour la hauteur de la navbar
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' })
         }
-      }, 100)
+      }
+
+      // Essayer immédiatement, puis après rendu complet
+      scrollToElement()
+      const timer1 = setTimeout(scrollToElement, 150)
+      const timer2 = setTimeout(scrollToElement, 400)
+
+      return () => {
+        clearTimeout(timer1)
+        clearTimeout(timer2)
+      }
     } else {
       window.scrollTo(0, 0)
     }
