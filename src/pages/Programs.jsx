@@ -188,11 +188,45 @@ const Programs = () => {
                 </Link>
               </div>
 
-              {/* Offre Spéciale 3 Mois avec Image Bouton Animé Uniquement */}
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <Link to="/checkout?program=mon-regard-3m" className="animated-offer-btn" style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
-                  <img src="/offre-speciale-3mois.png" alt="Profitez maintenant - Offre Spéciale 3 Mois 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '16px' }} />
-                </Link>
+              {/* Offre Spéciale 3 Mois intégrée avec Flyer en couverture complète */}
+              <div className="coaching-option-card highlighted" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0', overflow: 'hidden', borderColor: 'var(--color-brand-pink)', background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.03) 0%, rgba(46, 111, 64, 0.03) 100%)', borderRadius: '12px' }}>
+                <div>
+                  {/* Image Flyer en couverture sans bordure/padding interne */}
+                  <Link to="/checkout?program=mon-regard-3m" className="animated-offer-btn" style={{ borderRadius: '0', boxShadow: 'none', animation: 'none' }}>
+                    <img src="/offre-speciale-3mois.png" alt="Offre Spéciale 3 Mois 65 000 FCFA" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                  </Link>
+                  
+                  {/* Contenu textuel avec padding propre */}
+                  <div style={{ padding: '1.25rem 1.75rem 0 1.75rem' }}>
+                    <div className="option-header" style={{ borderBottom: '1px solid rgba(236, 72, 153, 0.2)', paddingBottom: '12px', marginBottom: '12px' }}>
+                      <h4 style={{ fontSize: '1.15rem', color: 'var(--color-brand-pink)', fontWeight: '800' }}>🔥 Offre Spéciale — 3 mois</h4>
+                      <span className="price text-pink" style={{ fontWeight: '800', fontSize: '1.25rem' }}>
+                        {(prices['mon-regard-3m'] || 65000).toLocaleString()} F CFA
+                      </span>
+                    </div>
+                    
+                    <ul style={{ margin: '15px 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                        <CheckCircle2 size={16} style={{ color: 'var(--color-brand-pink)', minWidth: '16px' }} />
+                        <span><strong>Économisez 40 000 F CFA</strong> immédiatement</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                        <CheckCircle2 size={16} style={{ color: 'var(--color-brand-pink)', minWidth: '16px' }} />
+                        <span>3 mois complets d'accès aux opportunités</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
+                        <CheckCircle2 size={16} style={{ color: 'var(--color-brand-pink)', minWidth: '16px' }} />
+                        <span>Analyses quotidiennes et canal privé inclus</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div style={{ padding: '0 1.75rem 1.75rem 1.75rem' }}>
+                  <Link to="/checkout?program=mon-regard-3m" className="btn btn-primary small-btn" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', borderRadius: '12px', background: 'var(--gradient-pink)', border: 'none' }}>
+                    🚀 Profiter de l'offre (3 mois)
+                  </Link>
+                </div>
               </div>
             </div>
 
