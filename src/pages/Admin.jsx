@@ -1947,8 +1947,29 @@ const Admin = () => {
                         <div>💰 Prix : {f.price} FCFA</div>
                       )}
                       <div>👥 Places : {f.capacity}</div>
-                      <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-brand-green)' }}>
-                        Lien : /formation/{f.slug}
+                      <div style={{ 
+                        marginTop: '0.6rem', 
+                        fontSize: '0.8rem', 
+                        color: 'var(--color-brand-green)', 
+                        background: 'rgba(46, 111, 64, 0.08)',
+                        padding: '6px 10px',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        overflow: 'hidden',
+                        maxWidth: '100%'
+                      }}>
+                        <span style={{ fontWeight: 700, flexShrink: 0 }}>Lien :</span>
+                        <span style={{ 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis',
+                          display: 'inline-block',
+                          maxWidth: 'calc(100% - 45px)'
+                        }} title={`/formation/${f.slug}`}>
+                          /formation/{f.slug}
+                        </span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
