@@ -75,18 +75,8 @@ const Programs = () => {
         <div className="container animate-fade-up">
           <div className="glass-panel p-8 mon-regard-box" style={{ maxWidth: '920px', margin: '0 auto', borderColor: 'rgba(46, 111, 64, 0.25)' }}>
             
-            {/* En-tête centré */}
-            <div className="mon-regard-header text-center">
-              <h2 className="text-gradient" style={{ fontSize: '2.2rem', marginBottom: '0.75rem', lineHeight: '1.25' }}>
-                MON REGARD SUR LES MARCHÉS AU QUOTIDIEN
-              </h2>
-              <p style={{ fontSize: '1.2rem', fontWeight: '600', color: '#2E6F40', marginBottom: '2rem' }}>
-                Les opportunités que je repère sur les marchés, directement sur votre compte.
-              </p>
-            </div>
-
-            {/* Photo 1 : Placée directement après le grand titre / sous-titre */}
-            <div className="mon-regard-image-wrapper">
+            {/* Photo 1 : Placée directement en haut de la section */}
+            <div className="mon-regard-image-wrapper" style={{ marginTop: '0.5rem' }}>
               <img src="/mon-regard-sur-le-marche.png" alt="Mon Regard sur le Marché - Rose Kakpo" />
             </div>
 
@@ -158,27 +148,9 @@ const Programs = () => {
                       {(prices['mon-regard-1m'] || 35000).toLocaleString()} F CFA
                     </span>
                   </div>
-                  <p className="option-desc" style={{ fontSize: '0.92rem', color: '#666', lineHeight: '1.4', marginBottom: '15px' }}>
+                  <p className="option-desc" style={{ fontSize: '0.95rem', color: '#666', lineHeight: '1.5', margin: '15px 0' }}>
                     Accès complet à Mon regard sur les marchés au quotidien.
                   </p>
-                  <ul style={{ margin: '15px 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
-                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
-                      <span>Opportunités reçues en temps réel</span>
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
-                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
-                      <span>Positions et évolutions partagées</span>
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
-                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
-                      <span>Marchés surveillés et analyses</span>
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#4b5563' }}>
-                      <CheckCircle2 size={16} style={{ color: '#2E6F40', minWidth: '16px' }} />
-                      <span>Accès continu pendant 30 jours</span>
-                    </li>
-                  </ul>
                 </div>
                 <Link to="/checkout?program=mon-regard-1m" className="btn btn-outline small-btn mt-4" style={{ width: '100%', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderColor: '#2E6F40', color: '#2E6F40', fontWeight: '700', borderRadius: '12px' }}>
                   Accéder (1 mois)
