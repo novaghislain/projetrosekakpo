@@ -76,7 +76,7 @@ const Programs = () => {
           <div className="glass-panel p-8 mon-regard-box" style={{ maxWidth: '920px', margin: '0 auto', borderColor: 'rgba(46, 111, 64, 0.25)' }}>
             
             {/* Photo 1 : Placée directement en haut de la section */}
-            <div className="mon-regard-image-wrapper" style={{ marginTop: '0.5rem' }}>
+            <div className="mon-regard-image-wrapper">
               <img src="/mon-regard-sur-le-marche.png" alt="Mon Regard sur le Marché - Rose Kakpo" />
             </div>
 
